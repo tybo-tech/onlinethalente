@@ -1,0 +1,41 @@
+<section class="py-16 bg-[color:var(--cloud)]">
+  <div class="max-w-7xl mx-auto px-4 py-12" *ngIf="category">
+    <!-- Category Info -->
+    <div class="flex flex-col md:flex-row items-center gap-8 mb-12">
+      <img
+        *ngIf="category.data.image"
+        [src]="category.data.image"
+        alt="{{ category.data.name }}"
+        class="w-40 h-40 object-contain rounded-xl bg-[var(--cloud)]"
+      />
+      <div>
+        <h1 class="text-3xl font-bold text-[var(--accent)]">
+          {{ category.data.name }}
+        </h1>
+        <p
+          class="mt-2 text-lg text-[var(--gray-light)]"
+          *ngIf="category.data.description"
+        >
+          {{ category.data.description }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Items Grid -->
+    <div *ngIf="items.length; else empty">
+      <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <app-card
+          *ngFor="let item of items"
+          [model]="toCardModel(item)"
+          (onPrimary)="onItemAction(item)"
+        ></app-card>
+      </div>
+    </div>
+    <ng-template #empty>
+      <div class="text-center text-[var(--gray-light)] mt-20">
+        <i class="fas fa-box-open text-3xl mb-4"></i>
+        <div>No items found in this category.</div>
+      </div>
+    </ng-template>
+  </div>
+</section>

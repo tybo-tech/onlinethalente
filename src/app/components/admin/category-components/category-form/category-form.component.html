@@ -1,0 +1,8 @@
+<app-dynamic-form
+*ngIf="!loading"
+  [formTitle]="isEdit ? 'Edit Category' : 'Add Category'"
+  [inputs]="formInputs"
+  [initialData]="initialData"
+  (submitted)="onSave($event)"
+  (cancelled)="onCancel()"
+/>

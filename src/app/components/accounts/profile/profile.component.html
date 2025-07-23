@@ -1,0 +1,43 @@
+<section class="w-full bg-[var(--primary)] text-[var(--text-main)] py-20">
+  <div class="max-w-4xl mx-auto px-4 bg-[var(--cloud)]/30 backdrop-blur-md rounded-2xl shadow-lg p-8">
+    <div class="flex flex-col md:flex-row items-start md:items-center gap-6 mb-10">
+      <div class="w-24 h-24 flex items-center justify-center rounded-full text-3xl font-bold text-white bg-[var(--accent)]">
+        {{ user?.name?.charAt(0) || '?' }}
+      </div>
+      <div>
+        <h2 class="text-3xl font-extrabold text-[var(--accent)]">{{ user?.name }}</h2>
+        <p class="text-[var(--gray-light)] text-sm mt-1">{{ user?.email }}</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <h4 class="text-sm font-semibold text-[var(--gray-light)] uppercase mb-1">Phone</h4>
+        <p class="text-lg text-[var(--text-main)]">{{ user?.phone || 'N/A' }}</p>
+      </div>
+      <div>
+        <h4 class="text-sm font-semibold text-[var(--gray-light)] uppercase mb-1">Role</h4>
+        <p class="text-lg capitalize">{{ user?.role || 'N/A' }}</p>
+      </div>
+      <div class="md:col-span-2">
+        <h4 class="text-sm font-semibold text-[var(--gray-light)] uppercase mb-1">Address</h4>
+        <p class="text-lg">{{ user?.address || 'N/A' }}</p>
+      </div>
+    </div>
+
+    <div class="mt-10 text-right">
+      <a routerLink="/edit-profile"
+        class="inline-flex items-center px-5 py-2.5 rounded-full bg-[var(--accent)] text-[var(--black)] font-medium hover:bg-opacity-90 transition"
+      >
+        <i class="fas fa-user-edit mr-2"></i> Edit Profile
+      </a>
+
+        <button
+            class="ml-4 inline-flex items-center px-5 py-2.5 rounded-full bg-[var(--red)] text-white font-medium hover:bg-opacity-90 transition"
+            (click)="logout()"
+        >
+          <i class="fas fa-sign-out-alt mr-2"></i> Logout
+        </button>
+    </div>
+  </div>
+</section>

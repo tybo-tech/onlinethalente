@@ -1,0 +1,15 @@
+<div *ngFor="let category of categoryTree" class="mb-10">
+  <div class="flex justify-between items-center mb-4 px-2">
+    <h2 class="text-2xl font-bold text-gray-800">{{ category.data.name }}</h2>
+    <a class="text-sm text-blue-600 hover:underline cursor-pointer">View All</a>
+  </div>
+
+
+
+  <div *ngIf="category.children && category.children.length > 0" class="mt-6">
+    <app-category-node
+      *ngFor="let sub of category.children"
+      [category]="sub"
+    ></app-category-node>
+  </div>
+</div>

@@ -1,0 +1,62 @@
+<div class="bg-[#0f0e17] text-white min-h-screen py-10 px-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6 max-w-6xl">
+    <h1 class="text-2xl font-bold">{{ instance.title }}</h1>
+    <a
+      [routerLink]="['/admin/variation', 'add']"
+      class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md font-medium shadow"
+    >
+      + {{ instance.addButton }}
+    </a>
+  </div>
+
+  <!-- Variation Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl">
+    <div
+      *ngFor="let item of list"
+      class="bg-[#1a1a24] rounded-lg shadow p-4 flex flex-col justify-between"
+    >
+      <!-- Header -->
+      <div class="flex justify-between items-center mb-2">
+        <h2 class="text-lg font-semibold">{{ item.data.name }}</h2>
+        <div class="flex gap-2">
+          <button
+            (click)="edit(item)"
+            class="text-blue-400 hover:text-blue-600 text-sm"
+          >
+            Edit
+          </button>
+          <button
+            (click)="delete(item.id)"
+            class="text-red-400 hover:text-red-600 text-sm"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+
+      <!-- Options -->
+      <div>
+        <p class="text-sm text-gray-400 mb-1">Options:</p>
+        <div class="flex flex-wrap gap-2">
+          <span
+            class="bg-gray-700 px-3 py-1 rounded-full text-xs"
+            *ngFor="let opt of item.children"
+          >
+            {{ opt.data.value }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Manage Button -->
+      <!-- <div class="mt-4 text-right">
+        <button
+          (click)="openOptionsModal(item)"
+          class="bg-gray-600 hover:bg-gray-500 text-xs px-3 py-1 rounded-full"
+        >
+          Manage Options
+        </button>
+      </div> -->
+    </div>
+  </div>
+</div>

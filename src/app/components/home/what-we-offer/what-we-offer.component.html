@@ -1,0 +1,21 @@
+<section class="py-12 bg-[color:var(--primary)]">
+  <div class="max-w-7xl mx-auto px-4">
+    <h2 class="text-3xl font-bold text-[color:var(--accent)] mb-8">
+      What We Offer
+    </h2>
+    <div class="grid gap-6 md:grid-cols-3">
+      <div
+        *ngFor="let service of services"
+        class="bg-[color:var(--cloud)] rounded-xl shadow p-6 flex flex-col items-center text-center hover:shadow-lg transition"
+      >
+        <i class="fas text-4xl text-[color:var(--accent)] mb-3" [ngClass]="service.icon"></i>
+        <h3 class="font-semibold text-lg mb-1 text-[color:var(--accent)]">
+          {{ service.title }}
+        </h3>
+        <p class="text-[color:var(--gray-light)] text-sm">
+          {{ service.desc }}
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

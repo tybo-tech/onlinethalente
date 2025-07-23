@@ -1,0 +1,24 @@
+
+
+
+<div class="pl-4 border-l-2 border-gray-300 mb-4">
+  <h3 class="font-semibold text-lg text-gray-800 mb-1">
+    {{ category.data.name }}
+  </h3>
+
+  <ul class="mb-2">
+    <li
+      *ngFor="let product of category.products"
+      class="text-sm text-gray-700 ml-2 mb-1"
+    >
+      • {{ product.data.name }} - R{{ product.data.price }}
+    </li>
+  </ul>
+
+  <div *ngIf="category.children.length > 0">
+    <app-category-node
+      *ngFor="let child of category.children"
+      [category]="child"
+    ></app-category-node>
+  </div>
+</div>

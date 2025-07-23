@@ -1,0 +1,28 @@
+<section class="py-16 bg-[color:var(--cloud)]">
+  <div class="max-w-7xl mx-auto px-4">
+    <h2 class="text-3xl font-bold text-center text-[color:var(--accent)] mb-10">
+      Featured Categories
+    </h2>
+    <div *ngIf="loading" class="text-center py-12 text-[color:var(--primary)]">
+      <i class="fas fa-spinner fa-spin text-3xl"></i> Loading...
+    </div>
+    <div *ngIf="!loading && categories.length === 0" class="text-center text-[color:var(--gray-light)]">
+      No categories found.
+    </div>
+    <div *ngIf="!loading && categories.length > 0" class="grid gap-8 grid-cols-1 md:grid-cols-3">
+      <ng-container *ngFor="let cat of categories">
+        <a
+        [routerLink]="['/category', cat.id]"
+          (click)="goToCategory(cat)"
+          class="group bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center cursor-pointer hover:shadow-2xl transition"
+        >
+          <img [src]="cat.data.image" [alt]="cat.data.name" class="h-auto w-200 object-contain mb-4 rounded-lg group-hover:scale-105 transition" />
+          <h3 class="text-xl font-semibold text-[color:var(--primary)] mb-2">{{ cat.data.name }}</h3>
+          <span class="mt-auto text-[color:var(--accent)] font-medium group-hover:underline">
+            Explore <i class="fas fa-arrow-right"></i>
+          </span>
+        </a>
+      </ng-container>
+    </div>
+  </div>
+</section>

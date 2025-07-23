@@ -1,0 +1,54 @@
+<div
+  class="border p-4 bg-[var(--input-bg)] rounded shadow-sm text-[var(--text-main)] border-[var(--input-border)]"
+>
+  <h3 class="text-sm font-semibold mb-2 text-[var(--text-main)]">Variations</h3>
+
+  <div
+    *ngIf="getLinkedVariations().length === 0"
+    class="text-sm text-[var(--gray)]"
+  >
+    No variations linked.
+    <button
+      type="button"
+      class="text-[var(--accent)] underline"
+      (click)="showAddModal = true"
+    >
+      Add Variation
+    </button>
+  </div>
+
+  <div class="flex flex-wrap gap-2 flex-col">
+    <app-item-variation-manager
+      *ngFor="let variation of getLinkedVariations()"
+      [variation]="variation"
+      [itemId]="itemId"
+      [linkedVariations]="getLinkedVariations()"
+    />
+  </div>
+
+  <div *ngIf="showAddModal" class="mt-4 border-t border-[var(--gray)] pt-4">
+    <h4 class="text-sm font-semibold mb-2 text-[var(--text-main)]">
+      Add Variation
+    </h4>
+    <div class="flex flex-wrap gap-2">
+      <button
+        type="button"
+        *ngFor="let variation of getUnlinkedVariations()"
+        class="px-3 py-1 border border-[var(--gray)] rounded bg-[var(--primary)] hover:bg-[var(--cloud)] text-sm text-[var(--text-main)]"
+        (click)="linkVariation(variation)"
+      >
+        + {{ variation.data.name }}
+      </button>
+    </div>
+
+    <div class="mt-2">
+      <button
+        type="button"
+        class="text-sm text-red-400 underline"
+        (click)="showAddModal = false"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>

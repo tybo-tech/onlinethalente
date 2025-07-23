@@ -1,0 +1,35 @@
+<div class="flex h-screen overflow-hidden">
+  <!-- Sidebar -->
+  <aside class="sidebar hidden md:block">
+    <div class="logo">🚀 Admin</div>
+    <nav>
+      <a
+        *ngFor="let item of routes"
+        [routerLink]="item.link"
+        routerLinkActive="router-link-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        {{ item.label }}
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <main>
+    <!-- Topbar -->
+    <div
+      class="topbar sticky top-0 z-10 flex items-center justify-between bg-gray-800 text-white p-4"
+    >
+      <div class="text-lg font-medium">Welcome, Admin</div>
+      <!-- Optional user avatar -->
+      <div
+        class="rounded-full w-8 h-8 bg-purple-400 flex items-center justify-center font-bold text-black"
+      >
+        A
+      </div>
+    </div>
+    <section>
+      <router-outlet></router-outlet>
+    </section>
+  </main>
+</div>

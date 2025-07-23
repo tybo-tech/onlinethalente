@@ -1,0 +1,23 @@
+<section class="w-full max-w-7xl mx-auto py-12 px-4">
+  <h2 class="text-3xl font-bold mb-10 text-center text-[var(--accent)] drop-shadow">
+    Business Overview
+  </h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-7">
+    <div
+      *ngFor="let stat of stats"
+      class="rounded-2xl shadow-lg p-7 flex flex-col items-center gap-3 animate-fadeInUp border-4 border-white"
+      [ngClass]="stat.color"
+    >
+      <div class="text-4xl mb-2 drop-shadow-sm">
+        <i [class]="stat.icon"></i>
+      </div>
+      <div class="text-2xl font-extrabold">{{ stat.value }}</div>
+      <div class="uppercase text-sm tracking-widest font-bold opacity-80">
+        {{ stat.label }}
+      </div>
+      <div class="text-xs text-center opacity-70 mt-2" *ngIf="stat.description">
+        {{ stat.description }}
+      </div>
+    </div>
+  </div>
+</section>

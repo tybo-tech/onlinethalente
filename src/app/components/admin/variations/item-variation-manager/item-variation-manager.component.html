@@ -1,0 +1,20 @@
+<div class="space-y-4" *ngIf="variation">
+  <div
+    class="border border-[var(--gray)] rounded-lg p-4 bg-[var(--input-bg)] text-[var(--text-main)]"
+  >
+    <div class="flex items-center justify-between mb-2">
+      <h4 class="font-semibold text-sm">{{ variation.data.name }}</h4>
+      <button type="button"
+        class="text-sm text-red-400 hover:text-red-300"
+        (click)="removeVariation(variation.id)"
+      >
+        Remove ✕
+      </button>
+    </div>
+
+    <!-- Options Manager -->
+    <app-item-variation-option
+      [variationId]="variation.id"
+    ></app-item-variation-option>
+  </div>
+</div>

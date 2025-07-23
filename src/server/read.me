@@ -1,0 +1,22 @@
+# 🚀 Start all containers
+podman start ithebula-container ithebula-mysql-container ithebula-phpmyadmin-container
+
+# 🛑 Stop all containers
+podman stop ithebula-mysql-container ithebula-phpmyadmin-container ithebula-container
+
+# 📋 Check running containers
+podman ps
+
+# 📋 Check all containers (running + exited)
+podman ps -a
+
+# 🧹 Optional: Remove containers
+podman rm ithebula-container ithebula-mysql-container ithebula-phpmyadmin-container
+
+# 🧼 Optional: Prune all stopped containers
+podman container prune
+
+# 📦 If using podman-compose (with podman-compose.yml)
+podman-compose up        # Start all
+podman-compose down      # Stop and remove all
+

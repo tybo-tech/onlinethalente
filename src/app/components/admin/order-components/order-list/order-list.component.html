@@ -1,0 +1,29 @@
+<div class="bg-[#0f0e17] text-white min-h-screen py-10 px-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6 max-w-6xl">
+    <h1 class="text-2xl font-bold">Manage {{instance.title}}</h1>
+    <a
+      [routerLink]="['/admin/category', 'add']"
+      class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md font-medium shadow"
+    >
+      + {{instance.addButton}}
+    </a>
+  </div>
+
+  <!-- List Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl">
+    <app-card
+      *ngFor="let cat of list"
+      [deleteConfirm]="deleteConfirm"
+      [model]="{
+        title: cat.data.customer.firstName,
+        actionLabel: 'Edit',
+        dangerLabel: 'Delete',
+        showDanger: true,
+        icon: 'bi bi-pencil'
+      }"
+      (onPrimary)="edit(cat)"
+      (onDanger)="delete(cat.id)"
+    />
+  </div>
+</div>

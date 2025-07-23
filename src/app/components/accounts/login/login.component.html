@@ -1,0 +1,17 @@
+<section
+  class="w-full min-h-[80vh] bg-[var(--primary)] py-20 flex justify-center items-center"
+>
+  <div class="max-w-2xl w-full mx-auto px-4">
+    <app-dynamic-form
+      formTitle="Login to Your Account"
+      [inputs]="formInputs"
+      submitLabel="Login"
+      [redirect]="{
+        label: 'Don\'t not have an account? Sign up',
+        url: '/register'
+      }"
+      submitClass="w-full bg-[#1c1b29] text-white rounded px-4 py-2 hover:bg-[#2a2940] transition-colors duration-200"
+      (submitted)="onLogin($event)"
+    />
+  </div>
+</section>

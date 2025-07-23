@@ -1,0 +1,9 @@
+<app-dynamic-form
+*ngIf="!loading"
+  [formTitle]="isEdit ? 'Edit Product' : 'Add Product'"
+  [inputs]="formInputs"
+  [initialData]="initialData"
+  [itemCollectionId]="itemCollectionId"
+  (submitted)="onSave($event)"
+  (cancelled)="onCancel()"
+/>

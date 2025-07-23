@@ -1,0 +1,116 @@
+<section
+  class="w-full min-h-[60vh] bg-[var(--primary)] py-20 flex justify-center items-center"
+>
+  <div class="max-w-4xl w-full mx-auto px-4">
+    <div
+      class="flex flex-col md:flex-row gap-12 bg-[var(--primary)] rounded-2xl shadow-xl p-8 md:p-14 border border-[var(--cloud)]/30"
+    >
+      <!-- Contact Details -->
+      <div class="flex-1 mb-8 md:mb-0">
+        <h2 class="text-3xl font-extrabold mb-6 text-[var(--accent)]">
+          Contact Us
+        </h2>
+        <ul class="space-y-5 text-[var(--gray)] text-lg">
+          <li>
+            <i class="fas fa-phone text-[var(--accent)] mr-3"></i>
+            <span class="font-medium">+27 73 768 8928</span>
+          </li>
+          <li>
+            <i class="fas fa-envelope text-[var(--accent)] mr-3"></i>
+            <span class="font-medium">{{ "info@viviid.co.za" }}</span>
+          </li>
+          <li>
+            <i class="fas fa-map-marker-alt text-[var(--accent)] mr-3"></i>
+            <span class="font-medium">123 Main Rd, Joburg, SA</span>
+          </li>
+        </ul>
+        <div class="flex gap-5 mt-8">
+          <a
+            href="https://wa.me/27737688928"
+            target="_blank"
+            rel="noopener"
+            class="bg-[var(--accent)]/80 hover:bg-[var(--accent)] text-[var(--primary)] p-2 rounded-full transition"
+          >
+            <i class="fab fa-whatsapp text-xl"></i>
+          </a>
+          <a
+            href="https://instagram.com/"
+            target="_blank"
+            rel="noopener"
+            class="bg-[var(--accent)]/80 hover:bg-[var(--accent)] text-[var(--primary)] p-2 rounded-full transition"
+          >
+            <i class="fab fa-instagram text-xl"></i>
+          </a>
+          <a
+            href="mailto:info@viviid.co.za"
+            class="bg-[var(--accent)]/80 hover:bg-[var(--accent)] text-[var(--primary)] p-2 rounded-full transition"
+          >
+            <i class="fas fa-envelope text-xl"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Contact Form -->
+      <form
+        class="flex-1 space-y-6"
+        (ngSubmit)="onSubmit()"
+        #contactForm="ngForm"
+        autocomplete="off"
+      >
+        <div>
+          <label class="block text-[var(--gray)] mb-2 font-semibold"
+            >Name</label
+          >
+          <input
+            class="w-full px-4 py-3 rounded-lg bg-[var(--cloud)]/10 border border-[var(--cloud)]/30 text-[var(--white)] outline-none focus:border-[var(--accent)] transition"
+            type="text"
+            required
+            name="name"
+            [(ngModel)]="contact.name"
+            placeholder="Your Name"
+          />
+        </div>
+        <div>
+          <label class="block text-[var(--gray)] mb-2 font-semibold"
+            >Email</label
+          >
+          <input
+            class="w-full px-4 py-3 rounded-lg bg-[var(--cloud)]/10 border border-[var(--cloud)]/30 text-[var(--white)] outline-none focus:border-[var(--accent)] transition"
+            type="email"
+            required
+            name="email"
+            [(ngModel)]="contact.email"
+            placeholder="you@email.com"
+          />
+        </div>
+        <div>
+          <label class="block text-[var(--gray)] mb-2 font-semibold"
+            >Message</label
+          >
+          <textarea
+            class="w-full px-4 py-3 rounded-lg bg-[var(--cloud)]/10 border border-[var(--cloud)]/30 text-[var(--white)] outline-none focus:border-[var(--accent)] transition"
+            name="message"
+            required
+            [(ngModel)]="contact.message"
+            rows="4"
+            placeholder="How can we help you?"
+          ></textarea>
+        </div>
+        <button
+          class="w-full bg-[var(--accent)] hover:bg-[var(--workwear-orange)] text-[var(--primary)] font-bold py-3 rounded-xl shadow transition uppercase tracking-wide mt-2"
+          type="submit"
+        >
+          Send Message
+        </button>
+      </form>
+    </div>
+    <!-- Snackbar/Toast Message -->
+    <div
+      *ngIf="showSuccess"
+      class="fixed left-1/2 bottom-10 transform -translate-x-1/2 bg-[var(--accent)] text-[var(--primary)] font-bold py-3 px-8 rounded-xl shadow-lg z-50 animate-bounce-in"
+    >
+      <i class="fas fa-check-circle mr-2"></i> Bam! Your message was sent.
+    </div>
+  </div>
+</section>
+<app-faq-section/>

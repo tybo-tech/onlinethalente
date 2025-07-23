@@ -1,0 +1,30 @@
+<section class="w-full py-16 bg-[var(--primary)]">
+  <div class="max-w-3xl mx-auto px-4">
+    <h2 class="text-3xl font-extrabold text-[var(--accent)] mb-10 text-center">
+      Frequently Asked Questions
+    </h2>
+    <div class="space-y-6">
+      <div
+        *ngFor="let faq of faqs; let i = index"
+        class="bg-[var(--cloud)]/5 border border-[var(--cloud)]/10 rounded-xl"
+      >
+        <button
+          (click)="toggle(i)"
+          class="w-full flex items-center justify-between px-6 py-5 text-left focus:outline-none transition"
+        >
+          <span class="text-lg font-semibold text-[var(--white)]">{{ faq.question }}</span>
+          <i
+            class="fas"
+            [ngClass]="faq.open ? 'fa-chevron-up text-[var(--accent)]' : 'fa-chevron-down text-[var(--gray-light)]'"
+          ></i>
+        </button>
+        <div
+          class="px-6 pb-5 text-[var(--gray-light)] text-base leading-relaxed"
+          *ngIf="faq.open"
+        >
+          {{ faq.answer }}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

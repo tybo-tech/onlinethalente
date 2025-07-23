@@ -1,0 +1,69 @@
+{
+    "poppins": {
+        "100_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/poppins_100_italic_fd3879eb3805cf18affce1af234451a5",
+        "200_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/poppins_200_italic_157a901b5e1f48c705e9e1d44ffb8969",
+        "300_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/poppins_300_italic_3a0bbb61e7beb8a59197c3a1950aed2e",
+        "italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/poppins_italic_ae4b57e5d05718f255b8db9edf8ef938",
+        "500_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/poppins_500_italic_56e96fa83379355962a1c42156b635de",
+        "600_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/poppins_600_italic_804d7037cf7d484019577ca58d1828b2",
+        "bold_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/poppins_bold_italic_37defacc6033800260111fe1d00a0f47",
+        "800_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/poppins_800_italic_09d47fc1ed469c1f6573cd7a49bceed6",
+        "900_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/poppins_900_italic_e9c764def7340e143eabc73a2914cb7d",
+        "100": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/poppins_100_fe515c3509ac19a01331c85f34f23cac",
+        "200": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/poppins_200_e8c3951c97c4286db63d056338166bbb",
+        "300": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/poppins_300_87f0a8a73c876e947643eb7d19bec0b7",
+        "normal": "\/var\/www\/html\/docs\/dompdf\/vendor\/dompdf\/dompdf\/lib\/fonts\/poppins_normal_c6711d47669d7317aa5bfeda9f1dded3",
+        "500": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/poppins_500_a885de0ea35a644243715bf64b6d1a65",
+        "600": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/poppins_600_ca6698540fb485d7b756c91a54a37d8e",
+        "bold": "poppins_bold_e65267788fadc7206923de221454a2be",
+        "800": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/poppins_800_a3f35df90afcc12957674bb493255c2e",
+        "900": "\/var\/www\/html\/docs\/dompdf\/vendor\/dompdf\/dompdf\/lib\/fonts\/poppins_900_71b6424e9ad5c868ceced6e2a4698840"
+    },
+    "montserrat": {
+        "100_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/montserrat_100_italic_e04e1e1b987ce549d1ff75570569042f",
+        "200_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/montserrat_200_italic_6debd9c3c76b51edb3b6ef4568776813",
+        "300_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/montserrat_300_italic_658872a1f6d6ac67e7402b9c48b61dba",
+        "italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/montserrat_italic_f777fa20b15e3156a141a7486883dc8d",
+        "500_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/montserrat_500_italic_0c00725f543c93f4ae40037d0cbf8922",
+        "600_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/montserrat_600_italic_3c60e1383488865a84fec839dc705cc6",
+        "bold_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/montserrat_bold_italic_c315c6255ac6134d1bf4f846cb02db8f",
+        "800_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/montserrat_800_italic_f97a1251c6756f2dc640e340755976a1",
+        "900_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/montserrat_900_italic_1346116015e71009d0533d771c1dedca",
+        "100": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/montserrat_100_208362ae179da7c775cb2843ff3dc51f",
+        "200": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/montserrat_200_1ab293c9909d6903dd69bc2d73ccdd94",
+        "300": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/montserrat_300_de8351b164281dd70daee9bd9acac0f7",
+        "normal": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/montserrat_normal_8b39ce6f1e92b671adb8930c94175e08",
+        "500": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/montserrat_500_b8456ccdc8e65e0603c780e706bb4c7b",
+        "600": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/montserrat_600_4a32dc2378b50649c05087a84ee6c5f6",
+        "bold": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/montserrat_bold_d6f7b66b1ae15f51f1e1cecb60246712",
+        "800": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/montserrat_800_ae3145ca5af8b5a0cea53598b80aa1c8",
+        "900": "montserrat_900_14e23053f1f07e6ad09986527b55d715"
+    },
+    "parisienne": {
+        "normal": "parisienne_normal_99896e3b66df212b6c9df3c433aab683"
+    },
+    "sour gummy": {
+        "100_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/sour_gummy_100_italic_5184f338efaebf8666c9b2dc947353f0",
+        "200_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/sour_gummy_200_italic_3485f0bf2943fac07f4bc2463e154c90",
+        "300_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/sour_gummy_300_italic_9837e1e61cda8ece37d6069364eac988",
+        "italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/sour_gummy_italic_c104600d5547f0270d5dba9e31bdb359",
+        "500_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/sour_gummy_500_italic_7bd0cda491d1f673c84dbd3cd0f041c3",
+        "600_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/sour_gummy_600_italic_e05ae8bd3508bca0067df61c7b4b2e8d",
+        "bold_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/sour_gummy_bold_italic_56f061249e411c9a31d6e3cc9ffc0d9b",
+        "800_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/sour_gummy_800_italic_05084650d53d6f71af1b3f6d12b52073",
+        "900_italic": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/sour_gummy_900_italic_a4349ff113e8d33d675609124dd8a18c",
+        "100": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/sour_gummy_100_433ced9eb532c9af51e93f86c3bde3e8",
+        "200": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/sour_gummy_200_d8e1acad695600e771cb877c238d987a",
+        "300": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/sour_gummy_300_e00bf3a0c7572f76606a86bd91bc2686",
+        "normal": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/sour_gummy_normal_10c4b1cdfefdaba075fb1c9977c88695",
+        "500": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/sour_gummy_500_7f133cb1beba5e631ea275394574473d",
+        "600": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/sour_gummy_600_128dcd3f016ad29e5c16b4db2179dc73",
+        "bold": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/sour_gummy_bold_fb16e29c34601ab4fd2e7c76ce01d95b",
+        "800": "C:\\ndu\\apps\\server\\docs\\dompdf\\vendor\\dompdf\\dompdf\/lib\/fonts\/sour_gummy_800_58d71a1891f016ba203492d8fb5061d5",
+        "900": "sour_gummy_900_329130735a6ec68c4f24211aa8f89b70"
+    },
+    "inter": {
+        "normal": "\/var\/www\/html\/docs\/dompdf\/vendor\/dompdf\/dompdf\/lib\/fonts\/inter_normal_7328646baedbaa78df9d97328f97b2c0",
+        "bold": "inter_bold_c60e16028ab46ac4c30f16a14b5aab03"
+    }
+}

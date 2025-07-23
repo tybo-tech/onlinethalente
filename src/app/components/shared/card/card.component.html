@@ -1,0 +1,42 @@
+<div
+  *ngIf="model"
+  class="bg-[#1c1b29] text-white overflow-hidden shadow-sm transition hover:shadow-md"
+  [ngClass]="{
+    'rounded-lg': model.rounded !== false,
+    'border border-[#2f2e41]': model.border !== false
+  }"
+>
+  <!-- h-40 object-cover -->
+  <img
+    *ngIf="model.image"
+    [src]="model.image"
+    alt="{{ model.title }}"
+    class="w-full"
+  />
+
+  <div class="p-4">
+    <h2 class="text-lg font-semibold mb-1">{{ model.title }}</h2>
+    <p class="text-sm text-gray-400 mb-3" *ngIf="model.description">
+      {{ model.description }}
+    </p>
+
+    <div class="flex justify-start items-center mt-4 gap-5">
+      <button
+        *ngIf="model.actionLabel"
+        (click)="onPrimary.emit()"
+        class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition"
+      >
+        <i *ngIf="model.icon" class="{{ model.icon }} mr-2"></i>
+        {{ model.actionLabel }}
+      </button>
+
+      <button
+        *ngIf="model.showDanger && model.dangerLabel"
+        (click)="onDelete()"
+        class="text-sm text-red-400 hover:text-red-300"
+      >
+        {{ model.dangerLabel }}
+      </button>
+    </div>
+  </div>
+</div>

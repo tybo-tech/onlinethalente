@@ -1,0 +1,49 @@
+@forward "tailwindcss";
+
+:root {
+  /* Branding Colors */
+  --primary: #1A237E;            /* Deep navy (trust) */
+  --accent: #e67e22;             /* Warm amber (CTAs) */
+  --success: #00BFA5;            /* Soft green (confirmation) */
+  --danger: #D32F2F;             /* Optional: for errors */
+
+  /* Grayscale Base */
+  --white: #ffffff;
+  --gray-light: #F5F5F5;         /* Backgrounds */
+  --gray: #E0E0E0;               /* Input borders, outlines */
+  --text-main: #212121;          /* Main body text */
+  --text-muted: #616161;         /* Secondary text */
+
+  /* UI Specifics */
+  --cloud: #F8F9FA;              /* Card backgrounds */
+  --input-bg: #ffffff;           /* Input background */
+  --input-border: #D6D6D6;       /* Input border color */
+}
+
+a,
+button {
+  cursor: pointer;
+}
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes blob {
+    0% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(20px, -20px) scale(1.05); }
+    66% { transform: translate(-20px, 10px) scale(0.95); }
+    100% { transform: translate(0px, 0px) scale(1); }
+  }
+  .animate-float { animation: float 6s ease-in-out infinite; }
+  .animate-float-slow { animation: float 8s ease-in-out infinite; }
+  .animate-blob { animation: blob 10s ease-in-out infinite; }
+  .animation-delay-2000 { animation-delay: 2s; }
+  .animation-delay-4000 { animation-delay: 4s; }
+  .animate-fade-in-up {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.8s forwards;
+  }
+  @keyframes fadeInUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
