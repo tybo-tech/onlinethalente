@@ -1,4 +1,7 @@
+import { CollectionNames } from './ICollection';
+
 export interface User {
+  website_id: CollectionNames;
   id: number;
   name: string;
   email: string;
@@ -15,6 +18,7 @@ export interface User {
 export type UserRole = 'Client' | 'Admin' | 'Manager' | 'Staff' | 'Developer';
 export function initUser(): User {
   return {
+    website_id: CollectionNames.WebsiteId,
     id: 0,
     name: '',
     email: '',

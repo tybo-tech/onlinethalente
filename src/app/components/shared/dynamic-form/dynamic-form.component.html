@@ -1,25 +1,21 @@
-<div class="bg-[#0f0e17] text-white h-fit py-10 px-6">
-  <h1 class="text-2xl font-bold mb-6">{{ formTitle }}</h1>
+<div class="bg-[var(--cloud)] text-[var(--text-main)] py-10 px-6 rounded shadow-md w-full max-w-2xl mx-auto">
+  <h1 class="text-2xl font-bold mb-6 text-[var(--primary)]">
+    {{ formTitle }}
+  </h1>
 
   <form
     [formGroup]="form"
     (ngSubmit)="submit()"
-    class="space-y-6 max-w-2xl w-full"
+    class="space-y-6 w-full"
   >
     <ng-container *ngFor="let input of inputs">
       <!-- Text Input -->
       <div
-        *ngIf="
-          input.type === 'text' ||
-          input.type === 'email' ||
-          input.type === 'password' ||
-          input.type === 'number' ||
-          input.type === 'tel' ||
-          input.type === 'url' ||
-          input.type === 'search'
-        "
+        *ngIf="[
+          'text', 'email', 'password', 'number', 'tel', 'url', 'search'
+        ].includes(input.type)"
       >
-        <label class="block text-sm font-medium text-gray-300 mb-1">
+        <label class="block text-sm font-medium mb-1 text-[var(--text-main)]">
           {{ input.label }} <span *ngIf="input.required">*</span>
         </label>
         <input
@@ -27,18 +23,18 @@
           [formControlName]="input.key"
           [type]="input.type"
           [readonly]="input.readonly || false"
-          class="w-full bg-[#1c1b29] border border-[#2e2c44] text-white rounded px-3 py-2 placeholder-gray-500 focus:outline-none focus:ring focus:ring-purple-500"
+          class="w-full bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-main)] rounded px-3 py-2 placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
         />
       </div>
 
       <!-- Select -->
       <div *ngIf="input.type === 'select'">
-        <label class="block text-sm font-medium text-gray-300 mb-1">
+        <label class="block text-sm font-medium mb-1 text-[var(--text-main)]">
           {{ input.label }} <span *ngIf="input.required">*</span>
         </label>
         <select
           [formControlName]="input.key"
-          class="w-full bg-[#2a2940] border border-[#3f3d56] text-white rounded px-3 py-2 focus:outline-none"
+          class="w-full bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-main)] rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
         >
           <option *ngFor="let opt of input.options" [value]="opt.value">
             {{ opt.label }}
@@ -48,20 +44,20 @@
 
       <!-- Textarea -->
       <div *ngIf="input.type === 'textarea'">
-        <label class="block text-sm font-medium text-gray-300 mb-1">
+        <label class="block text-sm font-medium mb-1 text-[var(--text-main)]">
           {{ input.label }} <span *ngIf="input.required">*</span>
         </label>
         <textarea
           [placeholder]="input.placeholder || ''"
           [formControlName]="input.key"
           rows="4"
-          class="w-full bg-[#2a2940] border border-[#3f3d56] text-white rounded px-3 py-2 placeholder-gray-500 focus:outline-none focus:ring focus:ring-purple-500"
+          class="w-full bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-main)] rounded px-3 py-2 placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
         ></textarea>
       </div>
 
       <!-- Image Upload -->
       <div *ngIf="input.type === 'image'">
-        <label class="block text-sm font-medium text-gray-300 mb-1">
+        <label class="block text-sm font-medium mb-1 text-[var(--text-main)]">
           {{ input.label }} <span *ngIf="input.required">*</span>
         </label>
         <app-upload-input
@@ -72,10 +68,9 @@
         ></app-upload-input>
       </div>
 
-      <!-- variation -->
+      <!-- Variation -->
       <div *ngIf="input.type === 'variation' && itemCollectionId">
-        <!-- <pre>{{initialData | json}}</pre> -->
-        <label class="block text-sm font-medium text-gray-300 mb-1">
+        <label class="block text-sm font-medium mb-1 text-[var(--text-main)]">
           {{ input.label }} <span *ngIf="input.required">*</span>
         </label>
         <app-item-variation
@@ -86,35 +81,37 @@
         ></app-item-variation>
       </div>
     </ng-container>
+
     <!-- Buttons -->
-    <div class="flex justify-end gap-3 pt-4 flex-col sm:flex-col flex-col">
+    <div class="flex flex-col sm:flex-row sm:justify-between gap-3 pt-4">
       <button
         *ngIf="cancelLabel"
         type="button"
         (click)="cancel()"
-        class="px-4 py-2 rounded bg-gray-700 text-white hover:bg-gray-600"
+        class="px-4 py-2 rounded bg-[var(--gray)] text-[var(--text-main)] hover:bg-gray-300 transition"
       >
         {{ cancelLabel }}
       </button>
       <button
-        [ngClass]="submitClass"
         type="submit"
         [disabled]="form.invalid"
-        class="px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white"
+        [ngClass]="submitClass"
+        class="px-4 py-2 rounded bg-[var(--primary)] text-white hover:brightness-110 transition"
       >
         {{ submitLabel || "Save" }}
       </button>
-      <div
-        *ngIf="redirect && redirect.url && redirect.label"
-        class="mt-4 text-center"
+    </div>
+
+    <div
+      *ngIf="redirect?.url && redirect?.label"
+      class="mt-6 text-center"
+    >
+      <a
+        [routerLink]="redirect.url"
+        class="text-sm text-[var(--primary)] hover:underline"
       >
-        <a
-          [routerLink]="redirect.url"
-          class="text-sm text-blue-400 hover:underline"
-        >
-          {{ redirect.label }}
-        </a>
-      </div>
+        {{ redirect.label }}
+      </a>
     </div>
   </form>
 </div>

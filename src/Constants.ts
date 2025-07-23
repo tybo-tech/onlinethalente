@@ -7,6 +7,6 @@ export const Constants = {
   },
   // ApiBase: 'https://ithebula.tybo.co.za/api/api',
   ApiBase: 'http://localhost:8080/api',
-  
+
 };
 

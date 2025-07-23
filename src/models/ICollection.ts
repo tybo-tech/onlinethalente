@@ -19,10 +19,11 @@ export type CollectionIds =
   | 'variations'
   | 'item-variation'
   | 'item-variation-option'
-  | 'variation_options';
+  | 'variation_options'
+  | 'applications'
 
 export enum CollectionNames {
-  WebsiteId = 'Viviid',
+  WebsiteId = 'ONLINETHALENTE',
   Products = 'products',
   Categories = 'categories',
   Orders = 'orders',
@@ -31,6 +32,7 @@ export enum CollectionNames {
   Projects = 'projects',
   Variations = 'variations',
   VariationOptions = 'variation_options',
+  Applications = 'applications',
 }
 
 

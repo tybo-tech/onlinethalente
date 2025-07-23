@@ -27,6 +27,8 @@ import { EditProfileComponent } from './components/accounts/edit-profile/edit-pr
 import { LogoutComponent } from './logout/logout.component';
 import { VariationListComponent } from './components/admin/variations/variation-list/variation-list.component';
 import { ManageVariationComponent } from './components/admin/variations/manage-variation/manage-variation.component';
+import { ApplyComponent } from './components/home/apply/apply.component';
+import { ApplicationsComponent } from './components/admin/applications/applications.component';
 
 export const routes: Routes = [
   {
@@ -40,6 +42,10 @@ export const routes: Routes = [
       {
         path: '',
         component: LandingComponent,
+      },
+      {
+        path: 'apply',
+        component: ApplyComponent,
       },
       {
         path: 'categories',
@@ -94,6 +100,10 @@ export const routes: Routes = [
       {
         path: 'categories',
         component: ListCategoriesComponent,
+      },
+      {
+        path: 'applications',
+        component: ApplicationsComponent,
       },
       {
         path: 'category/:id',

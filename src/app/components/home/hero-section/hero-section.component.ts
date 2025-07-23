@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-hero-section',
@@ -13,12 +14,18 @@ export class HeroSectionComponent {
   cycle = '15th';
   cycles = ['15th', '25th', '31st'];
 
+  constructor(private router: Router) {}
+
   onSubmit() {
     const app = {
       amount: this.amount,
       cycle: this.cycle,
     };
-    console.log('Loan application data:', app);
-    alert('Continue to next step — user info form.');
+
+    // Save to localStorage
+    localStorage.setItem('applicationDraft', JSON.stringify(app));
+
+    // Navigate to /apply
+    this.router.navigate(['/apply']);
   }
 }

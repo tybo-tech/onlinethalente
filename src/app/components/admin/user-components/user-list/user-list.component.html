@@ -1,78 +1,71 @@
-<section
-  class="w-full min-h-[80vh] bg-[var(--primary)] py-12 text-[var(--white)]"
->
-  <div class="max-w-6xl px-4">
-    <div class="flex">
-      <h1 class="text-3xl font-bold mb-6 text-[var(--accent)]">
-        User Management
-      </h1>
+<section class="w-full min-h-[80vh] bg-[var(--gray-light)] py-12 text-[var(--text-main)]">
+  <div class="max-w-6xl mx-auto px-4">
+
+    <!-- Header -->
+    <div class="flex flex-wrap items-center justify-between mb-8">
+      <h1 class="text-2xl font-bold text-[var(--primary)]">User Management</h1>
       <a
         routerLink="/admin/user/add"
-        class="ml-auto px-4 py-2 bg-[var(--accent)] text-[var(--black)] rounded hover:brightness-110 h-10 flex items-center"
+        class="mt-4 md:mt-0 px-4 py-2 bg-[var(--accent)] text-[var(--black)] rounded-full shadow hover:brightness-105 flex items-center gap-2 transition"
       >
-        <i class="fas fa-plus mr-2"></i> Add User
+        <i class="fas fa-plus"></i>
+        Add User
       </a>
     </div>
 
-    <div *ngIf="loading" class="text-[var(--gray-light)]">Loading users...</div>
+    <!-- Loading State -->
+    <div *ngIf="loading" class="text-[var(--text-muted)] text-sm">Loading users...</div>
 
-    <div
-      *ngIf="!loading && users.length === 0"
-      class="text-[var(--gray-light)]"
-    >
+    <!-- No Users Found -->
+    <div *ngIf="!loading && users.length === 0" class="text-[var(--text-muted)] text-sm">
       No users found.
     </div>
 
-    <div *ngIf="!loading && users.length > 0" class="overflow-x-auto">
-      <table
-        class="min-w-full bg-[var(--cloud)]/30 border border-[var(--cloud)] rounded-lg"
-      >
-        <thead
-          class="bg-[var(--cloud)]/40 text-left text-[var(--gray-light)] text-sm uppercase tracking-wider"
-        >
+    <!-- Users Table -->
+    <div *ngIf="!loading && users.length > 0" class="overflow-x-auto bg-white rounded-xl shadow">
+      <table class="min-w-full text-sm text-left">
+        <thead class="bg-[var(--cloud)] text-[var(--text-muted)] uppercase text-xs border-b border-[var(--gray)]">
           <tr>
-            <th class="py-3 px-4 border-b border-[var(--cloud)]">#</th>
-            <th class="py-3 px-4 border-b border-[var(--cloud)]">Name</th>
-            <th class="py-3 px-4 border-b border-[var(--cloud)]">Email</th>
-            <th class="py-3 px-4 border-b border-[var(--cloud)]">Role</th>
-            <th class="py-3 px-4 border-b border-[var(--cloud)]">Phone</th>
-            <th class="py-3 px-4 border-b border-[var(--cloud)]">Status</th>
-            <th class="py-3 px-4 border-b border-[var(--cloud)] text-right">
-              Actions
-            </th>
+            <th class="px-4 py-3">#</th>
+            <th class="px-4 py-3">Name</th>
+            <th class="px-4 py-3">Email</th>
+            <th class="px-4 py-3">Role</th>
+            <th class="px-4 py-3">Phone</th>
+            <th class="px-4 py-3">Status</th>
+            <th class="px-4 py-3 text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr
             *ngFor="let user of users; let i = index"
-            class="hover:bg-[var(--cloud)]/20 transition"
+            class="border-b border-[var(--gray)] hover:bg-[var(--cloud)]/60 transition"
           >
-            <td class="py-3 px-4">{{ i + 1 }}</td>
-            <td class="py-3 px-4">{{ user.name }}</td>
-            <td class="py-3 px-4">{{ user.email }}</td>
-            <td class="py-3 px-4 capitalize">{{ user.role }}</td>
-            <td class="py-3 px-4">{{ user.phone || "-" }}</td>
-            <td class="py-3 px-4">
+            <td class="px-4 py-3">{{ i + 1 }}</td>
+            <td class="px-4 py-3 font-medium">{{ user.name }}</td>
+            <td class="px-4 py-3">{{ user.email }}</td>
+            <td class="px-4 py-3 capitalize">{{ user.role }}</td>
+            <td class="px-4 py-3">{{ user.phone || '-' }}</td>
+            <td class="px-4 py-3">
               <span
                 class="inline-block px-2 py-1 rounded-full text-xs font-semibold"
                 [ngClass]="{
-                  'bg-green-700 text-white': user.statusId == 1,
-                  'bg-red-700 text-white': user.statusId != 1
+                  'bg-[var(--success)] text-white': user.statusId == 1,
+                  'bg-[var(--danger)] text-white': user.statusId != 1
                 }"
               >
-                {{ user.statusId == 1 ? "Active" : "Inactive" }}
+                {{ user.statusId == 1 ? 'Active' : 'Inactive' }}
               </span>
             </td>
-            <td class="py-3 px-4 text-right space-x-2">
+            <td class="px-4 py-3 text-right whitespace-nowrap space-x-2">
               <a
                 [routerLink]="['/admin/user', user.id]"
-                class="text-sm px-3 py-1 bg-[var(--accent)] text-[var(--black)] rounded hover:brightness-110"
+                class="px-3 py-1 rounded-full bg-[var(--accent)] text-[var(--black)] text-xs font-medium hover:brightness-105 transition"
               >
                 Edit
               </a>
               <button
                 (click)="deleteUser(user.id)"
-                class="text-sm px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                class="px-3 py-1 rounded-full bg-red-600 text-white text-xs font-medium hover:bg-red-700 transition"
               >
                 Delete
               </button>
@@ -81,5 +74,6 @@
         </tbody>
       </table>
     </div>
+
   </div>
 </section>

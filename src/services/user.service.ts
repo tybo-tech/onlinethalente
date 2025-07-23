@@ -5,7 +5,6 @@ import { Constants } from '../Constants';
 import { User } from '../models/User';
 import { CollectionNames } from '../models/ICollection';
 
-
 @Injectable({
   providedIn: 'root',
 })
@@ -59,16 +58,19 @@ export class UserService {
     return this.http.get<User>(`${this.url}/draft-order.php?Id=${id}`);
   }
   users() {
-    return this.http.get<User[]>(`${this.url}/users.php?websiteId=${CollectionNames.WebsiteId}`);
+    return this.http.get<User[]>(
+      `${this.url}/users.php?websiteId=${CollectionNames.WebsiteId}&companyId=${CollectionNames.WebsiteId}`
+    );
   }
 
   login(data: { email: string; password: string }): Observable<User> {
-    return this.http.post<User>(`${this.url}/login.php`, data);
+    return this.http.post<User>(`${this.url}/login.php`, {
+      ...data,
+      website_id: CollectionNames.WebsiteId,
+    });
   }
   verifyEmail(Email: string): Observable<User> {
-    return this.http.get<User>(
-      `${this.url}/get-by-email.php?Email=${Email}`
-    );
+    return this.http.get<User>(`${this.url}/get-by-email.php?Email=${Email}`);
   }
   logout(e: any = undefined) {
     if (this.userBehaviorSubject) this.userBehaviorSubject.next(e);

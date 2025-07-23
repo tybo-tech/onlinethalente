@@ -1,10 +1,13 @@
-<nav class="bg-white text-[var(--text-main)] sticky top-0 z-50 shadow-sm border-b border-gray-200">
+<nav
+  class="bg-white text-[var(--text-main)] sticky top-0 z-50 shadow-sm border-b border-gray-200"
+>
   <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
     <!-- Logo -->
     <a routerLink="/" class="flex items-center gap-3">
       <img [src]="logo" alt="Onlinethalente Logo" class="h-10 w-auto" />
     </a>
 
+    <!-- Desktop Menu -->
     <!-- Desktop Menu -->
     <ul class="hidden md:flex items-center gap-6 font-medium">
       <li *ngFor="let item of navItems">
@@ -18,12 +21,22 @@
           {{ item.label }}
         </a>
       </li>
-      <li>
+
+      <li *ngIf="!isLoggedIn">
         <a
-          routerLink="/apply"
+          routerLink="/login"
           class="ml-4 px-4 py-2 bg-[var(--accent)] text-white rounded-full hover:bg-yellow-500 transition"
         >
-          Apply Now
+          Login
+        </a>
+      </li>
+
+      <li *ngIf="isLoggedIn">
+        <a
+          [routerLink]="dashboardLink"
+          class="ml-4 px-4 py-2 bg-[var(--accent)] text-white rounded-full hover:bg-yellow-500 transition"
+        >
+          {{ dashboardLabel }}
         </a>
       </li>
     </ul>
@@ -55,13 +68,24 @@
           {{ item.label }}
         </a>
       </li>
-      <li>
+
+      <li *ngIf="!isLoggedIn">
         <a
-          routerLink="/apply"
-          class="block w-full text-center px-4 py-2 bg-[var(--accent)] text-white rounded-full hover:bg-yellow-500 transition"
+          routerLink="/login"
+          class="block text-center px-4 py-2 bg-[var(--accent)] text-white rounded-full hover:bg-yellow-500 transition"
           (click)="closeMobileMenu()"
         >
-          Apply Now
+          Login
+        </a>
+      </li>
+
+      <li *ngIf="isLoggedIn">
+        <a
+          [routerLink]="dashboardLink"
+          class="block text-center px-4 py-2 bg-[var(--accent)] text-white rounded-full hover:bg-yellow-500 transition"
+          (click)="closeMobileMenu()"
+        >
+          {{ dashboardLabel }}
         </a>
       </li>
     </ul>

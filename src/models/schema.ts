@@ -136,3 +136,13 @@ export interface VariationOptionGroup {
   name: string;
   options: VariationOption[];
 }
+
+
+
+export interface Application {
+created_at?: any;
+  amount: number;
+  type: string; // e.g., '15th', '25th', '30th'
+  purpose?: string;
+  status?: 'pending' | 'approved' | 'rejected';
+}

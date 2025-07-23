@@ -28,7 +28,7 @@ export class CollectionDataService<T = any, J = any> {
     parentId: number,
     collectionId: string = ''
   ): Observable<ICollectionData<T, J>[]> {
-    const url = `${this.apiUrl}/get-children.php?parentId=${parentId}`;
+    const url = `${this.apiUrl}/get-children.php?parentId=${parentId}&collectionId=${collectionId}`;
     return this.http.get<ICollectionData<T, J>[]>(url);
   }
   getWithChildren(parentId: number) {

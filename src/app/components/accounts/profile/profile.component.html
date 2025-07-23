@@ -1,43 +1,90 @@
-<section class="w-full bg-[var(--primary)] text-[var(--text-main)] py-20">
-  <div class="max-w-4xl mx-auto px-4 bg-[var(--cloud)]/30 backdrop-blur-md rounded-2xl shadow-lg p-8">
+<section class="w-full bg-[var(--background)] text-[var(--text-main)] py-20">
+  <div class="max-w-4xl mx-auto px-4 bg-[var(--cloud)]/30 backdrop-blur-lg rounded-2xl shadow-lg p-8">
+
+    <!-- 👤 Profile Header -->
     <div class="flex flex-col md:flex-row items-start md:items-center gap-6 mb-10">
       <div class="w-24 h-24 flex items-center justify-center rounded-full text-3xl font-bold text-white bg-[var(--accent)]">
         {{ user?.name?.charAt(0) || '?' }}
       </div>
-      <div>
+      <div class="flex-1">
         <h2 class="text-3xl font-extrabold text-[var(--accent)]">{{ user?.name }}</h2>
         <p class="text-[var(--gray-light)] text-sm mt-1">{{ user?.email }}</p>
-      </div>
-    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <h4 class="text-sm font-semibold text-[var(--gray-light)] uppercase mb-1">Phone</h4>
-        <p class="text-lg text-[var(--text-main)]">{{ user?.phone || 'N/A' }}</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-4 text-sm">
+          <p><span class="font-semibold text-[var(--gray-dark)]">Phone:</span> {{ user?.phone || 'N/A' }}</p>
+          <p><span class="font-semibold text-[var(--gray-dark)]">Role:</span> {{ user?.role || 'N/A' }}</p>
+          <p class="md:col-span-2">
+            <span class="font-semibold text-[var(--gray-dark)]">Address:</span> {{ user?.address || 'N/A' }}
+          </p>
+        </div>
       </div>
-      <div>
-        <h4 class="text-sm font-semibold text-[var(--gray-light)] uppercase mb-1">Role</h4>
-        <p class="text-lg capitalize">{{ user?.role || 'N/A' }}</p>
-      </div>
-      <div class="md:col-span-2">
-        <h4 class="text-sm font-semibold text-[var(--gray-light)] uppercase mb-1">Address</h4>
-        <p class="text-lg">{{ user?.address || 'N/A' }}</p>
-      </div>
-    </div>
-
-    <div class="mt-10 text-right">
-      <a routerLink="/edit-profile"
-        class="inline-flex items-center px-5 py-2.5 rounded-full bg-[var(--accent)] text-[var(--black)] font-medium hover:bg-opacity-90 transition"
-      >
-        <i class="fas fa-user-edit mr-2"></i> Edit Profile
-      </a>
-
+      <div class="flex flex-col md:items-end gap-2">
+        <a
+          routerLink="/edit-profile"
+          class="inline-flex items-center px-4 py-2 rounded-full bg-[var(--accent)] text-[var(--black)] font-medium hover:bg-opacity-90 transition"
+        >
+          <i class="fas fa-user-edit mr-2"></i> Edit Profile
+        </a>
         <button
-            class="ml-4 inline-flex items-center px-5 py-2.5 rounded-full bg-[var(--red)] text-white font-medium hover:bg-opacity-90 transition"
-            (click)="logout()"
+          class="inline-flex items-center px-4 py-2 rounded-full bg-[var(--primary)] text-white font-medium hover:bg-opacity-90 transition"
+          (click)="logout()"
         >
           <i class="fas fa-sign-out-alt mr-2"></i> Logout
         </button>
+      </div>
     </div>
+
+    <!-- 📄 Loan Applications -->
+    <div class="mt-12">
+      <h3 class="text-2xl font-bold text-[var(--text-main)] mb-6">Your Loan Applications</h3>
+
+      <div *ngIf="loading" class="text-[var(--gray-light)]">Loading loans...</div>
+      <div *ngIf="!loading && loans.length === 0" class="text-[var(--gray-light)]">No applications yet.</div>
+
+      <div *ngIf="!loading && loans.length > 0" class="space-y-6">
+        <div
+          *ngFor="let loan of loans"
+          class="bg-white dark:bg-[var(--cloud)] rounded-xl shadow-md p-6 border border-[var(--gray-light)]"
+        >
+          <div class="flex justify-between items-start flex-wrap gap-4">
+            <!-- Main Info -->
+            <div>
+              <h4 class="text-xl font-semibold text-[var(--primary)]">
+                R{{ loan.amount }} — {{ loan.type }} Loan
+              </h4>
+              <p class="text-sm text-[var(--gray-dark)] mt-1">
+                <span class="font-medium">Purpose:</span> {{ loan.purpose || 'N/A' }}
+              </p>
+              <p class="text-sm text-[var(--gray-dark)] mt-1">
+                <span class="font-medium">Applied On:</span>
+                {{ (loan.created_at | date )|| 'N/A' }}
+              </p>
+            </div>
+
+            <!-- Status Badge & Actions -->
+            <div class="text-sm text-right flex flex-col gap-2 items-end">
+              <span
+                class="px-3 py-1 rounded-full text-xs font-semibold"
+                [ngClass]="{
+                  'bg-yellow-100 text-yellow-800': loan.status === 'pending',
+                  'bg-green-100 text-green-800': loan.status === 'approved',
+                  'bg-red-100 text-red-800': loan.status === 'rejected'
+                }"
+              >
+                {{ loan.status }}
+              </span>
+
+              <button
+                class="mt-2 inline-flex items-center gap-1 text-sm text-[var(--primary)] hover:underline"
+                (click)="viewLoan(loan)"
+              >
+                <i class="fas fa-eye"></i> View Details
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>

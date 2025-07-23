@@ -1,49 +1,43 @@
-<section
-  class="w-full min-h-[60vh] bg-[var(--primary)] py-20 flex justify-center items-center"
->
-  <div class="max-w-4xl w-full mx-auto px-4">
-    <div
-      class="flex flex-col md:flex-row gap-12 bg-[var(--primary)] rounded-2xl shadow-xl p-8 md:p-14 border border-[var(--cloud)]/30"
-    >
+<section class="w-full min-h-[60vh] bg-white py-20 flex justify-center items-center">
+  <div class="max-w-5xl w-full mx-auto px-4">
+    <div class="flex flex-col md:flex-row gap-12 bg-white rounded-xl shadow-sm p-8 md:p-14 border border-gray-200">
       <!-- Contact Details -->
-      <div class="flex-1 mb-8 md:mb-0">
-        <h2 class="text-3xl font-extrabold mb-6 text-[var(--accent)]">
-          Contact Us
-        </h2>
-        <ul class="space-y-5 text-[var(--gray)] text-lg">
-          <li>
-            <i class="fas fa-phone text-[var(--accent)] mr-3"></i>
-            <span class="font-medium">+27 73 768 8928</span>
+      <div class="flex-1">
+        <h2 class="text-3xl font-bold mb-6 text-indigo-600">Contact Us</h2>
+        <ul class="space-y-4 text-gray-700 text-base">
+          <li class="flex items-center">
+            <i class="fas fa-phone text-indigo-500 mr-3"></i>
+            <span class="font-medium">+27 68 111 2222</span>
           </li>
-          <li>
-            <i class="fas fa-envelope text-[var(--accent)] mr-3"></i>
-            <span class="font-medium">{{ "info@viviid.co.za" }}</span>
+          <li class="flex items-center">
+            <i class="fas fa-envelope text-indigo-500 mr-3"></i>
+            <span class="font-medium">{{'support@onlinetalente.co.za'}}</span>
           </li>
-          <li>
-            <i class="fas fa-map-marker-alt text-[var(--accent)] mr-3"></i>
-            <span class="font-medium">123 Main Rd, Joburg, SA</span>
+          <li class="flex items-center">
+            <i class="fas fa-map-marker-alt text-indigo-500 mr-3"></i>
+            <span class="font-medium">15 Loop St, Cape Town, South Africa</span>
           </li>
         </ul>
-        <div class="flex gap-5 mt-8">
+
+        <!-- Social Links -->
+        <div class="flex gap-4 mt-6">
           <a
-            href="https://wa.me/27737688928"
+            href="https://wa.me/27681112222"
             target="_blank"
-            rel="noopener"
-            class="bg-[var(--accent)]/80 hover:bg-[var(--accent)] text-[var(--primary)] p-2 rounded-full transition"
+            class="text-indigo-600 hover:text-indigo-800 p-2 rounded-full border border-indigo-100 hover:bg-indigo-50 transition"
           >
             <i class="fab fa-whatsapp text-xl"></i>
           </a>
           <a
             href="https://instagram.com/"
             target="_blank"
-            rel="noopener"
-            class="bg-[var(--accent)]/80 hover:bg-[var(--accent)] text-[var(--primary)] p-2 rounded-full transition"
+            class="text-indigo-600 hover:text-indigo-800 p-2 rounded-full border border-indigo-100 hover:bg-indigo-50 transition"
           >
             <i class="fab fa-instagram text-xl"></i>
           </a>
           <a
-            href="mailto:info@viviid.co.za"
-            class="bg-[var(--accent)]/80 hover:bg-[var(--accent)] text-[var(--primary)] p-2 rounded-full transition"
+            href="mailto:support@onlinetalente.co.za"
+            class="text-indigo-600 hover:text-indigo-800 p-2 rounded-full border border-indigo-100 hover:bg-indigo-50 transition"
           >
             <i class="fas fa-envelope text-xl"></i>
           </a>
@@ -51,66 +45,58 @@
       </div>
 
       <!-- Contact Form -->
-      <form
-        class="flex-1 space-y-6"
-        (ngSubmit)="onSubmit()"
-        #contactForm="ngForm"
-        autocomplete="off"
-      >
+      <form class="flex-1 space-y-6" (ngSubmit)="onSubmit()" #contactForm="ngForm" autocomplete="off">
         <div>
-          <label class="block text-[var(--gray)] mb-2 font-semibold"
-            >Name</label
-          >
+          <label class="block text-gray-700 mb-2 font-medium">Name</label>
           <input
-            class="w-full px-4 py-3 rounded-lg bg-[var(--cloud)]/10 border border-[var(--cloud)]/30 text-[var(--white)] outline-none focus:border-[var(--accent)] transition"
             type="text"
-            required
             name="name"
+            required
             [(ngModel)]="contact.name"
             placeholder="Your Name"
+            class="w-full px-4 py-3 rounded-md bg-gray-100 border border-gray-300 text-gray-800 focus:border-indigo-500 focus:ring-indigo-500 outline-none"
           />
         </div>
         <div>
-          <label class="block text-[var(--gray)] mb-2 font-semibold"
-            >Email</label
-          >
+          <label class="block text-gray-700 mb-2 font-medium">Email</label>
           <input
-            class="w-full px-4 py-3 rounded-lg bg-[var(--cloud)]/10 border border-[var(--cloud)]/30 text-[var(--white)] outline-none focus:border-[var(--accent)] transition"
             type="email"
-            required
             name="email"
+            required
             [(ngModel)]="contact.email"
-            placeholder="you@email.com"
+            placeholder="you@example.com"
+            class="w-full px-4 py-3 rounded-md bg-gray-100 border border-gray-300 text-gray-800 focus:border-indigo-500 focus:ring-indigo-500 outline-none"
           />
         </div>
         <div>
-          <label class="block text-[var(--gray)] mb-2 font-semibold"
-            >Message</label
-          >
+          <label class="block text-gray-700 mb-2 font-medium">Message</label>
           <textarea
-            class="w-full px-4 py-3 rounded-lg bg-[var(--cloud)]/10 border border-[var(--cloud)]/30 text-[var(--white)] outline-none focus:border-[var(--accent)] transition"
             name="message"
             required
             [(ngModel)]="contact.message"
             rows="4"
             placeholder="How can we help you?"
+            class="w-full px-4 py-3 rounded-md bg-gray-100 border border-gray-300 text-gray-800 focus:border-indigo-500 focus:ring-indigo-500 outline-none"
           ></textarea>
         </div>
         <button
-          class="w-full bg-[var(--accent)] hover:bg-[var(--workwear-orange)] text-[var(--primary)] font-bold py-3 rounded-xl shadow transition uppercase tracking-wide mt-2"
           type="submit"
+          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-md transition uppercase tracking-wide"
         >
           Send Message
         </button>
       </form>
     </div>
-    <!-- Snackbar/Toast Message -->
+
+    <!-- Success Snackbar -->
     <div
       *ngIf="showSuccess"
-      class="fixed left-1/2 bottom-10 transform -translate-x-1/2 bg-[var(--accent)] text-[var(--primary)] font-bold py-3 px-8 rounded-xl shadow-lg z-50 animate-bounce-in"
+      class="fixed left-1/2 bottom-10 transform -translate-x-1/2 bg-green-500 text-white font-semibold py-3 px-6 rounded-lg shadow-md z-50 animate-fade-in"
     >
-      <i class="fas fa-check-circle mr-2"></i> Bam! Your message was sent.
+      <i class="fas fa-check-circle mr-2"></i> Message sent successfully!
     </div>
   </div>
 </section>
-<app-faq-section/>
+
+<!-- Optional FAQ -->
+<app-faq-section />

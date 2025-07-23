@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { NavItem } from '../../../../models/schema';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { UserService } from '../../../../services/user.service';
+import { User } from '../../../../models/User';
 
 @Component({
   selector: 'app-nav',
@@ -12,17 +14,37 @@ import { CommonModule } from '@angular/common';
 })
 export class NavComponent {
   brand = 'Onlinethalente';
-  logo = 'logo.png'; // Update with actual path
+  logo = 'logo.png'; // replace with actual path
+  showMobileMenu = false;
 
   navItems: NavItem[] = [
     { label: 'Home', href: '/', icon: '' },
-    { label: 'How It Works', href: '/how-it-works', icon: '' },
+    // { label: 'How It Works', href: '/how-it-works', icon: '' },
     { label: 'About Us', href: '/about', icon: '' },
     { label: 'Contact', href: '/contact', icon: '' },
-    { label: 'Login', href: '/login', icon: '' },
   ];
 
-  showMobileMenu = false;
+  user: User | undefined;
+
+  constructor(private userService: UserService) {
+    this.user = this.userService.getUser;
+  }
+
+  get isLoggedIn(): boolean {
+    return !!this.user;
+  }
+
+  get isAdmin(): boolean {
+    return this.user?.role === 'Admin';
+  }
+
+  get dashboardLabel(): string {
+    return this.isAdmin ? 'Go to Dashboard' : 'Go to My Portal';
+  }
+
+  get dashboardLink(): string {
+    return this.isAdmin ? '/admin' : '/profile';
+  }
 
   toggleMobileMenu() {
     this.showMobileMenu = !this.showMobileMenu;

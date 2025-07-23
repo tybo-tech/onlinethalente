@@ -1,7 +1,7 @@
 <section
-  class="w-full min-h-[80vh] bg-[var(--primary)] py-20 flex justify-center items-center"
+  class="w-full min-h-[80vh] bg-[var(--gray-light)] py-20 flex justify-center items-center"
 >
-  <div class="max-w-2xl w-full mx-auto px-4">
+  <div class="max-w-2xl w-full px-4">
     <app-dynamic-form
       formTitle="Create a New Account"
       [inputs]="formInputs"
@@ -10,7 +10,7 @@
         label: 'Already have an account? Login',
         url: '/login'
       }"
-      submitClass="w-full bg-[#1c1b29] text-white rounded px-4 py-2 hover:bg-[#2a2940] transition-colors duration-200"
+      submitClass="w-full bg-[var(--primary)] text-white rounded-md px-4 py-2 font-medium hover:bg-opacity-90 transition duration-200"
       (submitted)="onSignUp($event)"
     />
   </div>

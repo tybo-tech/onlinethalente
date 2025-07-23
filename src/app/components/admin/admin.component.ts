@@ -16,45 +16,25 @@ import { UserService } from '../../../services/user.service';
   styleUrl: './admin.component.scss',
 })
 export class AdminComponent {
-  routes = [
-    {
-      link: '/admin',
-      label: 'Dashboard',
-    },
-    {
-      link: '/admin/categories',
-      label: 'Categories',
-    },
-    {
-      link: '/admin/products',
-      label: 'Products',
-    },
-    {
-      link: '/admin/printables',
-      label: 'Printables',
-    },
-    {
-      link: '/admin/orders',
-      label: 'Orders',
-    },
-    {
-      link: '/admin/users',
-      label: 'Users',
-    },
-    {
-      link: '/admin/projects',
-      label: 'Projects',
-    },
-    {
-      link: '/admin/variations',
-      label: 'Variations',
-    },
-    //logout
-    {
-      link: '/logout',
-      label: 'Logout',
-    },
-  ];
+routes = [
+  {
+    link: '/admin',
+    label: 'Dashboard',
+  },
+  {
+    link: '/admin/users',
+    label: 'Users',
+  },
+  {
+    link: '/admin/applications',
+    label: 'Applications',
+  },
+  {
+    link: '/logout',
+    label: 'Logout',
+  },
+];
+
 
   user: User | undefined;
   constructor(
