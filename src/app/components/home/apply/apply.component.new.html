@@ -1,6 +1,6 @@
 <div class="min-h-screen bg-gray-50 py-8 px-4">
   <div class="max-w-2xl mx-auto">
-    
+
     <!-- Application Header with Loan Info -->
     <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
       <div class="text-center">
@@ -9,7 +9,7 @@
           {{ formatCurrency(currentApplication.amount) }} loan
         </div>
       </div>
-      
+
       <!-- Progress Bar -->
       <div class="mt-6">
         <div class="flex justify-between mb-2">
@@ -27,10 +27,10 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Step Indicators -->
       <div class="flex justify-between mt-4">
-        <div *ngFor="let title of stepTitles; let i = index" 
+        <div *ngFor="let title of stepTitles; let i = index"
              class="flex flex-col items-center">
           <div [class]="getStepClass(i + 1)"
                class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold mb-1">
@@ -43,7 +43,7 @@
 
     <!-- Step Content -->
     <div class="bg-white rounded-lg shadow-sm p-8">
-      
+
       <!-- Step 1: ID Verification -->
       <div *ngIf="currentStep === 1">
         <h2 class="text-xl font-semibold text-gray-900 mb-6 text-center">
@@ -101,7 +101,7 @@
               />
             </div>
           </div>
-          
+
           <div>
             <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-2">
               Mobile Number <span class="text-red-500">*</span>
@@ -114,7 +114,7 @@
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          
+
           <div>
             <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
               Email Address <span class="text-red-500">*</span>
@@ -127,7 +127,7 @@
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          
+
           <div>
             <label for="maritalStatus" class="block text-sm font-medium text-gray-700 mb-2">
               Marital Status
@@ -166,7 +166,7 @@
               </option>
             </select>
           </div>
-          
+
           <div>
             <label for="employerName" class="block text-sm font-medium text-gray-700 mb-2">
               Employer Name
@@ -179,7 +179,7 @@
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          
+
           <div>
             <label for="monthlyIncome" class="block text-sm font-medium text-gray-700 mb-2">
               Monthly Income <span class="text-red-500">*</span>
@@ -219,7 +219,7 @@
               </option>
             </select>
           </div>
-          
+
           <div>
             <label for="accountType" class="block text-sm font-medium text-gray-700 mb-2">
               Account Type <span class="text-red-500">*</span>
@@ -234,7 +234,7 @@
               </option>
             </select>
           </div>
-          
+
           <div>
             <label for="accountNumber" class="block text-sm font-medium text-gray-700 mb-2">
               Account Number <span class="text-red-500">*</span>
@@ -247,7 +247,7 @@
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          
+
           <div>
             <label for="branchCode" class="block text-sm font-medium text-gray-700 mb-2">
               Branch Code <span class="text-red-500">*</span>
@@ -277,7 +277,7 @@
               <p><strong>Repayment Period:</strong> {{ currentApplication.type }} months</p>
             </div>
           </div>
-          
+
           <!-- Personal Info Summary -->
           <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
             <h3 class="font-semibold text-gray-900 mb-2">Personal Information</h3>
@@ -288,7 +288,7 @@
               <p><strong>Email:</strong> {{ email }}</p>
             </div>
           </div>
-          
+
           <!-- Employment Summary -->
           <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
             <h3 class="font-semibold text-gray-900 mb-2">Employment</h3>
@@ -298,7 +298,7 @@
               <p><strong>Monthly Income:</strong> {{ formatCurrency(monthlyIncome) }}</p>
             </div>
           </div>
-          
+
           <!-- Banking Summary -->
           <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
             <h3 class="font-semibold text-gray-900 mb-2">Banking Details</h3>
@@ -322,7 +322,7 @@
           ← Previous
         </button>
         <div *ngIf="currentStep === 1"></div>
-        
+
         <div class="flex space-x-4">
           <button
             *ngIf="currentStep < stepTitles.length"
@@ -334,7 +334,7 @@
           >
             Next →
           </button>
-          
+
           <button
             *ngIf="currentStep === stepTitles.length"
             (click)="submitApplication()"

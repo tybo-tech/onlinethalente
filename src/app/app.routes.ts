@@ -34,6 +34,30 @@ export const routes: Routes = [
         path: 'apply',
         component: ApplyComponent,
       },
+      {
+        path: 'apply/:step/:id',
+        component: ApplyComponent,
+      },
+      {
+        path: 'apply/personal/:id',
+        component: ApplyComponent,
+      },
+      {
+        path: 'apply/employment/:id',
+        component: ApplyComponent,
+      },
+      {
+        path: 'apply/banking/:id',
+        component: ApplyComponent,
+      },
+      {
+        path: 'apply/documents/:id',
+        component: ApplyComponent,
+      },
+      {
+        path: 'apply/review/:id',
+        component: ApplyComponent,
+      },
 
       {
         path: 'about',
