@@ -1,7 +1,14 @@
 import { Component } from '@angular/core';
-import { Testimonial } from '../../../../models/schema';
 import { CommonModule } from '@angular/common';
 
+export interface Testimonial {
+  name: string;
+  role: string;
+  company?: string;
+  image?: string; // Avatar image URL or path
+  quote: string;
+  color?: string; // Background color for the testimonial card
+}
 @Component({
   selector: 'app-testimonials',
   imports: [CommonModule],

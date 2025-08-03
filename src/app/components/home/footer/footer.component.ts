@@ -1,8 +1,22 @@
 import { Component } from '@angular/core';
-import { FooterLink, FooterContact, FooterSocial } from '../../../../models/schema';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+export interface FooterLink {
+  label: string;
+  href: string;
+  icon?: string; // Optionally, add icons for footer links
+}
 
+export interface FooterContact {
+  type: 'email' | 'phone' | 'address';
+  value: string;
+  icon: string;
+}
+
+export interface FooterSocial {
+  icon: string; // e.g., 'fa-facebook-f'
+  href: string;
+}
 @Component({
   selector: 'app-footer',
   imports: [CommonModule, RouterModule],

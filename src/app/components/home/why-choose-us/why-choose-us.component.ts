@@ -1,7 +1,11 @@
 import { Component } from '@angular/core';
-import { WhyChooseUsItem } from '../../../../models/schema';
 import { CommonModule } from '@angular/common';
 
+export interface WhyChooseUsItem {
+  icon: string; // Font Awesome class, e.g., 'fa-bolt'
+  title: string;
+  description: string;
+}
 @Component({
   selector: 'app-why-choose-us',
   standalone: true,

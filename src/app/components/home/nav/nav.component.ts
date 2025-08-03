@@ -1,9 +1,15 @@
 import { Component } from '@angular/core';
-import { NavItem } from '../../../../models/schema';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../../../services/user.service';
 import { User } from '../../../../models/User';
+
+
+export interface NavItem {
+  label: string;
+  href: string;
+  icon?: string; // Optionally, add icons for menu items
+}
 
 @Component({
   selector: 'app-nav',

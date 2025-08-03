@@ -1,8 +1,13 @@
 import { Component } from '@angular/core';
-import { CTAAction } from '../../../../models/schema';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
+export interface CTAAction {
+  label: string;
+  icon: string; // Font Awesome icon class
+  href: string; // link/route
+  variant?: 'primary' | 'accent'; // For color styling if needed
+}
 @Component({
   selector: 'app-cta',
   imports: [CommonModule, RouterModule],
