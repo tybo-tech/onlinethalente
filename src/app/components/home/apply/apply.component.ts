@@ -27,6 +27,7 @@ import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.com
 })
 export class ApplyComponent implements OnInit {
   // Enhanced form structure - organized by sections
+  email = 'support@onlinethalente.co.za';
   personalInfoInputs: FormInput[] = [
     {
       key: 'firstName',
@@ -338,19 +339,19 @@ export class ApplyComponent implements OnInit {
 
   // Current form inputs (for backward compatibility)
   formInputs: FormInput[] = this.loanDetailsInputs;
-  
+
   // Application flow state
   currentStep = 1;
   totalSteps = 6;
   stepTitles = [
     'Personal Information',
-    'Address Details', 
+    'Address Details',
     'Employment Information',
     'Loan Details',
     'Bank Details',
-    'Document Upload'
+    'Document Upload',
   ];
-  
+
   // Form data collection
   applicationData: any = {}; // Use any for flexibility during form building
   initialData: any = {};
@@ -374,7 +375,7 @@ export class ApplyComponent implements OnInit {
       };
       this.applicationData = { ...this.initialData };
     }
-    
+
     // Set initial form inputs based on current step
     this.updateFormInputsForStep();
   }
@@ -409,12 +410,13 @@ export class ApplyComponent implements OnInit {
     const amount = this.applicationData.amount || 0;
     const term = this.applicationData.term || 12;
     const interestRate = 0.14; // 14% annual rate - should come from settings
-    
+
     if (amount > 0 && term > 0) {
       const monthlyRate = interestRate / 12;
-      const payment = (amount * monthlyRate * Math.pow(1 + monthlyRate, term)) / 
-                     (Math.pow(1 + monthlyRate, term) - 1);
-      
+      const payment =
+        (amount * monthlyRate * Math.pow(1 + monthlyRate, term)) /
+        (Math.pow(1 + monthlyRate, term) - 1);
+
       this.calculatedPayment = Math.round(payment * 100) / 100;
       this.calculatedTotal = Math.round(payment * term * 100) / 100;
     }
@@ -423,10 +425,13 @@ export class ApplyComponent implements OnInit {
   onStepData(data: any): void {
     // Save current step data
     this.applicationData = { ...this.applicationData, ...data };
-    
+
     // Save draft to localStorage
-    localStorage.setItem('applicationDraft', JSON.stringify(this.applicationData));
-    
+    localStorage.setItem(
+      'applicationDraft',
+      JSON.stringify(this.applicationData)
+    );
+
     // Auto-calculate payments if on loan details step
     if (this.currentStep === 4) {
       this.calculateLoanPayments();
@@ -545,7 +550,7 @@ export class ApplyComponent implements OnInit {
   onSave(data: any) {
     // Combine current step data with accumulated data
     this.applicationData = { ...this.applicationData, ...data };
-    
+
     if (this.currentStep < this.totalSteps) {
       // If not on last step, just go to next step
       this.nextStep();
@@ -566,19 +571,19 @@ export class ApplyComponent implements OnInit {
     const applicationPayload: Application = {
       // Legacy fields for backward compatibility
       comment: this.applicationData.purposeDescription || '',
-      
+
       // Core loan details
       amount: this.applicationData.amount,
       requestedAmount: this.applicationData.amount,
       type: this.applicationData.type,
       purpose: this.applicationData.purpose,
       term: this.applicationData.term,
-      
+
       // Financial calculations
       monthlyPayment: this.calculatedPayment,
       totalRepayable: this.calculatedTotal,
       interestRate: 0.14, // Should come from settings
-      
+
       // Personal information embedded
       personalInfo: {
         firstName: this.applicationData.firstName,
@@ -589,7 +594,7 @@ export class ApplyComponent implements OnInit {
         maritalStatus: this.applicationData.maritalStatus,
         dependents: this.applicationData.dependents,
       },
-      
+
       // Employment information
       employmentInfo: {
         employmentStatus: this.applicationData.employmentStatus,
@@ -606,7 +611,7 @@ export class ApplyComponent implements OnInit {
           country: 'South Africa',
         },
       },
-      
+
       // Bank details
       bankDetails: {
         bankName: this.applicationData.bankName,
@@ -615,21 +620,21 @@ export class ApplyComponent implements OnInit {
         branchCode: this.applicationData.branchCode,
         accountHolderName: this.applicationData.accountHolderName,
       },
-      
+
       // Document references
       bankStatement: this.applicationData.bankStatement,
       documents: this.buildDocumentArray(),
-      
+
       // Application metadata
       applicationNumber: this.generateApplicationNumber(),
       status: 'submitted',
-      
+
       // Timeline
       timeline: {
         created: new Date().toISOString(),
         submitted: new Date().toISOString(),
       },
-      
+
       // Risk assessment placeholder
       creditAssessment: {
         score: 0,
@@ -653,7 +658,9 @@ export class ApplyComponent implements OnInit {
     this.service.addData(payload).subscribe({
       next: (response) => {
         localStorage.removeItem('applicationDraft');
-        alert('Application submitted successfully! You will receive updates via email and SMS.');
+        alert(
+          'Application submitted successfully! You will receive updates via email and SMS.'
+        );
         this.router.navigate(['/profile']);
         this.loading = false;
       },
@@ -667,9 +674,14 @@ export class ApplyComponent implements OnInit {
 
   private buildDocumentArray(): ApplicationDocument[] {
     const documents: ApplicationDocument[] = [];
-    const docTypes = ['idDocument', 'bankStatement', 'proofOfIncome', 'proofOfAddress'];
-    
-    docTypes.forEach(type => {
+    const docTypes = [
+      'idDocument',
+      'bankStatement',
+      'proofOfIncome',
+      'proofOfAddress',
+    ];
+
+    docTypes.forEach((type) => {
       if (this.applicationData[type]) {
         documents.push({
           type: type as any,
@@ -681,14 +693,16 @@ export class ApplyComponent implements OnInit {
         });
       }
     });
-    
+
     return documents;
   }
 
   private generateApplicationNumber(): string {
     const prefix = 'OT';
     const year = new Date().getFullYear();
-    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    const random = Math.floor(Math.random() * 10000)
+      .toString()
+      .padStart(4, '0');
     return `${prefix}-${year}-${random}`;
   }
 
@@ -704,15 +718,38 @@ export class ApplyComponent implements OnInit {
     const maxPayment = income * affordableRatio;
     const term = this.applicationData.term || 12;
     const interestRate = 0.14 / 12; // Monthly rate
-    
+
     if (maxPayment > 0 && term > 0) {
-      return (maxPayment * (Math.pow(1 + interestRate, term) - 1)) / 
-             (interestRate * Math.pow(1 + interestRate, term));
+      return (
+        (maxPayment * (Math.pow(1 + interestRate, term) - 1)) /
+        (interestRate * Math.pow(1 + interestRate, term))
+      );
     }
     return 0;
   }
 
   onCancel() {
+    // Save draft before exiting
+    if (Object.keys(this.applicationData).length > 0) {
+      localStorage.setItem(
+        'applicationDraft',
+        JSON.stringify(this.applicationData)
+      );
+    }
     this.router.navigate(['/']);
+  }
+
+  getStepButtonClass(step: number): string {
+    if (step === this.currentStep) {
+      return 'bg-indigo-600 text-white';
+    } else if (step < this.currentStep) {
+      return 'bg-green-100 text-green-700 hover:bg-green-200';
+    } else {
+      return 'bg-gray-100 text-gray-600 hover:bg-gray-200';
+    }
+  }
+
+  getProgressPercentage(): number {
+    return Math.round((this.currentStep / this.totalSteps) * 100);
   }
 }

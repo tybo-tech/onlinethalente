@@ -5,7 +5,7 @@ export interface Application {
   // Legacy fields (keep for backward compatibility)
   comment?: string;
   created_at?: any;
-  
+
   // Core loan details
   amount: number;
   requestedAmount?: number; // Original amount requested
@@ -13,46 +13,46 @@ export interface Application {
   type: string; // '15th', '25th', '30th' - repayment day
   purpose?: string;
   bankStatement?: string;
-  
+
   // Enhanced status management
-  status: 'draft' | 'submitted' | 'under_review' | 'pending_documents' | 'approved' | 'rejected' | 'disbursed' | 'active' | 'completed' | 'defaulted';
+  status: 'draft' | 'submitted' | 'pending' | 'under_review' | 'pending_documents' | 'approved' | 'rejected' | 'disbursed' | 'active' | 'completed' | 'defaulted';
   substatus?: string; // Additional status details
-  
+
   // Application metadata
   applicationNumber?: string; // Auto-generated unique reference
   loanProductId?: number; // Reference to loan product
-  
+
   // Financial calculations
   interestRate?: number; // Annual percentage rate
   monthlyPayment?: number; // Calculated monthly payment
   totalRepayable?: number; // Total amount to be repaid
   term?: number; // Loan duration in months
-  
+
   // Personal information (embedded)
   personalInfo?: PersonalInfo;
-  
+
   // Employment information
   employmentInfo?: EmploymentInfo;
-  
+
   // Document management
   documents?: ApplicationDocument[];
   requiredDocuments?: string[]; // List of required document types
-  
+
   // Risk assessment
   creditAssessment?: CreditAssessment;
-  
+
   // Timeline tracking
   timeline?: ApplicationTimeline;
-  
+
   // Administrative notes
   adminNotes?: string;
   rejectionReason?: string;
   approvalConditions?: string[];
-  
+
   // Payment information
   disbursementMethod?: 'bank_transfer' | 'cash' | 'mobile_money';
   bankDetails?: BankDetails;
-  
+
   // Relationship data (populated from joins)
   _user?: User;
   _loanProduct?: LoanProduct;
@@ -287,32 +287,32 @@ export interface LoanSystemSettings {
   latePenaltyRate: number;
   processingFeePercentage: number;
   maxProcessingFee: number;
-  
+
   // Loan Limits
   minLoanAmount: number;
   maxLoanAmount: number;
   minLoanTerm: number;
   maxLoanTerm: number;
-  
+
   // Risk Assessment
   minCreditScore: number;
   maxDebtToIncomeRatio: number;
   requireCreditBureauCheck: boolean;
-  
+
   // Document Requirements
   requiredDocuments: string[];
   documentExpiryDays: number;
-  
+
   // Business Rules
   maxActiveLoansPerUser: number;
   allowRefinancing: boolean;
   gracePeriodDays: number;
-  
+
   // Communication
   sendSmsNotifications: boolean;
   sendEmailNotifications: boolean;
   reminderDaysBefore: number;
-  
+
   // System
   applicationNumberPrefix: string;
   autoApprovalEnabled: boolean;
