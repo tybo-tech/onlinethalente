@@ -1,7 +1,0 @@
-<app-chip-picker
-  *ngFor="let variation of allVariations"
-  [label]="variation.data.name"
-  [options]="getChipOptions(variation)"
-  [selectedIds]="getSelectedOptions(variation)"
-  (selectionChange)="onOptionChange($event, variation)"
-></app-chip-picker>

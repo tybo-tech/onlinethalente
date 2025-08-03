@@ -90,54 +90,6 @@ export interface NavItem {
   icon?: string; // Optionally, add icons for menu items
 }
 
-// Orders
-
-export interface OrderCustomer {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  address?: string; // Optional, you can make it required later
-}
-
-export interface OrderItem {
-  id: number; // product/printable id
-  type: CollectionIds;
-  name: string;
-  image?: string;
-  price?: number; // Only for products (printables are quoted)
-  qty: number;
-  options?: {
-    name: string; // e.g. "Color", "Size"
-    value: string; // e.g. "Red", "Large"
-  }[]; // Any extra options (printable: color/size/etc)
-  uploads?: {
-    // For printables with file uploads
-    logo?: string;
-    example?: string;
-    inspiration?: string;
-  };
-  notes?: string; // Any special notes (printable description)
-}
-
-export interface Order {
-  customer: OrderCustomer;
-  items: OrderItem[];
-  createdAt: string;
-  status?: string; // e.g. "pending", "submitted", "completed"
-}
-
-export interface Variation {
-  name: string;
-}
-export interface VariationOption {
-  value: string;
-}
-export interface VariationOptionGroup {
-  name: string;
-  options: VariationOption[];
-}
-
 
 
 export interface Application {

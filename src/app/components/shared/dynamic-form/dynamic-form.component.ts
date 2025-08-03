@@ -16,8 +16,6 @@ import { CommonModule } from '@angular/common';
 import { FormInput } from '../../../../models/FormInput';
 import { UploadInputComponent } from '../upload-input/upload-input.component';
 import { RouterModule } from '@angular/router';
-import { ProductVariationManagerComponent } from '../../admin/variations/product-variation-manager/product-variation-manager.component';
-import { ItemVariationComponent } from '../../admin/variations/item-variation/item-variation.component';
 import { CollectionIds } from '../../../../models/ICollection';
 
 @Component({
@@ -28,7 +26,6 @@ import { CollectionIds } from '../../../../models/ICollection';
     ReactiveFormsModule,
     UploadInputComponent,
     RouterModule,
-    ItemVariationComponent,
   ],
   templateUrl: './dynamic-form.component.html',
 })

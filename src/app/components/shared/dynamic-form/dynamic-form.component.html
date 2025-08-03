@@ -68,18 +68,7 @@
         ></app-upload-input>
       </div>
 
-      <!-- Variation -->
-      <div *ngIf="input.type === 'variation' && itemCollectionId">
-        <label class="block text-sm font-medium mb-1 text-[var(--text-main)]">
-          {{ input.label }} <span *ngIf="input.required">*</span>
-        </label>
-        <app-item-variation
-          [itemCollectionId]="itemCollectionId"
-          [formGroup]="form"
-          [formControlName]="input.key"
-          [itemId]="initialData?.id || 0"
-        ></app-item-variation>
-      </div>
+
     </ng-container>
 
     <!-- Buttons -->

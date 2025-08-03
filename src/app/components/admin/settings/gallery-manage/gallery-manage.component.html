@@ -1,8 +1,0 @@
-<app-dynamic-form
-*ngIf="!loading"
-  [formTitle]="isEdit ? 'Edit Project' : 'Add Project'"
-  [inputs]="formInputs"
-  [initialData]="initialData"
-  (submitted)="onSave($event)"
-  (cancelled)="onCancel()"
-/>
