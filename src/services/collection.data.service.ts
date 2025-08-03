@@ -36,6 +36,25 @@ export class CollectionDataService<T = any, J = any> {
     return this.http.get<ICollectionData<T, J>>(url);
   }
 
+  ///GET /api/user-collection-data/list.php?collectionId=applications&websiteId=ONLINETHALENTE&limit=10&offset=0&sortBy=id&sortOrder=DESC
+
+  getUserCollections(
+    collectionId: CollectionNames,
+    websiteId: string = CollectionNames.WebsiteId,
+    limit: number = 1000,
+    offset: number = 0,
+    sortBy: string = 'id',
+    sortOrder: 'ASC' | 'DESC' = 'DESC'
+  ) {
+    const base = `${Constants.ApiBase}/user-collection-data/list.php`;
+    let url = `${base}?collectionId`;
+    url += `=${collectionId}&websiteId=${websiteId}`;
+    url += `&limit=${limit}&offset=${offset}`;
+    url += `&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+    console.log('getWithChildren URL:', url);
+    return this.http.get<ICollectionData<T, J>[]>(url);
+  }
+
   //find-parents-that-have-children.php
   findParentsThatHaveChildren(
     collectionId: string

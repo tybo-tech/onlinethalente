@@ -1,5 +1,5 @@
 <?php
-// api/users/save.php
+// api/users/get.php
 include_once '../../config/Database.php';
 include_once '../../models/Company.php';
 

@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { ICollectionData, CollectionNames } from '../../../../models/ICollection';
 import { Application } from '../../../../models/schema';
 import { CollectionDataService } from '../../../../services/collection.data.service';
-import { FormsModule } from '@angular/forms';
-
 
 @Component({
   selector: 'ap-applications',
@@ -19,10 +18,10 @@ export class ApplicationsComponent implements OnInit {
   filtered: ICollectionData<Application>[] = [];
   statusFilter = 'All';
 
-  constructor(
-    private dataService: CollectionDataService<Application>,
-    private router: Router
-  ) {}
+  selectedApp: ICollectionData<Application> | null = null;
+  comment: string = '';
+
+  constructor(private dataService: CollectionDataService<Application>) {}
 
   ngOnInit(): void {
     this.loadApplications();
@@ -30,7 +29,7 @@ export class ApplicationsComponent implements OnInit {
 
   loadApplications() {
     this.dataService
-      .getDataByCollectionId(CollectionNames.Applications)
+      .getUserCollections(CollectionNames.Applications)
       .subscribe((res) => {
         this.applications = res;
         this.applyFilter();
@@ -45,7 +44,25 @@ export class ApplicationsComponent implements OnInit {
   }
 
   edit(app: ICollectionData<Application>) {
-    this.router.navigate(['/admin/application', app.id]);
+    this.selectedApp = { ...app }; // Clone to prevent direct mutation
+    this.comment = this.selectedApp.data.comment || '';
+  }
+
+  closeModal() {
+    this.selectedApp = null;
+    this.comment = '';
+  }
+
+  updateStatus(status: 'approved' | 'rejected') {
+    if (this.selectedApp) {
+      this.selectedApp.data.status = status;
+      this.selectedApp.data.comment = this.comment;
+
+      this.dataService.updateData(this.selectedApp).subscribe(() => {
+        this.closeModal();
+        this.loadApplications();
+      });
+    }
   }
 
   delete(id: number) {

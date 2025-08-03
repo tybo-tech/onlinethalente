@@ -15,57 +15,59 @@ import { CollectionNames } from '../../../../models/ICollection';
 export class RegisterComponent {
   constructor(private userService: UserService, private router: Router) {}
   formInputs: FormInput[] = [
-  {
-    key: 'firstName',
-    label: 'First Name',
-    type: 'text',
-    required: true,
-    placeholder: 'Enter your first name',
-  },
-  {
-    key: 'lastName',
-    label: 'Last Name',
-    type: 'text',
-    required: true,
-    placeholder: 'Enter your last name',
-  },
-  {
-    key: 'idNumber',
-    label: 'ID Number',
-    type: 'text',
-    required: true,
-    placeholder: 'Enter your South African ID',
-  },
-  {
-    key: 'cellphone',
-    label: 'Cellphone Number',
-    type: 'tel',
-    required: true,
-    placeholder: 'Enter your phone number',
-  },
-  {
-    key: 'email',
-    label: 'Email Address',
-    type: 'email',
-    required: true,
-    placeholder: 'Enter your email address',
-  },
-  {
-    key: 'password',
-    label: 'Password',
-    type: 'password',
-    required: true,
-    placeholder: 'Create your password',
-  },
-];
+    {
+      key: 'firstName',
+      label: 'First Name',
+      type: 'text',
+      required: true,
+      placeholder: 'Enter your first name',
+    },
+    {
+      key: 'lastName',
+      label: 'Last Name',
+      type: 'text',
+      required: true,
+      placeholder: 'Enter your last name',
+    },
+    {
+      key: 'idNumber',
+      label: 'ID Number',
+      type: 'text',
+      required: true,
+      placeholder: 'Enter your South African ID',
+    },
+    {
+      key: 'cellphone',
+      label: 'Cellphone Number',
+      type: 'tel',
+      required: true,
+      placeholder: 'Enter your phone number',
+    },
+    {
+      key: 'email',
+      label: 'Email Address',
+      type: 'email',
+      required: true,
+      placeholder: 'Enter your email address',
+    },
+    {
+      key: 'password',
+      label: 'Password',
+      type: 'password',
+      required: true,
+      placeholder: 'Create your password',
+    },
+  ];
 
-  onSignUp({ email, password, firstName, lastName }: any): void {
+  onSignUp({ email, password, firstName, lastName, idNumber }: any): void {
     const user = initUser();
     user.email = email;
     user.password = password;
+    user.id_number = idNumber;
     user.name = `${firstName} ${lastName}`;
     user.created_by = 1; // Assuming 1 is the ID of the admin creating the user
-    user.website_id = CollectionNames.WebsiteId
+    user.website_id = CollectionNames.WebsiteId;
+    user.company_id = CollectionNames.WebsiteId;
     this.userService.save(user).subscribe({
       next: (response) => {
         if (response && response.id) {

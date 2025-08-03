@@ -1,16 +1,17 @@
 <?php
-// api/users/save.php
 include_once '../../config/Database.php';
 include_once '../../models/Company.php';
-
-
-$websiteId = isset($_GET['statusId']) ? $_GET['statusId'] : 1;
 
 $database = new Database();
 $db = $database->connect();
 
 $service = new Company($db);
 
+$statusId = isset($_GET['statusId']) ? (int)$_GET['statusId'] : 1;
+$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 100;
+$offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
+$sortBy = $_GET['sortBy'] ?? 'created_at';
+$sortOrder = $_GET['sortOrder'] ?? 'DESC';
 
-$result = $service->list($statusId);
-echo json_encode($result);
+$results = $service->list($statusId, $limit, $offset, $sortBy, $sortOrder);
+echo json_encode($results);

@@ -30,6 +30,9 @@ import { ManageVariationComponent } from './components/admin/variations/manage-v
 import { ApplyComponent } from './components/home/apply/apply.component';
 import { ApplicationsComponent } from './components/admin/applications/applications.component';
 
+import { ImportManagerComponent } from './components/admin/imports/import-manager/import-manager.component';
+import { SettingsComponent } from './settings/settings.component';
+
 export const routes: Routes = [
   {
     path: 'logout',
@@ -104,6 +107,14 @@ export const routes: Routes = [
       {
         path: 'applications',
         component: ApplicationsComponent,
+      },
+      {
+        path: 'settings',
+        component: SettingsComponent,
+      },
+      {
+        path: 'imports',
+        component: ImportManagerComponent,
       },
       {
         path: 'category/:id',

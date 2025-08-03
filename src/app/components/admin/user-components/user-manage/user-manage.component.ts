@@ -38,11 +38,31 @@ export class UserManageComponent {
       type: 'text',
       placeholder: 'Enter your phone number',
     },
+    //id_number
+    {
+      key: 'id_number',
+      label: 'ID Number',
+      type: 'text',
+      placeholder: 'Enter your ID number'
+    },
     {
       key: 'address',
       label: 'Address',
       type: 'textarea',
       placeholder: 'Enter your address',
+    },
+
+    //statusId
+    {
+      key: 'statusId',
+      label: 'Status',
+      type: 'select',
+      options: [
+        { value: 1, label: 'Active' },
+        { value: 2, label: 'Inactive' },
+      ],
+      required: true,
+      placeholder: 'Select user status',
     },
   ];
   roles = ROLES;

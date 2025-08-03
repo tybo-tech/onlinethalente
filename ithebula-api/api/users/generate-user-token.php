@@ -1,12 +1,12 @@
 <?php
-// api/users/get.php
+// api/users/clear-user-token.php
 include_once '../../config/Database.php';
 include_once '../../models/User.php';
 
 
-$id = isset($_GET['UserId']) ? $_GET['UserId'] : null;
+$id = isset($_GET['id']) ? $_GET['id'] : null;
 if (!$id) {
-    echo json_encode(["error" => "UserId is required"]);
+    echo json_encode(["error" => "User Id is required"]);
     exit;
 }
 $database = new Database();
@@ -15,5 +15,5 @@ $db = $database->connect();
 $service = new User($db);
 
 
-$result = $service->getById($id);
+$result = $service->generateToken($id);
 echo json_encode($result);

@@ -76,4 +76,49 @@ export class UserService {
     if (this.userBehaviorSubject) this.userBehaviorSubject.next(e);
     localStorage.removeItem(Constants.LocalUser);
   }
+  // Get user by token
+  getUserByToken(token: string): Observable<User> {
+    return this.http.get<User>(`${this.url}/get-by-token.php?token=${token}`);
+  }
+
+  // Get user by ID number
+  getUserByIdNumber(id_number: string): Observable<User> {
+    return this.http.get<User>(
+      `${this.url}/get-by-id-number.php?IdNumber=${id_number}`
+    );
+  }
+
+  // Get user by email or ID
+  getUserByEmailOrId(value: string): Observable<User> {
+    return this.http.get<User>(
+      `${this.url}/get-by-id-email.php?value=${value}`
+    );
+  }
+
+  // Generate login token
+  generateToken(userId: number): Observable<User> {
+    return this.http.get<User>(
+      `${this.url}/generate-user-token.php?UserId=${userId}`
+    );
+  }
+
+  // Clear login token
+  clearToken(userId: number): Observable<boolean> {
+    return this.http.get<boolean>(
+      `${this.url}/clear-user-token.php?UserId=${userId}`
+    );
+  }
+
+  // Update user password
+  updatePassword(
+    userId: number,
+    newPassword: string,
+    updatedBy: number
+  ): Observable<boolean> {
+    return this.http.post<boolean>(`${this.url}/update-password.php`, {
+      UserId: userId,
+      NewPassword: newPassword,
+      UpdatedBy: updatedBy,
+    });
+  }
 }

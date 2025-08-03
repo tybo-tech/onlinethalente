@@ -27,6 +27,7 @@
         <thead class="bg-[var(--cloud)] text-[var(--text-muted)] uppercase text-xs border-b border-[var(--gray)]">
           <tr>
             <th class="px-4 py-3">#</th>
+            <th class="px-4 py-3">ID Number</th>
             <th class="px-4 py-3">Name</th>
             <th class="px-4 py-3">Email</th>
             <th class="px-4 py-3">Role</th>
@@ -41,6 +42,7 @@
             class="border-b border-[var(--gray)] hover:bg-[var(--cloud)]/60 transition"
           >
             <td class="px-4 py-3">{{ i + 1 }}</td>
+            <td class="px-4 py-3 font-medium">{{ user.id_number }}</td>
             <td class="px-4 py-3 font-medium">{{ user.name }}</td>
             <td class="px-4 py-3">{{ user.email }}</td>
             <td class="px-4 py-3 capitalize">{{ user.role }}</td>
@@ -61,14 +63,14 @@
                 [routerLink]="['/admin/user', user.id]"
                 class="px-3 py-1 rounded-full bg-[var(--accent)] text-[var(--black)] text-xs font-medium hover:brightness-105 transition"
               >
-                Edit
+                View
               </a>
-              <button
+              <!-- <button
                 (click)="deleteUser(user.id)"
                 class="px-3 py-1 rounded-full bg-red-600 text-white text-xs font-medium hover:bg-red-700 transition"
               >
                 Delete
-              </button>
+              </button> -->
             </td>
           </tr>
         </tbody>

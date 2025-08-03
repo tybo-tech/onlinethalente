@@ -5,8 +5,8 @@ export const Constants = {
     Advisor: 'Advisor',
     Manager: 'Manager',
   },
-  // ApiBase: 'https://ithebula.tybo.co.za/api/api',
-  ApiBase: 'http://localhost:8080/api',
+  ApiBase: 'https://ithebula.tybo.co.za/api/api',
+  // ApiBase: 'http://localhost:8080/api',
 
 };
 

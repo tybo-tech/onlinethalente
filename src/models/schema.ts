@@ -1,4 +1,5 @@
 import { CollectionIds } from './ICollection';
+import { User } from './User';
 
 //models/schema.ts
 export interface Product {
@@ -140,9 +141,22 @@ export interface VariationOptionGroup {
 
 
 export interface Application {
+  comment: string;
 created_at?: any;
   amount: number;
   type: string; // e.g., '15th', '25th', '30th'
   purpose?: string;
+  bankStatement?: string;
   status?: 'pending' | 'approved' | 'rejected';
+  _user?: User
+}
+
+
+export interface ISetting {
+  type: string;         // Grouping (e.g., 'interest', 'limits', 'loan', 'notifications')
+  key: string;          // Unique system key (e.g., 'base_interest_rate')
+  label: string;        // Human-friendly label for display
+  value: string | number | boolean; // Actual stored value
+  input_type: 'number' | 'percent' | 'text' | 'toggle' | 'select'; // Field type
+  description?: string; // Optional help text for UI
 }
