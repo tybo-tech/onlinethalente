@@ -4,7 +4,7 @@ import { switchMap, map } from 'rxjs/operators';
 import { BusinessRulesService } from './business-rules.service';
 import {
   PayCycle, LoanOffer, OfferCounter, Application,
-  ApplicationStatus, SalaryDay
+  ApplicationStatus, SalaryDay, AIVerification
 } from '../../models/schema';
 import { ICollectionData } from '../../models/ICollection';
 import { LendingAdapter } from './lending.adapter';
@@ -125,33 +125,38 @@ export class SeedDevDataService {
         if (!offers.length) return of(void 0);
         if (apps.length > 0) return of(void 0);
 
-        const sample = (
+        const createSampleApp = (
           full_name: string,
           email: string,
           phone: string,
           offerId: number,
           amount: number,
           salary_day: SalaryDay
-        ): Application => ({
-          user_id: 0,
-          pay_cycle_id: offers.find(o => o.id === offerId)!.data.pay_cycle_id,
-          offer_id: offerId,
-          requested_amount_cents: amount,
-          bank_name: 'Discovery',
-          salary_account: '1234567890',
-          salary_day,
-          full_name, email, phone,
-          status: ApplicationStatus.SUBMITTED,
-          ai_verification: 'PENDING' as any,
-          submitted_at: new Date().toISOString(),
-        });
+        ): Application => {
+          const now = new Date().toISOString();
+          return {
+            user_id: 0,
+            pay_cycle_id: offers.find(o => o.id === offerId)!.data.pay_cycle_id,
+            offer_id: offerId,
+            requested_amount_cents: amount,
+            bank_name: 'Discovery',
+            salary_account: '1234567890',
+            salary_day,
+            full_name, email, phone,
+            status: ApplicationStatus.SUBMITTED,
+            ai_verification: AIVerification.PENDING,
+            created_at: now,
+            submitted_at: now,
+            updated_at: now
+          };
+        };
 
-        const o15 = offers.find(o => o.data.amount_cents === 70000) || offers[0];
-        const o25 = offers.find(o => o.data.pay_cycle_id !== o15.data.pay_cycle_id) || offers[1];
+        const offer15 = offers.find(o => o.data.amount_cents === 70000) || offers[0];
+        const offer25 = offers.find(o => o.data.pay_cycle_id !== offer15.data.pay_cycle_id) || offers[1];
 
         return forkJoin([
-          this.la.add<Application>('applications', sample('Jane Doe', 'jane@example.com', '0834567890', o15.id, 70000, 15)),
-          this.la.add<Application>('applications', sample('Thabo M.', 'thabo@example.com', '0721112222', o25.id, 50000, 25)),
+          this.la.add<Application>('applications', createSampleApp('Jane Doe', 'jane@example.com', '0834567890', offer15.id, 70000, 15)),
+          this.la.add<Application>('applications', createSampleApp('Thabo M.', 'thabo@example.com', '0721112222', offer25.id, 50000, 25))
         ]).pipe(map(() => void 0));
       })
     );

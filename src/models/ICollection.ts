@@ -22,7 +22,7 @@ export function initCollectionData<T, J>(
   return {
     parent_id,
     website_id: CollectionNames.WebsiteId,
-    id: Date.now(),
+    id: 0, // new items start with 0
     collection_id: type,
     data,
     created_at: new Date().toISOString(),

@@ -38,12 +38,10 @@ export class ProfileComponent implements OnInit {
       this.dataService
         .getChildren(this.user.id, CollectionNames.Applications)
         .subscribe((entries) => {
-          this.loans = entries.map((e) => {
-            return {
-              ...e.data,
-              created_at: e.created_at,
-            };
-          });
+          this.loans = entries.map((e) => ({
+            ...e.data,
+            created_at: e.created_at || new Date().toISOString()
+          }));
           this.loading = false;
         });
     }

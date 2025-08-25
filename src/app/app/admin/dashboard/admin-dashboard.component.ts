@@ -1,6 +1,7 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, isDevMode } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { AdminUseCases } from '../../../../services/business/admin.usecases';
 import { KpiGridComponent } from './kpi-grid.component';
 import { PendingAppsComponent } from './pending-apps.component';
@@ -9,6 +10,7 @@ import { RecentActivityComponent } from './recent-activity.component';
 import { SlotsRemainingComponent } from './slots-remaining.component';
 import { SystemHealthComponent } from './system-health.component';
 import { SeedDevDataService } from '../../../../services/business/seed-dev-data.service';
+import { ToastService } from '../../../../services/toast.service';
 
 
 @Component({
@@ -31,10 +33,19 @@ import { SeedDevDataService } from '../../../../services/business/seed-dev-data.
           <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
           <p class="text-gray-600">Configure pay cycles, offers, counters & review applications.</p>
         </div>
-        <app-quick-actions
-          [actions]="actions"
-          (navigate)="goTo($event)">
-        </app-quick-actions>
+        <div class="flex items-center gap-4">
+          <button
+            *ngIf="isDevMode"
+            (click)="seedData()"
+            class="inline-flex items-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100"
+          >
+            Seed Dev Data
+          </button>
+          <app-quick-actions
+            [actions]="actions"
+            (navigate)="goTo($event)">
+          </app-quick-actions>
+        </div>
       </header>
 
       <app-kpi-grid
@@ -71,6 +82,8 @@ export class AdminDashboardComponent implements OnInit {
   private router = inject(Router);
   private admin = inject(AdminUseCases);
   private seed = inject(SeedDevDataService);
+  private toast = inject(ToastService);
+  isDevMode = isDevMode();
 
   kpis = signal<any>(null);
 
@@ -96,5 +109,18 @@ export class AdminDashboardComponent implements OnInit {
   goTo(idOrRoute: string) {
     const route = this.actions.find(a => a.id === idOrRoute)?.route || idOrRoute;
     this.router.navigate([route]);
+  }
+
+  async seedData() {
+    try {
+      await Promise.all([
+        firstValueFrom(this.seed.seedAdminBaseline$()),
+        firstValueFrom(this.seed.seedSampleApplications$())
+      ]);
+      this.toast.success('Development data seeded successfully');
+      this.refresh();
+    } catch (error) {
+      this.toast.error('Failed to seed development data');
+    }
   }
 }

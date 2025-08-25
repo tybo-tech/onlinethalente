@@ -98,17 +98,18 @@ export interface Application {
   full_name: string;
   phone: string;
   email: string;
-
   status: ApplicationStatus;
   ai_verification: AIVerification;
 
   notes?: string;
   assigned_to_user_id?: number; // admin/agent
 
-  // Audit
+  // Audit timestamps
+  created_at: string; // ISO
+  updated_at?: string; // ISO
   submitted_at?: string; // ISO
-  approved_at?: string;
-  paid_at?: string;
+  approved_at?: string; // ISO
+  paid_at?: string; // ISO
 }
 
 // application_documents
@@ -163,6 +164,9 @@ export interface BankingDetails {
 // -----------------------------------------------------------
 // Init helpers (pure data payloads to feed initCollectionData)
 // -----------------------------------------------------------
+
+
+
 export const initPayCycle = (salary_day: SalaryDay): PayCycle => ({
   salary_day,
   label: `${salary_day}th`,
@@ -197,24 +201,33 @@ export const initOfferCounter = (
   slots_remaining: slots_total,
 });
 
-export const initApplication = (args: Partial<Application>): Application => ({
-  user_id: 0,
-  pay_cycle_id: 0,
-  offer_id: undefined,
-  requested_amount_cents: 0,
-  bank_name: '',
-  salary_account: '',
-  salary_day: 15,
-  full_name: '',
-  phone: '',
-  email: '',
-  status: ApplicationStatus.SUBMITTED,
-  ai_verification: AIVerification.PENDING,
-  notes: '',
-  assigned_to_user_id: undefined,
-  submitted_at: new Date().toISOString(),
-  ...args,
-});
+export const initApplication = (args: Partial<Application>): Application => {
+  const now = new Date().toISOString();
+  return {
+    user_id: 0,
+    pay_cycle_id: 0,
+    offer_id: undefined,
+    requested_amount_cents: 0,
+    bank_name: '',
+    salary_account: '',
+    salary_day: 15,
+    full_name: '',
+    phone: '',
+    email: '',
+    status: ApplicationStatus.SUBMITTED,
+    ai_verification: AIVerification.PENDING,
+    notes: '',
+    assigned_to_user_id: undefined,
+    // Required timestamps
+    created_at: now,
+    submitted_at: now,
+    // Optional timestamps
+    updated_at: undefined,
+    approved_at: undefined,
+    paid_at: undefined,
+    ...args,
+  };
+};
 
 export const initApplicationDocument = (
   application_id: number,

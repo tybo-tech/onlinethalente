@@ -3,13 +3,14 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin, of, switchMap, map, catchError } from 'rxjs';
 import { ICollectionData } from '../../models/ICollection';
 import {
-  Application, OfferCounter, ApplicationStatus, PaymentMethod
+  Application, OfferCounter, ApplicationStatus, PaymentMethod,
+  DebiCheckEvent, DebiCheckStatus
 } from '../../models/schema';
 import { BusinessRulesService } from './business-rules.service';
 import { LendingAdapter } from './lending.adapter';
 
-type Ok = { ok: true };
-type Fail = { ok: false; error: string };
+export type Ok = { ok: true };
+export type Fail = { ok: false; error: string };
 
 @Injectable({ providedIn: 'root' })
 export class BusinessTxService {
@@ -122,5 +123,43 @@ export class BusinessTxService {
       }),
       catchError((e) => of({ ok: false, error: e?.message || 'Mark paid failed' }))
     );
+  }
+
+  /** Initialize DebiCheck process for an application */
+  initDebiCheck$(appNode: ICollectionData<Application>): Observable<Ok | Fail> {
+    const event: DebiCheckEvent = {
+      application_id: appNode.id,
+      status: DebiCheckStatus.INITIATED,
+      created_at: new Date().toISOString()
+    };
+
+    return this.la.add('debicheck_events', event).pipe(
+      map(() => ({ ok: true } as Ok)),
+      catchError((e) => of({ ok: false, error: e?.message || 'DebiCheck init failed' }))
+    );
+  }
+
+  /** Confirm or fail a DebiCheck process for an application */
+  confirmDebiCheck$(
+    appNode: ICollectionData<Application>,
+    success = true,
+    payload?: any
+  ): Observable<Ok | Fail> {
+    const event: DebiCheckEvent = {
+      application_id: appNode.id,
+      status: success ? DebiCheckStatus.CONFIRMED : DebiCheckStatus.FAILED,
+      payload,
+      created_at: new Date().toISOString()
+    };
+
+    return this.la.add('debicheck_events', event).pipe(
+      map(() => ({ ok: true } as Ok)),
+      catchError((e) => of({ ok: false, error: e?.message || 'DebiCheck confirmation failed' }))
+    );
+  }
+
+  /** Get DebiCheck events for an application */
+  debiCheckEvents$(appNode: ICollectionData<Application>): Observable<ICollectionData<DebiCheckEvent>[]> {
+    return this.la.getDebiCheckEvents$(appNode.id);
   }
 }

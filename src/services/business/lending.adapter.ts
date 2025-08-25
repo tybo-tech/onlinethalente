@@ -12,6 +12,7 @@ import {
   BankingDetails,
   PaymentMethod,
   PaymentStatus,
+  DebiCheckEvent
 } from '../../models/schema';
 
 type Node<T> = ICollectionData<T>;
@@ -61,6 +62,17 @@ export class LendingAdapter {
     return this.cds.getDataByCollectionId(
       'banking_details'
     ) as unknown as Observable<Node<BankingDetails>[]>;
+  }
+
+  /** Get DebiCheck events for an application */
+  getDebiCheckEvents$(applicationId: number): Observable<Node<DebiCheckEvent>[]> {
+    return (
+      this.cds.getDataByCollectionId(
+        'debicheck_events'
+      ) as unknown as Observable<Node<DebiCheckEvent>[]>
+    ).pipe(
+      map((events) => events.filter((e) => e.data.application_id === applicationId))
+    );
   }
 
   // ---- Mutations
