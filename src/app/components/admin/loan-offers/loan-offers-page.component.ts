@@ -1,12 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { firstValueFrom, map } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { ICollectionData } from '../../../../models/ICollection';
+import { FormInput } from '../../../../models/FormInput';
+import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.component';
 import { LoanOffer, PayCycle } from '../../../../models/schema';
 import { BusinessRulesService } from '../../../../services/business/business-rules.service';
 import { LendingAdapter } from '../../../../services/business/lending.adapter';
 import { ToastService } from '../../../../services/toast.service';
+import { UiModalComponent } from '../../shared/ui-modal/ui-modal.component';
 
 type OfferWithCycle = LoanOffer & {
   cycleLabel?: string;
@@ -17,175 +20,154 @@ interface OfferNode extends ICollectionData<OfferWithCycle> {}
 @Component({
   selector: 'app-loan-offers-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, UiModalComponent, DynamicFormComponent],
   template: `
-    <div class="p-4 flex">
-      <!-- Left: Pay Cycle Filter -->
-      <div class="w-64 pr-8">
-        <h2 class="text-lg font-medium mb-4">Pay Cycles</h2>
-        <div class="space-y-2">
-          <button
-            (click)="selectedCycleId = undefined"
-            class="block w-full text-left px-3 py-2 rounded"
-            [class.bg-blue-100]="!selectedCycleId"
-          >
-            All Cycles
-          </button>
-          <button
-            *ngFor="let cycle of cycles"
-            (click)="selectedCycleId = cycle.id"
-            class="block w-full text-left px-3 py-2 rounded"
-            [class.bg-blue-100]="selectedCycleId === cycle.id"
-          >
-            {{ cycle.data.label }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Right: Offers List -->
-      <div class="flex-1">
-        <div class="flex justify-between items-center mb-6">
-          <h1 class="text-2xl font-bold">Loan Offers</h1>
-          <button
-            (click)="showAddForm()"
-            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Add Offer
-          </button>
-        </div>
-
-        <!-- Add/Edit Form -->
-        <div *ngIf="form" class="mb-8 bg-white p-4 rounded shadow">
-          <h2 class="text-lg font-medium mb-4">{{ editingOffer ? 'Edit' : 'Add' }} Loan Offer</h2>
-          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Pay Cycle</label>
-              <select
-                formControlName="pay_cycle_id"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              >
-                <option [ngValue]="null" disabled>Select a pay cycle</option>
-                <option *ngFor="let cycle of cycles" [ngValue]="cycle.id">
-                  {{ cycle.data.label }}
-                </option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Amount (R)</label>
-              <input
-                type="number"
-                formControlName="amount"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              >
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Total Slots</label>
-              <input
-                type="number"
-                formControlName="slots_total"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              >
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Label (Optional)</label>
-              <input
-                type="text"
-                formControlName="label"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              >
-            </div>
-
-            <div class="flex items-center">
-              <input
-                type="checkbox"
-                formControlName="is_active"
-                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              >
-              <label class="ml-2 block text-sm text-gray-900">Active</label>
-            </div>
-
-            <div class="flex gap-2">
+    <div class="container mx-auto px-4 py-8">
+      <div class="flex flex-wrap md:flex-nowrap gap-8">
+        <!-- Left: Pay Cycle Filter -->
+        <div class="w-full md:w-64 shrink-0">
+          <div class="sticky top-4">
+            <h2 class="text-lg font-semibold mb-4 flex items-center">
+              <i class="fa fa-calendar mr-2"></i>
+              Pay Cycles
+            </h2>
+            <div class="space-y-2">
               <button
-                type="submit"
-                [disabled]="form.invalid || saving"
-                class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
+                (click)="selectedCycleId = undefined"
+                class="block w-full text-left px-3 py-2 rounded transition-colors duration-150"
+                [class.bg-blue-100]="!selectedCycleId"
+                [class.hover:bg-blue-50]="selectedCycleId"
               >
-                {{ saving ? 'Saving...' : (editingOffer ? 'Update' : 'Create') }}
+                <i class="fa fa-filter-circle-xmark mr-2"></i>
+                All Cycles
               </button>
               <button
-                type="button"
-                (click)="cancelEdit()"
-                class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                *ngFor="let cycle of cycles"
+                (click)="selectedCycleId = cycle.id"
+                class="block w-full text-left px-3 py-2 rounded transition-colors duration-150"
+                [class.bg-blue-100]="selectedCycleId === cycle.id"
+                [class.hover:bg-blue-50]="selectedCycleId !== cycle.id"
               >
-                Cancel
+                <i class="fa fa-calendar-check mr-2"></i>
+                {{ cycle.data.label }}
               </button>
             </div>
-          </form>
+          </div>
         </div>
 
-        <!-- List -->
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Label</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pay Cycle</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total Slots</th>
-                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Active</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr *ngFor="let offer of filteredOffers">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ offer.data.label || ('R' + (offer.data.amount_cents / 100)) }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ offer.data.cycleLabel }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
-                  R{{ offer.data.amount_cents / 100 }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">
-                  {{ offer.data.slots_total }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <button
-                    (click)="toggleActive(offer)"
-                    [class.text-green-600]="offer.data.is_active"
-                    [class.text-gray-400]="!offer.data.is_active"
-                    class="hover:text-green-900"
-                  >
-                    {{ offer.data.is_active ? '✓' : '×' }}
-                  </button>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button
-                    (click)="editOffer(offer)"
-                    class="text-blue-600 hover:text-blue-900 mr-4"
-                  >
-                    Edit
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- Right: Offers List -->
+        <div class="flex-1">
+          <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold flex items-center">
+              <i class="fa fa-sack-dollar mr-2"></i>
+              Loan Offers
+            </h1>
+            <button
+              (click)="showAddForm()"
+              class="btn-primary flex items-center"
+            >
+              <i class="fa fa-plus mr-2"></i>
+              Add Offer
+            </button>
+          </div>
+
+          <!-- List -->
+          <div class="bg-white rounded-lg shadow-sm overflow-hidden ring-1 ring-gray-200">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Label</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pay Cycle</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total Slots</th>
+                  <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr *ngFor="let offer of filteredOffers" class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <i class="fa fa-tag mr-2 text-gray-400"></i>
+                    {{ offer.data.label || ('R' + (offer.data.amount_cents / 100)) }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <i class="fa fa-calendar-day mr-2"></i>
+                    {{ offer.data.cycleLabel }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
+                    <i class="fa fa-coins mr-1 text-yellow-500"></i>
+                    R{{ offer.data.amount_cents / 100 }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">
+                    <i class="fa fa-user-group mr-1"></i>
+                    {{ offer.data.slots_total }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <button
+                      (click)="toggleActive(offer)"
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                      [class.bg-green-100]="offer.data.is_active"
+                      [class.text-green-800]="offer.data.is_active"
+                      [class.bg-gray-100]="!offer.data.is_active"
+                      [class.text-gray-800]="!offer.data.is_active"
+                    >
+                      <i class="fa" [class.fa-check-circle]="offer.data.is_active" [class.fa-ban]="!offer.data.is_active"></i>
+                      <span class="ml-1">{{ offer.data.is_active ? 'Active' : 'Inactive' }}</span>
+                    </button>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button
+                      (click)="editOffer(offer)"
+                      class="btn-ghost text-indigo-600 hover:text-indigo-900"
+                    >
+                      <i class="fa fa-edit mr-1"></i>
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="filteredOffers.length === 0">
+                  <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                    <i class="fa fa-inbox text-4xl mb-3"></i>
+                    <p>No loan offers found</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Add/Edit Modal -->
+    <ui-modal [(open)]="showModal" [title]="editingOffer ? 'Edit Loan Offer' : 'Add Loan Offer'">
+      <app-dynamic-form
+        [inputs]="formInputs"
+        [initialData]="editingOffer ? {
+          pay_cycle_id: editingOffer.data.pay_cycle_id,
+          amount: editingOffer.data.amount_cents / 100,
+          slots_total: editingOffer.data.slots_total,
+          label: editingOffer.data.label || '',
+          is_active: editingOffer.data.is_active
+        } : {
+          is_active: true
+        }"
+        submitLabel="{{ saving ? 'Saving...' : (editingOffer ? 'Update' : 'Create') }}"
+        cancelLabel="Cancel"
+        [submitClass]="saving ? 'btn-primary opacity-75' : 'btn-primary'"
+        (submitted)="onSubmit($event)"
+        (cancelled)="cancelEdit()"
+      ></app-dynamic-form>
+    </ui-modal>
   `
 })
 export class LoanOffersPageComponent implements OnInit {
   cycles: ICollectionData<PayCycle>[] = [];
   offers: OfferNode[] = [];
   selectedCycleId?: number;
-  form: FormGroup | undefined;
   editingOffer: ICollectionData<LoanOffer> | undefined;
   saving = false;
+  showModal = false;
+  formInputs: FormInput[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -227,37 +209,84 @@ export class LoanOffersPageComponent implements OnInit {
 
   showAddForm() {
     this.editingOffer = undefined;
-    this.form = this.fb.group({
-      pay_cycle_id: [null, Validators.required],
-      amount: [null, [Validators.required, Validators.min(1)]],
-      slots_total: [null, [Validators.required, Validators.min(1)]],
-      label: [''],
-      is_active: [true]
-    });
+    this.setupFormInputs();
+    this.showModal = true;
+  }
+
+  private setupFormInputs(offer?: ICollectionData<LoanOffer>) {
+    this.formInputs = [
+      {
+        key: 'pay_cycle_id',
+        label: 'Pay Cycle',
+        type: 'select',
+        icon: 'fa-calendar-check',
+        required: true,
+        options: this.cycles.map(cycle => ({
+          value: cycle.id,
+          label: cycle.data.label
+        })),
+        placeholder: 'Select a pay cycle',
+        errorMessages: {
+          required: 'Please select a pay cycle'
+        }
+      },
+      {
+        key: 'amount',
+        label: 'Amount',
+        type: 'number',
+        icon: 'fa-money-bill',
+        unit: 'R',
+        required: true,
+        min: 1,
+        step: 100,
+        errorMessages: {
+          required: 'Amount is required',
+          min: 'Amount must be greater than 0'
+        }
+      },
+      {
+        key: 'slots_total',
+        label: 'Total Slots',
+        type: 'number',
+        icon: 'fa-users',
+        required: true,
+        min: 1,
+        errorMessages: {
+          required: 'Total slots is required',
+          min: 'Total slots must be at least 1'
+        }
+      },
+      {
+        key: 'label',
+        label: 'Label (Optional)',
+        type: 'text',
+        icon: 'fa-tag',
+        placeholder: 'e.g., Early Bird Special'
+      },
+      {
+        key: 'is_active',
+        label: 'Active',
+        type: 'checkbox',
+        icon: 'fa-toggle-on'
+      }
+    ];
   }
 
   editOffer(offer: ICollectionData<LoanOffer>) {
     this.editingOffer = offer;
-    this.form = this.fb.group({
-      pay_cycle_id: [offer.data.pay_cycle_id, Validators.required],
-      amount: [offer.data.amount_cents / 100, [Validators.required, Validators.min(1)]],
-      slots_total: [offer.data.slots_total, [Validators.required, Validators.min(1)]],
-      label: [offer.data.label || ''],
-      is_active: [offer.data.is_active]
-    });
+    this.setupFormInputs(offer);
+    this.showModal = true;
   }
 
   cancelEdit() {
-    this.form = undefined;
+    this.showModal = false;
     this.editingOffer = undefined;
   }
 
-  async onSubmit() {
-    if (!this.form?.valid) return;
+  async onSubmit(values: any) {
 
     this.saving = true;
     try {
-      const values = this.form.value;
       const data: LoanOffer = {
         pay_cycle_id: values.pay_cycle_id,
         amount_cents: values.amount * 100,
@@ -288,7 +317,7 @@ export class LoanOffersPageComponent implements OnInit {
         this.toast.success('Loan offer created');
       }
 
-      this.form = undefined;
+      this.showModal = false;
       this.editingOffer = undefined;
       await this.loadData();
     } catch (error) {

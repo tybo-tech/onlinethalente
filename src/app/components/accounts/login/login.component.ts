@@ -11,23 +11,60 @@ import { Router } from '@angular/router';
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
+  showPassword = false;
+
   formInputs: FormInput[] = [
     {
       key: 'email',
       label: 'Email',
       type: 'email',
       required: true,
+      icon: 'fa-envelope',
       placeholder: 'Enter your email address',
+      validators: [
+        {
+          name: 'email',
+          message: 'Please enter a valid email address'
+        }
+      ],
+      errorMessages: {
+        required: 'Email is required to log in'
+      }
     },
     {
       key: 'password',
       label: 'Password',
       type: 'password',
       required: true,
+      icon: 'fa-lock',
+      rightIcon: 'fa-eye',
       placeholder: 'Enter your password',
+      validators: [
+        {
+          name: 'minLength',
+          value: 6,
+          message: 'Password must be at least 6 characters'
+        }
+      ],
+      errorMessages: {
+        required: 'Password is required to log in'
+      }
     },
   ];
-  constructor(private userService: UserService, private router: Router) {}
+  constructor(private userService: UserService, private router: Router) {
+    this.updatePasswordVisibility();
+  }
+
+  private updatePasswordVisibility() {
+    const passwordInput = this.formInputs[1]; // Password is second input
+    passwordInput.type = this.showPassword ? 'text' : 'password';
+    passwordInput.rightIcon = this.showPassword ? 'fa-eye-slash' : 'fa-eye';
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+    this.updatePasswordVisibility();
+  }
   onLogin({ email, password }: any): void {
     this.userService.login({ email, password }).subscribe({
       next: (response) => {
@@ -38,8 +75,15 @@ export class LoginComponent {
         }
       },
       error: (error) => {
-        console.error('Error registering user:', error);
-        alert('Login failed. Please check your credentials and try again.');
+        console.error('Login error:', error);
+        // Update the form inputs with error state
+        this.formInputs = this.formInputs.map(input => ({
+          ...input,
+          errorMessages: {
+            ...input.errorMessages,
+            server: 'Invalid email or password'
+          }
+        }));
       },
     });
   }

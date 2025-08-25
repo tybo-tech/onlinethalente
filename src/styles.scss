@@ -1,50 +1,154 @@
-
-@import "tailwindcss";
+@forward "tailwindcss";
 
 :root {
   /* Branding Colors */
-  --primary: #1A237E;            /* Deep navy (trust) */
-  --accent: #e67e22;             /* Warm amber (CTAs) */
-  --success: #00BFA5;            /* Soft green (confirmation) */
-  --danger: #D32F2F;             /* Optional: for errors */
+  --primary: #1a237e; /* Deep navy (trust) */
+  --accent: #e67e22; /* Warm amber (CTAs) */
+  --success: #00bfa5; /* Soft green (confirmation) */
+  --danger: #d32f2f; /* Optional: for errors */
 
   /* Grayscale Base */
   --white: #ffffff;
-  --gray-light: #F5F5F5;         /* Backgrounds */
-  --gray: #E0E0E0;               /* Input borders, outlines */
-  --text-main: #212121;          /* Main body text */
-  --text-muted: #616161;         /* Secondary text */
+  --gray-light: #f5f5f5; /* Backgrounds */
+  --gray: #e0e0e0; /* Input borders, outlines */
+  --text-main: #212121; /* Main body text */
+  --text-muted: #616161; /* Secondary text */
 
   /* UI Specifics */
-  --cloud: #F8F9FA;              /* Card backgrounds */
-  --input-bg: #ffffff;           /* Input background */
-  --input-border: #D6D6D6;       /* Input border color */
+  --cloud: #f8f9fa; /* Card backgrounds */
+  --input-bg: #ffffff; /* Input background */
+  --input-border: #d6d6d6; /* Input border color */
 }
 
 a,
 button {
   cursor: pointer;
 }
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+
+select,
+input,
+textarea {
+  display: block;
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db; /* border-gray-300 */
+  background-color: #f9fafb; /* bg-gray-50 */
+  padding: 0.625rem 1rem;
+  color: #111827; /* text-gray-900 */
+  font-size: 0.875rem; /* sm:text-sm */
+  transition: all 0.15s;
+
+  &[type="number"] {
+    -moz-appearance: textfield;
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
   }
-  @keyframes blob {
-    0% { transform: translate(0px, 0px) scale(1); }
-    33% { transform: translate(20px, -20px) scale(1.05); }
-    66% { transform: translate(-20px, 10px) scale(0.95); }
-    100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.input-icon-left {
+  position: relative;
+
+  .icon-left {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2.5rem; /* 40px */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280; /* text-gray-500 */
+    pointer-events: none;
   }
-  .animate-float { animation: float 6s ease-in-out infinite; }
-  .animate-float-slow { animation: float 8s ease-in-out infinite; }
-  .animate-blob { animation: blob 10s ease-in-out infinite; }
-  .animation-delay-2000 { animation-delay: 2s; }
-  .animation-delay-4000 { animation-delay: 4s; }
-  .animate-fade-in-up {
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fadeInUp 0.8s forwards;
+
+  input,
+  select {
+    padding-left: 2.5rem; /* 40px */
   }
-  @keyframes fadeInUp {
-    to { opacity: 1; transform: translateY(0); }
+}
+
+.input-icon-right {
+  position: relative;
+
+  .icon-right {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    pointer-events: none;
   }
+
+  input,
+  select {
+    padding-right: 2.5rem;
+  }
+}
+select:focus,
+input:focus,
+textarea:focus {
+  border-color: #6366f1; /* indigo-500 */
+  box-shadow: 0 0 0 1px #6366f1;
+}
+select:disabled,
+input:disabled,
+textarea:disabled {
+  background-color: #f3f4f6; /* bg-gray-100 */
+  cursor: not-allowed;
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(20px, -20px) scale(1.05);
+  }
+  66% {
+    transform: translate(-20px, 10px) scale(0.95);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+.animate-float-slow {
+  animation: float 8s ease-in-out infinite;
+}
+.animate-blob {
+  animation: blob 10s ease-in-out infinite;
+}
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+.animate-fade-in-up {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.8s forwards;
+}
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
