@@ -13,15 +13,15 @@ import { AdminDashboardComponent } from './app/admin/dashboard/admin-dashboard.c
 import { ReportsPageComponent } from './components/admin/reports/reports-page.component';
 import { BankingDetailsPageComponent } from './components/admin/banking/banking-details-page.component';
 import { adminRoutes } from './routes/admin.routes';
-import { ApplyComponent } from './components/home/apply/apply.component.new';
 import { LandingComponent } from './components/landing/landing.component';
 import { LandingGoodLogicComponent } from './components/home/landing/landing.good.logic';
 import { LandingHeroComponent } from './components/home/landing/landing.component';
+import { ApplyPageComponent } from './components/home/apply/apply';
 
 export const routes: Routes = [
   { path: '', component: LandingHeroComponent },
   // { path: '', component: LandingGoodLogicComponent },
-  { path: 'apply', component: ApplyComponent },
+  { path: 'apply', component: ApplyPageComponent },
   {
     path: 'application/:id/done',
     loadComponent: () =>
