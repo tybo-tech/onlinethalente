@@ -45,7 +45,7 @@ export class ApplicationsComponent implements OnInit {
 
   edit(app: ICollectionData<Application>) {
     this.selectedApp = { ...app }; // Clone to prevent direct mutation
-    this.comment = this.selectedApp.data.comment || '';
+    // this.comment = this.selectedApp.data.comment || '';
   }
 
   closeModal() {
@@ -55,8 +55,8 @@ export class ApplicationsComponent implements OnInit {
 
   updateStatus(status: 'approved' | 'rejected') {
     if (this.selectedApp) {
-      this.selectedApp.data.status = status;
-      this.selectedApp.data.comment = this.comment;
+      // this.selectedApp.data.status = status;
+      // this.selectedApp.data.comment = this.comment;
 
       this.dataService.updateData(this.selectedApp).subscribe(() => {
         this.closeModal();

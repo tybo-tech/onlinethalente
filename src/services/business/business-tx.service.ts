@@ -1,0 +1,126 @@
+// src/app/services/business/business-tx.service.ts
+import { Injectable, inject } from '@angular/core';
+import { Observable, forkJoin, of, switchMap, map, catchError } from 'rxjs';
+import { ICollectionData } from '../../models/ICollection';
+import {
+  Application, OfferCounter, ApplicationStatus, PaymentMethod
+} from '../../models/schema';
+import { BusinessRulesService } from './business-rules.service';
+import { LendingAdapter } from './lending.adapter';
+
+type Ok = { ok: true };
+type Fail = { ok: false; error: string };
+
+@Injectable({ providedIn: 'root' })
+export class BusinessTxService {
+  private la = inject(LendingAdapter);
+  private rules = inject(BusinessRulesService);
+
+  /**
+   * Approve Application (client-orchestrated):
+   *  1) ensure monthly counter exists
+   *  2) decrement counter
+   *  3) set application APPROVED
+   *  4) create PENDING payment
+   * Compensates (rollback) on failure.
+   */
+  approveApplication$(appNode: ICollectionData<Application>): Observable<Ok | Fail> {
+    const errs = this.rules.validateApplication(appNode.data);
+    if (errs.length) return of({ ok: false, error: errs.join('; ') });
+
+    if (!appNode.data.offer_id) return of({ ok: false, error: 'Application has no offer_id' });
+
+    const period = this.rules.currentPeriodISO();
+    const origApp = { ...appNode.data };
+
+    return forkJoin({
+      counters: this.la.offerCounters$(),
+      offers: this.la.loanOffers$(),
+    }).pipe(
+      switchMap(({ counters, offers }) => {
+        const offer = offers.find(o => o.id === appNode.data.offer_id);
+        if (!offer) return of({ ok: false, error: 'Offer not found' } as Fail);
+
+        let counter = counters.find(c => c.data.offer_id === offer.id && c.data.period === period);
+        if (!counter) {
+          // Create missing monthly counter
+          return this.la
+            .add<OfferCounter>('offer_counters', {
+              offer_id: offer.id,
+              period,
+              slots_remaining: offer.data.slots_total,
+            })
+            .pipe(switchMap((created) => this._decrementApproveAndCreatePayment(appNode, created as any)));
+        }
+        return this._decrementApproveAndCreatePayment(appNode, counter);
+      }),
+      catchError((e) => of({ ok: false, error: e?.message || 'Approval failed' }))
+    );
+  }
+
+  private _decrementApproveAndCreatePayment(
+    appNode: ICollectionData<Application>,
+    counterNode: ICollectionData<OfferCounter>
+  ): Observable<Ok | Fail> {
+    if (counterNode.data.slots_remaining <= 0) {
+      return of({ ok: false, error: 'No slots remaining for this offer' });
+    }
+
+    const origCounter = { ...counterNode.data };
+
+    // 1) decrement counter
+    counterNode.data.slots_remaining -= 1;
+    this.rules.touch(counterNode);
+
+    // 2) approve app
+    appNode.data.status = ApplicationStatus.APPROVED;
+    appNode.data.approved_at = new Date().toISOString();
+    this.rules.touch(appNode);
+
+    // 3) write updates, then create payment
+    return forkJoin([
+      this.la.update(counterNode),
+      this.la.update(appNode),
+    ]).pipe(
+      switchMap(() =>
+        this.la.createPayment(appNode.id, appNode.data.requested_amount_cents, PaymentMethod.RTC)
+      ),
+      map(() => ({ ok: true } as Ok)),
+      catchError((e) =>
+        // COMPENSATE (best-effort)
+        forkJoin([
+          (counterNode.data.slots_remaining = origCounter.slots_remaining, this.la.update(counterNode)),
+          (appNode.data = { ...appNode.data, status: ApplicationStatus.SUBMITTED, approved_at: undefined }, this.la.update(appNode)),
+        ]).pipe(
+          switchMap(() => of({ ok: false, error: e?.message || 'Approval failed' } as Fail)),
+          catchError(() => of({ ok: false, error: 'Approval failed (rollback attempted)' } as Fail))
+        )
+      )
+    );
+  }
+
+  /** Mark a Payment SUCCESS and set its Application to PAID */
+  markPaid$(
+    paymentNode: ICollectionData<{ application_id: number; processed_at?: string; status: string; reference?: string }>,
+    reference?: string
+  ): Observable<Ok | Fail> {
+    const now = new Date().toISOString();
+    paymentNode.data.status = 'SUCCESS';
+    paymentNode.data.processed_at = now;
+    if (reference) paymentNode.data.reference = reference;
+    this.rules.touch(paymentNode);
+
+    return this.la.update(paymentNode).pipe(
+      switchMap(() => this.la.applications$()),
+      switchMap((apps) => {
+        const app = apps.find(a => a.id === paymentNode.data.application_id);
+        if (!app) return of({ ok: false, error: 'Application not found' } as Fail);
+        app.data.status = ApplicationStatus.PAID;
+        app.data.paid_at = now;
+        this.rules.touch(app);
+        return this.la.update(app).pipe(map(() => ({ ok: true } as Ok)));
+      }),
+      catchError((e) => of({ ok: false, error: e?.message || 'Mark paid failed' }))
+    );
+  }
+}

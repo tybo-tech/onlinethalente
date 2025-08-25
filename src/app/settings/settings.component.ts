@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { ICollectionData, CollectionNames } from '../../models/ICollection';
-import { ISetting, Application } from '../../models/schema';
+// import { any } from '../../models/schema';
 import { CollectionDataService } from '../../services/collection.data.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,10 +13,10 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './settings.component.scss'
 })
 export class SettingsComponent {
- settings: ICollectionData<ISetting>[] = [];
+ settings: ICollectionData<any>[] = [];
 
   constructor(
-    private dataService: CollectionDataService<ISetting>,
+    private dataService: CollectionDataService<any>,
     private router: Router
   ) {}
 
@@ -25,14 +25,14 @@ export class SettingsComponent {
   }
 
   loadApplications() {
-    this.dataService
-      .getDataByCollectionId(CollectionNames.Settings)
-      .subscribe((res) => {
-        this.settings = res;
-      });
+    // this.dataService
+    //   .getDataByCollectionId(CollectionNames.Settings)
+    //   .subscribe((res) => {
+    //     this.settings = res;
+    //   });
   }
 
-save(data: ICollectionData<ISetting>) {
+save(data: ICollectionData<any>) {
     if (data.id) {
       this.dataService.updateData(data).subscribe(() => this.loadApplications());
     } else {

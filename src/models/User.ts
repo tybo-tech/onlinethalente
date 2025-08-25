@@ -41,7 +41,7 @@ export function initUser(): User {
   return {
     id: 0,
     website_id: CollectionNames.WebsiteId,
-    company_id: '',
+    company_id: CollectionNames.WebsiteId,
     name: '',
     email: '',
     password: '',

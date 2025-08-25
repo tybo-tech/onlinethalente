@@ -50,20 +50,20 @@
             <!-- Main Info -->
             <div>
               <h4 class="text-xl font-semibold text-[var(--primary)]">
-                R{{ loan.amount }} — {{ loan.type }} Loan
+                <!-- R{{ loan.amount }} — {{ loan.type }} Loan -->
               </h4>
               <p class="text-sm text-[var(--gray-dark)] mt-1">
-                <span class="font-medium">Purpose:</span> {{ loan.purpose || 'N/A' }}
+                <!-- <span class="font-medium">Purpose:</span> {{ loan.purpose || 'N/A' }} -->
               </p>
               <p class="text-sm text-[var(--gray-dark)] mt-1">
                 <span class="font-medium">Applied On:</span>
-                {{ (loan.created_at | date )|| 'N/A' }}
+                <!-- {{ (loan.created_at | date )|| 'N/A' }} -->
               </p>
             </div>
 
             <!-- Status Badge & Actions -->
             <div class="text-sm text-right flex flex-col gap-2 items-end">
-              <span
+              <!-- <span
                 class="px-3 py-1 rounded-full text-xs font-semibold"
                 [ngClass]="{
                   'bg-yellow-100 text-yellow-800': loan.status === 'pending',
@@ -72,7 +72,7 @@
                 }"
               >
                 {{ loan.status }}
-              </span>
+              </span> -->
 
               <button
                 class="mt-2 inline-flex items-center gap-1 text-sm text-[var(--primary)] hover:underline"

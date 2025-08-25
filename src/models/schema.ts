@@ -1,375 +1,264 @@
-import { User } from './User';
+// -----------------------------------------------------------
+// Domain enums & helper types
+// -----------------------------------------------------------
+export type SalaryDay = 15 | 25 | 31;
 
-// ===== CORE APPLICATION INTERFACE =====
-export interface Application {
-  // Legacy fields (keep for backward compatibility)
-  comment?: string;
-  created_at?: any;
-
-  // Core loan details
-  amount: number;
-  requestedAmount?: number; // Original amount requested
-  approvedAmount?: number; // Final approved amount
-  type: string; // '15th', '25th', '30th' - repayment day
-  purpose?: string;
-  bankStatement?: string;
-
-  // Enhanced status management
-  status: 'draft' | 'submitted' | 'pending' | 'under_review' | 'pending_documents' | 'approved' | 'rejected' | 'disbursed' | 'active' | 'completed' | 'defaulted';
-  substatus?: string; // Additional status details
-
-  // Application metadata
-  applicationNumber?: string; // Auto-generated unique reference
-  loanProductId?: number; // Reference to loan product
-
-  // Financial calculations
-  interestRate?: number; // Annual percentage rate
-  monthlyPayment?: number; // Calculated monthly payment
-  totalRepayable?: number; // Total amount to be repaid
-  term?: number; // Loan duration in months
-
-  // Personal information (embedded)
-  personalInfo?: PersonalInfo;
-
-  // Employment information
-  employmentInfo?: EmploymentInfo;
-
-  // Document management
-  documents?: ApplicationDocument[];
-  requiredDocuments?: string[]; // List of required document types
-
-  // Risk assessment
-  creditAssessment?: CreditAssessment;
-
-  // Timeline tracking
-  timeline?: ApplicationTimeline;
-
-  // Administrative notes
-  adminNotes?: string;
-  rejectionReason?: string;
-  approvalConditions?: string[];
-
-  // Payment information
-  disbursementMethod?: 'bank_transfer' | 'cash' | 'mobile_money';
-  bankDetails?: BankDetails;
-
-  // Relationship data (populated from joins)
-  _user?: User;
-  _loanProduct?: LoanProduct;
-  _paymentSchedule?: PaymentSchedule[];
-  _notifications?: SystemNotification[];
+export enum ApplicationStatus {
+  SUBMITTED = 'SUBMITTED',
+  VERIFIED = 'VERIFIED',
+  APPROVED = 'APPROVED',
+  DECLINED = 'DECLINED',
+  PAID = 'PAID',
 }
 
-// ===== SUPPORTING INTERFACES =====
-
-// Personal Information
-export interface PersonalInfo {
-  firstName: string;
-  lastName: string;
-  idNumber: string;
-  dateOfBirth?: string;
-  gender?: 'male' | 'female' | 'other';
-  nationality?: string;
-  maritalStatus?: 'single' | 'married' | 'divorced' | 'widowed';
-  dependents?: number;
-  phoneNumber: string;
-  alternativePhone?: string;
-  email: string;
-  preferredLanguage?: string;
+export enum AIVerification {
+  PENDING = 'PENDING',
+  PASS = 'PASS',
+  WARN = 'WARN',
+  FAIL = 'FAIL',
 }
 
-// Address Information
-export interface Address {
-  streetAddress: string;
-  suburb?: string;
-  city: string;
-  province: string;
-  postalCode: string;
-  country?: string;
-  residenceType?: 'owned' | 'rented' | 'family' | 'other';
-  yearsAtAddress?: number;
+export enum DebiCheckStatus {
+  INITIATED = 'INITIATED',
+  CONFIRMED = 'CONFIRMED',
+  FAILED = 'FAILED',
 }
 
-// Employment Information
-export interface EmploymentInfo {
-  employmentStatus: 'employed' | 'self_employed' | 'unemployed' | 'pensioner' | 'student';
-  employerName?: string;
-  jobTitle?: string;
-  workAddress?: Address;
-  employmentStartDate?: string;
-  monthlyIncome?: number;
-  additionalIncome?: number;
-  incomeSource?: string;
-  payrollNumber?: string;
-  supervisorContact?: string;
+export enum PaymentMethod {
+  RTC = 'RTC',
+  PAYFAST = 'PAYFAST',
 }
 
-// Bank Details
-export interface BankDetails {
-  bankName: string;
-  accountType: 'savings' | 'current' | 'transmission';
-  accountNumber: string;
-  branchCode: string;
-  accountHolderName: string;
+export enum PaymentStatus {
+  PENDING = 'PENDING',
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
 }
 
-// Document Management
-export interface ApplicationDocument {
-  id?: string;
-  type: 'id_document' | 'proof_of_income' | 'bank_statement' | 'proof_of_address' | 'employment_letter' | 'payslip';
-  fileName: string;
-  originalName: string;
-  url: string;
-  fileSize?: number;
-  mimeType?: string;
-  uploadedAt: string;
-  status: 'pending' | 'verified' | 'rejected' | 'expired';
-  verifiedBy?: number; // Admin user ID
-  verificationDate?: string;
-  rejectionReason?: string;
-  expiryDate?: string;
-  notes?: string;
-}
+export type DocumentKind = 'BANK_STATEMENT';
 
-// Credit Assessment
-export interface CreditAssessment {
-  score: number; // Credit score out of 1000
-  riskLevel: 'low' | 'medium' | 'high' | 'very_high';
-  affordabilityRatio: number; // Debt-to-income ratio
-  recommendedAmount: number;
-  maxAffordableAmount: number;
-  assessmentDate: string;
-  assessedBy?: number; // Admin user ID
-  factors: AssessmentFactor[];
-  creditBureauCheck?: boolean;
-  previousLoans?: number;
-  defaultHistory?: boolean;
-}
+// -----------------------------------------------------------
+// Data interfaces for each collection
+// (These go into ICollectionData<T>.data)
+// -----------------------------------------------------------
 
-// Assessment Factors
-export interface AssessmentFactor {
-  factor: string;
-  impact: 'positive' | 'negative' | 'neutral';
-  weight: number;
-  description: string;
-}
-
-// Application Timeline
-export interface ApplicationTimeline {
-  created?: string;
-  submitted?: string;
-  documentsReceived?: string;
-  underReview?: string;
-  creditCheckCompleted?: string;
-  approved?: string;
-  rejected?: string;
-  disbursed?: string;
-  firstPaymentDue?: string;
-  completed?: string;
-  defaulted?: string;
-}
-
-// Loan Products
-export interface LoanProduct {
-  id: number;
-  name: string;
-  description: string;
-  minAmount: number;
-  maxAmount: number;
-  minTerm: number; // months
-  maxTerm: number; // months
-  interestRate: number; // annual percentage
-  processingFee?: number;
-  requiredDocuments: string[];
-  eligibilityCriteria: string[];
-  features: string[];
-  isActive: boolean;
-  targetMarket?: string;
-  riskCategory?: 'low' | 'medium' | 'high';
-}
-
-// Payment Schedule
-export interface PaymentSchedule {
-  id?: number;
-  applicationId: number;
-  installmentNumber: number;
-  dueDate: string;
-  amount: number;
-  principal: number;
-  interest: number;
-  fees?: number;
-  remainingBalance: number;
-  status: 'pending' | 'paid' | 'partial' | 'overdue' | 'waived';
-  paidDate?: string;
-  paidAmount?: number;
-  paymentMethod?: 'bank_transfer' | 'cash' | 'debit_order' | 'mobile_money';
-  transactionReference?: string;
-  lateFee?: number;
-  notes?: string;
-}
-
-// System Notifications
-export interface SystemNotification {
-  id?: number;
-  userId: number;
-  type: 'application_update' | 'payment_reminder' | 'document_request' | 'approval' | 'rejection' | 'disbursement';
-  category: 'info' | 'warning' | 'success' | 'error';
-  title: string;
-  message: string;
-  applicationId?: number;
-  paymentId?: number;
-  isRead: boolean;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  actionRequired?: boolean;
-  actionUrl?: string;
-  scheduledFor?: string;
-  sentAt?: string;
-  readAt?: string;
-  expiresAt?: string;
-}
-
-// Communication Log
-export interface CommunicationLog {
-  id?: number;
-  applicationId: number;
-  userId: number;
-  adminId?: number;
-  type: 'email' | 'sms' | 'call' | 'meeting' | 'system';
-  direction: 'inbound' | 'outbound';
-  subject?: string;
-  content: string;
-  status: 'sent' | 'delivered' | 'failed' | 'pending';
-  createdAt: string;
-  attachments?: string[];
-}
-
-
-// ===== ENHANCED SETTINGS =====
-
-
-// ===== ENHANCED SETTINGS =====
-
-export interface ISetting {
-  type: string;         // Grouping (e.g., 'interest', 'limits', 'loan', 'notifications')
-  key: string;          // Unique system key (e.g., 'base_interest_rate')
-  label: string;        // Human-friendly label for display
-  value: string | number | boolean; // Actual stored value
-  input_type: 'number' | 'percent' | 'text' | 'toggle' | 'select' | 'textarea' | 'date'; // Field type
-  description?: string; // Optional help text for UI
-  category?: 'system' | 'business' | 'risk' | 'communication' | 'compliance';
-  isEditable?: boolean; // Whether admins can modify this setting
-  validation?: SettingValidation;
-  options?: SettingOption[]; // For select inputs
-  dependencies?: string[]; // Other settings this depends on
-}
-
-// Setting Validation Rules
-export interface SettingValidation {
-  required?: boolean;
-  min?: number;
-  max?: number;
-  pattern?: string; // Regex pattern
-  customMessage?: string;
-}
-
-// Setting Options for Select Types
-export interface SettingOption {
+// pay_cycles
+export interface PayCycle {
+  /** 15, 25 or 31 (salary date group) */
+  salary_day: SalaryDay;
+  /** '15th','25th','31st' */
   label: string;
-  value: string | number;
-  description?: string;
-  isDefault?: boolean;
+  /** 16, 26 or 1 (release/open day) */
+  release_day: number;
+  /** Extra copy shown when sold out (optional override) */
+  sold_out_message?: string;
 }
 
-// Loan System Settings (predefined settings structure)
-export interface LoanSystemSettings {
-  // Interest & Fees
-  baseInterestRate: number;
-  latePenaltyRate: number;
-  processingFeePercentage: number;
-  maxProcessingFee: number;
-
-  // Loan Limits
-  minLoanAmount: number;
-  maxLoanAmount: number;
-  minLoanTerm: number;
-  maxLoanTerm: number;
-
-  // Risk Assessment
-  minCreditScore: number;
-  maxDebtToIncomeRatio: number;
-  requireCreditBureauCheck: boolean;
-
-  // Document Requirements
-  requiredDocuments: string[];
-  documentExpiryDays: number;
-
-  // Business Rules
-  maxActiveLoansPerUser: number;
-  allowRefinancing: boolean;
-  gracePeriodDays: number;
-
-  // Communication
-  sendSmsNotifications: boolean;
-  sendEmailNotifications: boolean;
-  reminderDaysBefore: number;
-
-  // System
-  applicationNumberPrefix: string;
-  autoApprovalEnabled: boolean;
-  autoApprovalThreshold: number;
+// loan_offers
+export interface LoanOffer {
+  /** FK -> pay_cycles (ICollectionData id) */
+  pay_cycle_id: number;
+  /** cents to avoid float issues: 70000 = R700 */
+  amount_cents: number;
+  /** monthly slots at reset */
+  slots_total: number;
+  /** toggle */
+  is_active: boolean;
+  /** optional label for UI (e.g., "R700") */
+  label?: string;
 }
 
-// ===== UTILITY TYPES =====
-
-// Application with calculated fields
-export interface ApplicationWithCalculations extends Application {
-  calculatedMonthlyPayment: number;
-  calculatedTotalRepayable: number;
-  riskScore: number;
-  affordabilityStatus: 'good' | 'acceptable' | 'poor';
-  recommendationStatus: 'auto_approve' | 'manual_review' | 'auto_reject';
+// offer_counters (per month)
+export interface OfferCounter {
+  /** FK -> loan_offers id */
+  offer_id: number;
+  /** first day of month 'YYYY-MM-01' */
+  period: string;
+  /** remaining slots in current month */
+  slots_remaining: number;
 }
 
-// Application summary for listings
-export interface ApplicationSummary {
-  id: number;
-  applicationNumber: string;
-  userId: number;
-  userName: string;
-  amount: number;
-  status: string;
-  submittedAt: string;
-  riskLevel?: string;
-  daysInCurrentStatus: number;
-  hasUnreadMessages: boolean;
+// applications
+export interface Application {
+  /** FK -> users.id */
+  user_id: number;
+  /** FK -> pay_cycles id */
+  pay_cycle_id: number;
+  /** FK -> loan_offers id (optional; derived from clicked button) */
+  offer_id?: number;
+
+  requested_amount_cents: number;
+
+  // Customer-provided banking & payroll info (from form)
+  bank_name: string;
+  salary_account: string;
+  salary_day: SalaryDay;
+
+  // Contact snapshot (redundant for convenience)
+  full_name: string;
+  phone: string;
+  email: string;
+
+  status: ApplicationStatus;
+  ai_verification: AIVerification;
+
+  notes?: string;
+  assigned_to_user_id?: number; // admin/agent
+
+  // Audit
+  submitted_at?: string; // ISO
+  approved_at?: string;
+  paid_at?: string;
 }
 
-// Dashboard statistics
-export interface LoanDashboardStats {
-  totalApplications: number;
-  pendingApplications: number;
-  approvedApplications: number;
-  rejectedApplications: number;
-  totalDisbursed: number;
-  totalOutstanding: number;
-  averageProcessingTime: number;
-  approvalRate: number;
-  defaultRate: number;
-  monthlyGrowth: number;
+// application_documents
+export interface ApplicationDocument {
+  /** FK -> applications id */
+  application_id: number;
+  kind: DocumentKind; // 'BANK_STATEMENT'
+  storage_url: string;
+  /** optional structured AI output */
+  ai_result?: {
+    verdict: AIVerification;
+    reasons?: string[];
+    meta?: Record<string, any>;
+  };
+  uploaded_at?: string; // ISO
 }
 
-// User application history
-export interface UserApplicationHistory {
-  totalApplications: number;
-  approvedLoans: number;
-  rejectedApplications: number;
-  activeLoans: number;
-  completedLoans: number;
-  totalBorrowed: number;
-  totalRepaid: number;
-  currentOutstanding: number;
-  creditScore: number;
-  paymentHistory: 'excellent' | 'good' | 'fair' | 'poor';
-  nextPaymentDue?: string;
-  nextPaymentAmount?: number;
+// debicheck_events
+export interface DebiCheckEvent {
+  /** FK -> applications id */
+  application_id: number;
+  status: DebiCheckStatus;
+  payload?: any; // raw response if needed
+  created_at?: string; // ISO
 }
+
+// payments
+export interface Payment {
+  /** FK -> applications id */
+  application_id: number;
+  method: PaymentMethod; // RTC | PAYFAST
+  status: PaymentStatus; // PENDING | SUCCESS | FAILED
+  reference?: string;
+  amount_cents: number;
+  processed_at?: string; // ISO
+}
+
+// banking_details (org-level)
+export interface BankingDetails {
+  account_holder: string;
+  bank_name: string;
+  account_number: string;
+  branch_code?: string;
+  // PayFast config (if exposed in admin)
+  payfast_merchant_id?: string;
+  payfast_merchant_key?: string;
+  payfast_passphrase?: string;
+  updated_by_user_id?: number;
+  updated_at?: string; // ISO
+}
+
+// -----------------------------------------------------------
+// Init helpers (pure data payloads to feed initCollectionData)
+// -----------------------------------------------------------
+export const initPayCycle = (salary_day: SalaryDay): PayCycle => ({
+  salary_day,
+  label: `${salary_day}th`,
+  release_day: salary_day === 15 ? 16 : salary_day === 25 ? 26 : 1,
+  sold_out_message:
+    salary_day === 15
+      ? 'Kindly come back on the 1st.'
+      : salary_day === 25
+      ? 'Kindly come back on the 16th.'
+      : 'Kindly come back on the 26th.',
+});
+
+export const initLoanOffer = (
+  pay_cycle_id: number,
+  amount_cents: number,
+  slots_total: number
+): LoanOffer => ({
+  pay_cycle_id,
+  amount_cents,
+  slots_total,
+  is_active: true,
+  label: `R${(amount_cents / 100).toFixed(0)}`,
+});
+
+export const initOfferCounter = (
+  offer_id: number,
+  periodISOyyyyMm01: string,
+  slots_total: number
+): OfferCounter => ({
+  offer_id,
+  period: periodISOyyyyMm01,
+  slots_remaining: slots_total,
+});
+
+export const initApplication = (args: Partial<Application>): Application => ({
+  user_id: 0,
+  pay_cycle_id: 0,
+  offer_id: undefined,
+  requested_amount_cents: 0,
+  bank_name: '',
+  salary_account: '',
+  salary_day: 15,
+  full_name: '',
+  phone: '',
+  email: '',
+  status: ApplicationStatus.SUBMITTED,
+  ai_verification: AIVerification.PENDING,
+  notes: '',
+  assigned_to_user_id: undefined,
+  submitted_at: new Date().toISOString(),
+  ...args,
+});
+
+export const initApplicationDocument = (
+  application_id: number,
+  storage_url: string
+): ApplicationDocument => ({
+  application_id,
+  kind: 'BANK_STATEMENT',
+  storage_url,
+  ai_result: { verdict: AIVerification.PENDING },
+  uploaded_at: new Date().toISOString(),
+});
+
+export const initDebiCheckEvent = (
+  application_id: number,
+  status: DebiCheckStatus,
+  payload?: any
+): DebiCheckEvent => ({
+  application_id,
+  status,
+  payload,
+  created_at: new Date().toISOString(),
+});
+
+export const initPayment = (
+  application_id: number,
+  method: PaymentMethod,
+  amount_cents: number
+): Payment => ({
+  application_id,
+  method,
+  status: PaymentStatus.PENDING,
+  reference: '',
+  amount_cents,
+  processed_at: '',
+});
+
+export const initBankingDetails = (): BankingDetails => ({
+  account_holder: '',
+  bank_name: '',
+  account_number: '',
+  branch_code: '',
+  payfast_merchant_id: '',
+  payfast_merchant_key: '',
+  payfast_passphrase: '',
+  updated_by_user_id: 0,
+  updated_at: new Date().toISOString(),
+});

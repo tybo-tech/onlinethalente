@@ -68,6 +68,13 @@ export class ApplyComponent implements OnInit, OnDestroy {
 
   // Loading states
   loading = false;
+  verifyingId = false;
+  idVerified = false;
+
+  // Message states
+  successMessage = '';
+  errorMessage = '';
+  showMessage = false;
 
   // Step titles for progress display
   stepTitles = [
@@ -115,43 +122,45 @@ export class ApplyComponent implements OnInit, OnDestroy {
   }
 
   private loadApplicationData(application: Application): void {
-    // Map application data to form fields
-    if (application.personalInfo) {
-      this.idNumber = application.personalInfo.idNumber || '';
-      this.firstName = application.personalInfo.firstName || '';
-      this.lastName = application.personalInfo.lastName || '';
-      this.phoneNumber = application.personalInfo.phoneNumber || '';
-      this.email = application.personalInfo.email || '';
-      this.maritalStatus = application.personalInfo.maritalStatus || '';
-    }
+    // // Map application data to form fields
+    // if (application.personalInfo) {
+    //   this.idNumber = application.personalInfo.idNumber || '';
+    //   this.firstName = application.personalInfo.firstName || '';
+    //   this.lastName = application.personalInfo.lastName || '';
+    //   this.phoneNumber = application.personalInfo.phoneNumber || '';
+    //   this.email = application.personalInfo.email || '';
+    //   this.maritalStatus = application.personalInfo.maritalStatus || '';
+    // }
 
-    if (application.employmentInfo) {
-      this.employmentStatus = application.employmentInfo.employmentStatus || 'employed';
-      this.employerName = application.employmentInfo.employerName || '';
-      this.monthlyIncome = application.employmentInfo.monthlyIncome || 0;
-    }
+    // if (application.employmentInfo) {
+    //   this.employmentStatus = application.employmentInfo.employmentStatus || 'employed';
+    //   this.employerName = application.employmentInfo.employerName || '';
+    //   this.monthlyIncome = application.employmentInfo.monthlyIncome || 0;
+    // }
 
-    if (application.bankDetails) {
-      this.bankName = application.bankDetails.bankName || '';
-      this.accountNumber = application.bankDetails.accountNumber || '';
-      this.branchCode = application.bankDetails.branchCode || '';
-      this.accountType = application.bankDetails.accountType || 'savings';
-    }
+    // if (application.bankDetails) {
+    //   this.bankName = application.bankDetails.bankName || '';
+    //   this.accountNumber = application.bankDetails.accountNumber || '';
+    //   this.branchCode = application.bankDetails.branchCode || '';
+    //   this.accountType = application.bankDetails.accountType || 'savings';
+    // }
   }
 
   // Step validation
   isCurrentStepValid(): boolean {
     switch (this.currentStep) {
       case 1: // ID Verification
-        return this.idNumber.length === 13; // South African ID is 13 digits
+        return this.idNumber.length === 13 && this.idVerified && this.isValidSouthAfricanId(this.idNumber);
       case 2: // Personal Details
         return this.firstName.length > 0 && this.lastName.length > 0 &&
-               this.phoneNumber.length > 0 && this.email.length > 0;
+               this.phoneNumber.length > 0 && this.email.length > 0 &&
+               this.email.includes('@') && this.phoneNumber.length >= 10;
       case 3: // Employment Info
-        return this.employmentStatus.length > 0 && this.monthlyIncome > 0;
+        return this.employmentStatus.length > 0 && this.monthlyIncome > 0 &&
+               (this.employmentStatus === 'self_employed' || this.employerName.length > 0);
       case 4: // Banking Details
         return this.bankName.length > 0 && this.accountNumber.length > 0 &&
-               this.branchCode.length > 0;
+               this.branchCode.length > 0 && this.accountNumber.length >= 8;
       case 5: // Review
         return true;
       default:
@@ -159,7 +168,113 @@ export class ApplyComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Navigation methods
+  // Verify ID Number and create/load user
+  async verifyIdNumber(): Promise<void> {
+    if (this.idNumber.length !== 13) {
+      this.showError('Please enter a valid 13-digit ID number');
+      return;
+    }
+
+    // Basic ID number validation (South African format)
+    if (!this.isValidSouthAfricanId(this.idNumber)) {
+      this.showError('Please enter a valid South African ID number');
+      return;
+    }
+
+    this.verifyingId = true;
+    this.clearMessages();
+
+    try {
+      const user = await this.applicationService.verifyUserByIdNumber(this.idNumber);
+
+      if (user) {
+        this.idVerified = true;
+
+        // Determine if this is a returning user or new user
+        const isReturningUser = user.id && user.id > 0;
+
+        // Pre-populate fields if user exists and has data
+        if (user.name && user.name.trim()) {
+          const nameParts = user.name.split(' ');
+          this.firstName = nameParts[0] || '';
+          this.lastName = nameParts.slice(1).join(' ') || '';
+        }
+        this.email = user.email || '';
+        this.phoneNumber = user.phone || '';
+
+        // Save the verified ID to the application
+        this.saveCurrentStepData();
+
+        // Show appropriate success message
+        if (isReturningUser) {
+          this.showSuccess(`Welcome back, ${user.name || 'valued customer'}! Your details have been pre-filled.`);
+        } else {
+          this.showSuccess('ID verified successfully! We\'ve created your account. Please complete your details below.');
+        }
+
+        // Auto-advance to next step after 2 seconds if user has complete info
+        if (isReturningUser && this.firstName && this.lastName && this.email) {
+          setTimeout(() => {
+            this.nextStep();
+          }, 2000);
+        }
+      }
+    } catch (error) {
+      console.error('ID verification failed:', error);
+      this.showError('Unable to verify ID number. Please check your number and try again.');
+      this.idVerified = false;
+    } finally {
+      this.verifyingId = false;
+    }
+  }
+
+  // South African ID validation
+  private isValidSouthAfricanId(idNumber: string): boolean {
+    if (idNumber.length !== 13) return false;
+
+    // Check if all characters are digits
+    if (!/^\d{13}$/.test(idNumber)) return false;
+
+    // Basic date validation (YYMMDD format)
+    const year = parseInt(idNumber.substring(0, 2));
+    const month = parseInt(idNumber.substring(2, 4));
+    const day = parseInt(idNumber.substring(4, 6));
+
+    if (month < 1 || month > 12) return false;
+    if (day < 1 || day > 31) return false;
+
+    return true;
+  }
+
+  // Reset ID verification if ID number changes
+  onIdNumberChange(): void {
+    this.idVerified = false;
+    this.clearMessages();
+  }
+
+  // Message handling methods
+  private showSuccess(message: string): void {
+    this.successMessage = message;
+    this.errorMessage = '';
+    this.showMessage = true;
+
+    // Auto-hide success message after 5 seconds
+    setTimeout(() => {
+      this.clearMessages();
+    }, 5000);
+  }
+
+  private showError(message: string): void {
+    this.errorMessage = message;
+    this.successMessage = '';
+    this.showMessage = true;
+  }
+
+  private clearMessages(): void {
+    this.successMessage = '';
+    this.errorMessage = '';
+    this.showMessage = false;
+  }  // Navigation methods
   nextStep(): void {
     if (!this.isCurrentStepValid()) {
       alert('Please complete all required fields before proceeding.');
@@ -187,65 +302,88 @@ export class ApplyComponent implements OnInit, OnDestroy {
 
     const updates: Partial<Application> = {};
 
-    switch (this.currentStep) {
-      case 1: // ID Verification
-        updates.personalInfo = {
-          firstName: this.currentApplication.personalInfo?.firstName || '',
-          lastName: this.currentApplication.personalInfo?.lastName || '',
-          idNumber: this.idNumber,
-          phoneNumber: this.currentApplication.personalInfo?.phoneNumber || '',
-          email: this.currentApplication.personalInfo?.email || '',
-          maritalStatus: this.currentApplication.personalInfo?.maritalStatus,
-          nationality: this.currentApplication.personalInfo?.nationality,
-          dateOfBirth: this.currentApplication.personalInfo?.dateOfBirth,
-          gender: this.currentApplication.personalInfo?.gender,
-          dependents: this.currentApplication.personalInfo?.dependents,
-          alternativePhone: this.currentApplication.personalInfo?.alternativePhone,
-          preferredLanguage: this.currentApplication.personalInfo?.preferredLanguage
-        };
-        break;
+    // switch (this.currentStep) {
+    //   case 1: // ID Verification
+    //     updates.personalInfo = {
+    //       firstName: this.currentApplication.personalInfo?.firstName || '',
+    //       lastName: this.currentApplication.personalInfo?.lastName || '',
+    //       idNumber: this.idNumber,
+    //       phoneNumber: this.currentApplication.personalInfo?.phoneNumber || '',
+    //       email: this.currentApplication.personalInfo?.email || '',
+    //       maritalStatus: this.currentApplication.personalInfo?.maritalStatus,
+    //       nationality: this.currentApplication.personalInfo?.nationality,
+    //       dateOfBirth: this.currentApplication.personalInfo?.dateOfBirth,
+    //       gender: this.currentApplication.personalInfo?.gender,
+    //       dependents: this.currentApplication.personalInfo?.dependents,
+    //       alternativePhone: this.currentApplication.personalInfo?.alternativePhone,
+    //       preferredLanguage: this.currentApplication.personalInfo?.preferredLanguage
+    //     };
+    //     break;
 
-      case 2: // Personal Details
-        updates.personalInfo = {
-          firstName: this.firstName,
-          lastName: this.lastName,
-          idNumber: this.currentApplication.personalInfo?.idNumber || this.idNumber,
-          phoneNumber: this.phoneNumber,
-          email: this.email,
-          maritalStatus: this.maritalStatus as any,
-          nationality: this.currentApplication.personalInfo?.nationality,
-          dateOfBirth: this.currentApplication.personalInfo?.dateOfBirth,
-          gender: this.currentApplication.personalInfo?.gender,
-          dependents: this.currentApplication.personalInfo?.dependents,
-          alternativePhone: this.currentApplication.personalInfo?.alternativePhone,
-          preferredLanguage: this.currentApplication.personalInfo?.preferredLanguage
-        };
-        break;
+    //   case 2: // Personal Details
+    //     updates.personalInfo = {
+    //       firstName: this.firstName,
+    //       lastName: this.lastName,
+    //       idNumber: this.currentApplication.personalInfo?.idNumber || this.idNumber,
+    //       phoneNumber: this.phoneNumber,
+    //       email: this.email,
+    //       maritalStatus: this.maritalStatus as any,
+    //       nationality: this.currentApplication.personalInfo?.nationality,
+    //       dateOfBirth: this.currentApplication.personalInfo?.dateOfBirth,
+    //       gender: this.currentApplication.personalInfo?.gender,
+    //       dependents: this.currentApplication.personalInfo?.dependents,
+    //       alternativePhone: this.currentApplication.personalInfo?.alternativePhone,
+    //       preferredLanguage: this.currentApplication.personalInfo?.preferredLanguage
+    //     };
 
-      case 3: // Employment Info
-        updates.employmentInfo = {
-          ...this.currentApplication.employmentInfo,
-          employmentStatus: this.employmentStatus as any,
-          employerName: this.employerName,
-          monthlyIncome: this.monthlyIncome
-        };
-        break;
+    //     // Also update the user record with the new information
+    //     this.updateUserInformation();
+    //     break;
 
-      case 4: // Banking Details
-        updates.bankDetails = {
-          bankName: this.bankName,
-          accountNumber: this.accountNumber,
-          branchCode: this.branchCode,
-          accountType: this.accountType as any,
-          accountHolderName: this.currentApplication.bankDetails?.accountHolderName || `${this.firstName} ${this.lastName}`
-        };
-        break;
-    }
+    //   case 3: // Employment Info
+    //     updates.employmentInfo = {
+    //       ...this.currentApplication.employmentInfo,
+    //       employmentStatus: this.employmentStatus as any,
+    //       employerName: this.employerName,
+    //       monthlyIncome: this.monthlyIncome
+    //     };
+    //     break;
+
+    //   case 4: // Banking Details
+    //     updates.bankDetails = {
+    //       bankName: this.bankName,
+    //       accountNumber: this.accountNumber,
+    //       branchCode: this.branchCode,
+    //       accountType: this.accountType as any,
+    //       accountHolderName: this.currentApplication.bankDetails?.accountHolderName || `${this.firstName} ${this.lastName}`
+    //     };
+    //     break;
+    // }
 
     this.applicationService.updateApplication(updates);
   }
 
-  // Submit application
+  // Update user information when personal details are filled
+  private async updateUserInformation(): Promise<void> {
+    const currentUser = this.applicationService.getCurrentUser();
+    if (!currentUser) return;
+
+    try {
+      const updatedUser = {
+        ...currentUser,
+        name: `${this.firstName} ${this.lastName}`,
+        email: this.email,
+        phone: this.phoneNumber,
+        updated_at: new Date().toISOString()
+      };
+
+      // Update via user service
+      await this.applicationService.updateUserInformation(updatedUser);
+    } catch (error) {
+      console.error('Failed to update user information:', error);
+      // Don't block the flow if user update fails
+    }
+  }  // Submit application
   async submitApplication(): Promise<void> {
     if (!this.isCurrentStepValid()) {
       alert('Please complete all required fields.');

@@ -16,6 +16,7 @@ import { ApplyComponent } from './components/home/apply/apply.component';
 import { ApplicationsComponent } from './components/admin/applications/applications.component';
 
 import { SettingsComponent } from './settings/settings.component';
+import { AdminDashboardComponent } from './app/admin/dashboard/admin-dashboard.component';
 
 export const routes: Routes = [
   {
@@ -88,32 +89,33 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
-    component: AdminComponent,
-    children: [
-      {
-        path: '',
-        component: OverviewComponent,
-      },
+    // component: AdminComponent,
+    component: AdminDashboardComponent,
+    // children: [
+    //   {
+    //     path: '',
+    //     component: OverviewComponent,
+    //   },
 
-      {
-        path: 'applications',
-        component: ApplicationsComponent,
-      },
-      {
-        path: 'settings',
-        component: SettingsComponent,
-      },
+    //   {
+    //     path: 'applications',
+    //     component: ApplicationsComponent,
+    //   },
+    //   {
+    //     path: 'settings',
+    //     component: SettingsComponent,
+    //   },
 
 
-      {
-        path: 'users',
-        component: UserListComponent,
-      },
-      {
-        path: 'user/:id',
-        component: UserManageComponent,
-      },
+    //   {
+    //     path: 'users',
+    //     component: UserListComponent,
+    //   },
+    //   {
+    //     path: 'user/:id',
+    //     component: UserManageComponent,
+    //   },
 
-    ],
+    // ],
   },
 ];

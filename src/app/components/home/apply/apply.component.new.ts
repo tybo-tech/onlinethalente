@@ -116,27 +116,27 @@ export class ApplyComponent implements OnInit, OnDestroy {
 
   private loadApplicationData(application: Application): void {
     // Map application data to form fields
-    if (application.personalInfo) {
-      this.idNumber = application.personalInfo.idNumber || '';
-      this.firstName = application.personalInfo.firstName || '';
-      this.lastName = application.personalInfo.lastName || '';
-      this.phoneNumber = application.personalInfo.phoneNumber || '';
-      this.email = application.personalInfo.email || '';
-      this.maritalStatus = application.personalInfo.maritalStatus || '';
-    }
+    // if (application.personalInfo) {
+    //   this.idNumber = application.personalInfo.idNumber || '';
+    //   this.firstName = application.personalInfo.firstName || '';
+    //   this.lastName = application.personalInfo.lastName || '';
+    //   this.phoneNumber = application.personalInfo.phoneNumber || '';
+    //   this.email = application.personalInfo.email || '';
+    //   this.maritalStatus = application.personalInfo.maritalStatus || '';
+    // }
 
-    if (application.employmentInfo) {
-      this.employmentStatus = application.employmentInfo.employmentStatus || 'employed';
-      this.employerName = application.employmentInfo.employerName || '';
-      this.monthlyIncome = application.employmentInfo.monthlyIncome || 0;
-    }
+    // if (application.employmentInfo) {
+    //   this.employmentStatus = application.employmentInfo.employmentStatus || 'employed';
+    //   this.employerName = application.employmentInfo.employerName || '';
+    //   this.monthlyIncome = application.employmentInfo.monthlyIncome || 0;
+    // }
 
-    if (application.bankDetails) {
-      this.bankName = application.bankDetails.bankName || '';
-      this.accountNumber = application.bankDetails.accountNumber || '';
-      this.branchCode = application.bankDetails.branchCode || '';
-      this.accountType = application.bankDetails.accountType || 'savings';
-    }
+    // if (application.bankDetails) {
+    //   this.bankName = application.bankDetails.bankName || '';
+    //   this.accountNumber = application.bankDetails.accountNumber || '';
+    //   this.branchCode = application.bankDetails.branchCode || '';
+    //   this.accountType = application.bankDetails.accountType || 'savings';
+    // }
   }
 
   // Step validation
@@ -187,60 +187,60 @@ export class ApplyComponent implements OnInit, OnDestroy {
 
     const updates: Partial<Application> = {};
 
-    switch (this.currentStep) {
-      case 1: // ID Verification
-        updates.personalInfo = {
-          firstName: this.currentApplication.personalInfo?.firstName || '',
-          lastName: this.currentApplication.personalInfo?.lastName || '',
-          idNumber: this.idNumber,
-          phoneNumber: this.currentApplication.personalInfo?.phoneNumber || '',
-          email: this.currentApplication.personalInfo?.email || '',
-          maritalStatus: this.currentApplication.personalInfo?.maritalStatus,
-          nationality: this.currentApplication.personalInfo?.nationality,
-          dateOfBirth: this.currentApplication.personalInfo?.dateOfBirth,
-          gender: this.currentApplication.personalInfo?.gender,
-          dependents: this.currentApplication.personalInfo?.dependents,
-          alternativePhone: this.currentApplication.personalInfo?.alternativePhone,
-          preferredLanguage: this.currentApplication.personalInfo?.preferredLanguage
-        };
-        break;
+    // switch (this.currentStep) {
+    //   case 1: // ID Verification
+    //     updates.personalInfo = {
+    //       firstName: this.currentApplication.personalInfo?.firstName || '',
+    //       lastName: this.currentApplication.personalInfo?.lastName || '',
+    //       idNumber: this.idNumber,
+    //       phoneNumber: this.currentApplication.personalInfo?.phoneNumber || '',
+    //       email: this.currentApplication.personalInfo?.email || '',
+    //       maritalStatus: this.currentApplication.personalInfo?.maritalStatus,
+    //       nationality: this.currentApplication.personalInfo?.nationality,
+    //       dateOfBirth: this.currentApplication.personalInfo?.dateOfBirth,
+    //       gender: this.currentApplication.personalInfo?.gender,
+    //       dependents: this.currentApplication.personalInfo?.dependents,
+    //       alternativePhone: this.currentApplication.personalInfo?.alternativePhone,
+    //       preferredLanguage: this.currentApplication.personalInfo?.preferredLanguage
+    //     };
+    //     break;
 
-      case 2: // Personal Details
-        updates.personalInfo = {
-          firstName: this.firstName,
-          lastName: this.lastName,
-          idNumber: this.currentApplication.personalInfo?.idNumber || this.idNumber,
-          phoneNumber: this.phoneNumber,
-          email: this.email,
-          maritalStatus: this.maritalStatus as any,
-          nationality: this.currentApplication.personalInfo?.nationality,
-          dateOfBirth: this.currentApplication.personalInfo?.dateOfBirth,
-          gender: this.currentApplication.personalInfo?.gender,
-          dependents: this.currentApplication.personalInfo?.dependents,
-          alternativePhone: this.currentApplication.personalInfo?.alternativePhone,
-          preferredLanguage: this.currentApplication.personalInfo?.preferredLanguage
-        };
-        break;
+    //   case 2: // Personal Details
+    //     updates.personalInfo = {
+    //       firstName: this.firstName,
+    //       lastName: this.lastName,
+    //       idNumber: this.currentApplication.personalInfo?.idNumber || this.idNumber,
+    //       phoneNumber: this.phoneNumber,
+    //       email: this.email,
+    //       maritalStatus: this.maritalStatus as any,
+    //       nationality: this.currentApplication.personalInfo?.nationality,
+    //       dateOfBirth: this.currentApplication.personalInfo?.dateOfBirth,
+    //       gender: this.currentApplication.personalInfo?.gender,
+    //       dependents: this.currentApplication.personalInfo?.dependents,
+    //       alternativePhone: this.currentApplication.personalInfo?.alternativePhone,
+    //       preferredLanguage: this.currentApplication.personalInfo?.preferredLanguage
+    //     };
+    //     break;
 
-      case 3: // Employment Info
-        updates.employmentInfo = {
-          ...this.currentApplication.employmentInfo,
-          employmentStatus: this.employmentStatus as any,
-          employerName: this.employerName,
-          monthlyIncome: this.monthlyIncome
-        };
-        break;
+    //   case 3: // Employment Info
+    //     updates.employmentInfo = {
+    //       ...this.currentApplication.employmentInfo,
+    //       employmentStatus: this.employmentStatus as any,
+    //       employerName: this.employerName,
+    //       monthlyIncome: this.monthlyIncome
+    //     };
+    //     break;
 
-      case 4: // Banking Details
-        updates.bankDetails = {
-          bankName: this.bankName,
-          accountNumber: this.accountNumber,
-          branchCode: this.branchCode,
-          accountType: this.accountType as any,
-          accountHolderName: this.currentApplication.bankDetails?.accountHolderName || `${this.firstName} ${this.lastName}`
-        };
-        break;
-    }
+    //   case 4: // Banking Details
+    //     updates.bankDetails = {
+    //       bankName: this.bankName,
+    //       accountNumber: this.accountNumber,
+    //       branchCode: this.branchCode,
+    //       accountType: this.accountType as any,
+    //       accountHolderName: this.currentApplication.bankDetails?.accountHolderName || `${this.firstName} ${this.lastName}`
+    //     };
+    //     break;
+    // }
 
     this.applicationService.updateApplication(updates);
   }

@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
-import { Application, PersonalInfo, EmploymentInfo, BankDetails, CreditAssessment, ApplicationDocument, Address } from '../models/schema';
+import { Application, ApplicationDocument, ApplicationStatus } from '../models/schema';
 import { CollectionDataService } from './collection.data.service';
 import { ICollectionData } from '../models/ICollection';
+import { UserService } from './user.service';
+import { User } from '../models/User';
 
 export interface ApplicationStep {
   id: number;
@@ -19,6 +21,10 @@ export interface ApplicationStep {
 export class ApplicationService {
   private readonly STORAGE_KEY = 'loan_application_draft';
   private readonly APPLICATION_ID_KEY = 'current_application_id';
+
+  // User state management
+  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  public currentUser$ = this.currentUserSubject.asObservable();
 
   // Application steps configuration
   public readonly steps: ApplicationStep[] = [
@@ -42,7 +48,8 @@ export class ApplicationService {
 
   constructor(
     private router: Router,
-    private collectionDataService: CollectionDataService
+    private collectionDataService: CollectionDataService,
+    private userService: UserService
   ) {
     this.loadFromStorage();
   }
@@ -53,59 +60,143 @@ export class ApplicationService {
   initializeApplication(amount: number, paymentCycle: number): string {
     const applicationId = this.generateApplicationId();
 
-    const newApplication: Application = {
-      amount: amount,
-      type: paymentCycle.toString(), // Converted to string as expected by schema
-      status: 'draft',
-      created_at: new Date(),
-      personalInfo: {
-        firstName: '',
-        lastName: '',
-        idNumber: '',
-        dateOfBirth: '', // String as per schema
-        gender: undefined, // Optional field
-        maritalStatus: undefined, // Optional field
-        nationality: 'South African',
-        phoneNumber: '',
-        email: '',
-        preferredLanguage: 'English'
-      },
-      employmentInfo: {
-        employmentStatus: 'employed',
-        employerName: '',
-        jobTitle: '',
-        monthlyIncome: 0,
-        additionalIncome: 0
-      },
-      bankDetails: {
-        bankName: '',
-        accountType: 'savings',
-        accountNumber: '',
-        branchCode: '',
-        accountHolderName: ''
-      },
-      documents: [],
-      creditAssessment: {
-        score: 0,
-        riskLevel: 'medium',
-        affordabilityRatio: 0,
-        recommendedAmount: 0,
-        maxAffordableAmount: 0,
-        assessmentDate: new Date().toISOString(),
-        factors: []
-      }
-    };
+    // const newApplication: Application = {
+    //   amountc: amount,
+    //   type: paymentCycle.toString(), // Converted to string as expected by schema
+    //   status: ApplicationStatus.APPROVED,
+    //   created_at: new Date(),
+    //   personalInfo: {
+    //     firstName: '',
+    //     lastName: '',
+    //     idNumber: '',
+    //     dateOfBirth: '', // String as per schema
+    //     gender: undefined, // Optional field
+    //     maritalStatus: undefined, // Optional field
+    //     nationality: 'South African',
+    //     phoneNumber: '',
+    //     email: '',
+    //     preferredLanguage: 'English'
+    //   },
+    //   employmentInfo: {
+    //     employmentStatus: 'employed',
+    //     employerName: '',
+    //     jobTitle: '',
+    //     monthlyIncome: 0,
+    //     additionalIncome: 0
+    //   },
+    //   bankDetails: {
+    //     bankName: '',
+    //     accountType: 'savings',
+    //     accountNumber: '',
+    //     branchCode: '',
+    //     accountHolderName: ''
+    //   },
+    //   documents: [],
+    //   creditAssessment: {
+    //     score: 0,
+    //     riskLevel: 'medium',
+    //     affordabilityRatio: 0,
+    //     recommendedAmount: 0,
+    //     maxAffordableAmount: 0,
+    //     assessmentDate: new Date().toISOString(),
+    //     factors: []
+    //   }
+    // };
 
-    this.setApplication(newApplication);
-    this.setCurrentApplicationId(applicationId);
-    this.updateStepStatus(1, true, true);
+    // this.setApplication(newApplication);
+    // this.setCurrentApplicationId(applicationId);
+    // this.updateStepStatus(1, true, true);
 
     return applicationId;
   }
 
   /**
-   * Navigate to specific step (like checkout navigation)
+   * Verify user by ID number and create if doesn't exist
    */
+  async verifyUserByIdNumber(idNumber: string): Promise<User> {
+    try {
+      // First try to get existing user by ID number
+      const existingUser = await this.userService.getUserByIdNumber(idNumber).toPromise();
+
+      if (existingUser && existingUser.id) {
+        // User exists, update our current user state
+        this.currentUserSubject.next(existingUser);
+        return existingUser;
+      }
+    } catch (error) {
+      // User doesn't exist, we'll create a new one
+      console.log('User not found, creating new user');
+    }
+
+    // Create new user with ID number
+    const newUser: User = {
+      id: 0, // Will be set by server
+      website_id: 'ONLINETHALENTE' as any,
+      name: '', // Will be filled in later steps
+      email: '', // Will be filled in later steps
+      password: this.generateTemporaryPassword(),
+      role: 'Client',
+      phone: '', // Will be filled in later steps
+      address: '',
+      statusId: 1, // Active
+      created_by: 0,
+      updated_by: 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      id_number: idNumber,
+      is_verified: 0, // Not verified yet
+      source: 'loan_application'
+    };
+
+    try {
+      const createdUser = await this.userService.save(newUser).toPromise();
+      if (createdUser) {
+        this.currentUserSubject.next(createdUser);
+        return createdUser;
+      }
+    } catch (error) {
+      console.error('Failed to create user:', error);
+      throw new Error('Failed to create user account');
+    }
+
+    throw new Error('Failed to verify or create user');
+  }
+
+  /**
+   * Get current user
+   */
+  getCurrentUser(): User | null {
+    return this.currentUserSubject.value;
+  }
+
+  /**
+   * Update user information
+   */
+  async updateUserInformation(updatedUser: User): Promise<User | null> {
+    try {
+      const result = await this.userService.save(updatedUser).toPromise();
+      if (result) {
+        this.currentUserSubject.next(result);
+        return result;
+      }
+      return null;
+    } catch (error) {
+      console.error('Failed to update user information:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Generate temporary password for new users
+   */
+  private generateTemporaryPassword(): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let password = '';
+    for (let i = 0; i < 12; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return password;
+  }
   navigateToStep(stepId: number, applicationId?: string): void {
     if (applicationId && applicationId !== this.getCurrentApplicationId()) {
       this.loadApplication(applicationId);
@@ -211,8 +302,14 @@ export class ApplicationService {
    */
   async submitApplication(): Promise<boolean> {
     const application = this.applicationSubject.value;
+    const currentUser = this.currentUserSubject.value;
+
     if (!application) {
       throw new Error('No application to submit');
+    }
+
+    if (!currentUser || !currentUser.id) {
+      throw new Error('No user associated with application');
     }
 
     try {
@@ -223,10 +320,11 @@ export class ApplicationService {
       };
 
       // Save to server via collection data service
-      const collectionData: ICollectionData<Application> = {
+      // const collectionData: ICollectionData<Application> = {
+      const collectionData:any = {
         id: 0, // Will be set by server
         collection_id: 'applications',
-        parent_id: 0,
+        parent_id: currentUser.id, // Use the current user's ID as parent_id
         website_id: '1',
         data: submittedApplication,
         created_at: new Date().toISOString(),
@@ -236,7 +334,7 @@ export class ApplicationService {
       await this.collectionDataService.addData(collectionData).toPromise();
 
       // Update local state
-      this.setApplication(submittedApplication);
+      // this.setApplication(submittedApplication);
       this.updateStepStatus(6, true, true);
 
       // Clear draft from localStorage but keep for confirmation page
