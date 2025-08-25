@@ -66,6 +66,8 @@ export interface LoanOffer {
   is_active: boolean;
   /** optional label for UI (e.g., "R700") */
   label?: string;
+  /** Message to show when slots are full */
+  sold_out_message?: string;
 }
 
 // offer_counters (per month)
@@ -98,7 +100,12 @@ export interface Application {
   full_name: string;
   phone: string;
   email: string;
+
+  // Tracking fields
+  id?: number;
   status: ApplicationStatus;
+  submission_date?: string;
+  decline_reason?: string;
   ai_verification: AIVerification;
 
   notes?: string;
