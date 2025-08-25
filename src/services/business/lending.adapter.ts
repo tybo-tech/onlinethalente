@@ -91,8 +91,8 @@ export class LendingAdapter {
   update<T>(node: Node<T>): Observable<Node<T>> {
     return this.cds.updateData(node) as unknown as Observable<Node<T>>;
   }
-  delete(id: number): Observable<unknown> {
-    return this.cds.deleteData(id);
+  remove<T>(node: Node<T>): Observable<void> {
+    return this.cds.deleteData(node.id) as Observable<void>;
   }
 
   // ---- Helpers

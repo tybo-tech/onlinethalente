@@ -30,6 +30,18 @@ export class AdminComponent {
       label: 'Applications',
     },
     {
+      link: '/admin/pay-cycles',
+      label: 'Pay Cycles',
+    },
+    {
+      link: '/admin/loan-offers',
+      label: 'Loan Offers',
+    },
+    {
+      link: '/admin/counters',
+      label: 'Counters',
+    },
+    {
       link: '/admin/settings',
       label: 'Settings',
     },

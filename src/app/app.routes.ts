@@ -19,6 +19,7 @@ import { SettingsComponent } from './settings/settings.component';
 import { AdminDashboardComponent } from './app/admin/dashboard/admin-dashboard.component';
 import { ReportsPageComponent } from './components/admin/reports/reports-page.component';
 import { BankingDetailsPageComponent } from './components/admin/banking/banking-details-page.component';
+import { adminRoutes } from './routes/admin.routes';
 
 export const routes: Routes = [
   {
@@ -89,61 +90,5 @@ export const routes: Routes = [
       },
     ],
   },
-  {
-    path: 'admin',
-    component: AdminComponent,
-    children: [
-      {
-        path: '',
-        component: AdminDashboardComponent
-      },
-      {
-        path: 'reports',
-        component: ReportsPageComponent
-      },
-      {
-        path: 'banking',
-        component: BankingDetailsPageComponent
-      },
-      {
-        path: 'applications',
-        component: ApplicationsComponent
-      },
-      {
-        path: 'settings',
-        component: SettingsComponent
-      },
-      {
-        path: 'users',
-        component: UserManageComponent,
-        children: [
-          {
-            path: '',
-            component: UserListComponent
-          }
-        ]
-      }
-    ]
-
-    //   {
-    //     path: 'applications',
-    //     component: ApplicationsComponent,
-    //   },
-    //   {
-    //     path: 'settings',
-    //     component: SettingsComponent,
-    //   },
-
-
-    //   {
-    //     path: 'users',
-    //     component: UserListComponent,
-    //   },
-    //   {
-    //     path: 'user/:id',
-    //     component: UserManageComponent,
-    //   },
-
-    // ],
-  },
+  ...adminRoutes
 ];
