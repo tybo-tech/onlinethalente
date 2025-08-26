@@ -32,11 +32,14 @@ export class BusinessTxService {
   }
 
   verifyApplication$(appNode: ICollectionData<Application>): Observable<Ok | Fail> {
+    const now = new Date().toISOString();
     const updatedApp = {
       ...appNode,
       data: {
         ...appNode.data,
-        status: ApplicationStatus.VERIFIED
+        status: ApplicationStatus.VERIFIED,
+        updated_at: now,
+        verified_at: now
       }
     };
     return this.la.update(updatedApp).pipe(
@@ -46,11 +49,14 @@ export class BusinessTxService {
   }
 
   declineApplication$(appNode: ICollectionData<Application>): Observable<Ok | Fail> {
+    const now = new Date().toISOString();
     const updatedApp = {
       ...appNode,
       data: {
         ...appNode.data,
-        status: ApplicationStatus.DECLINED
+        status: ApplicationStatus.DECLINED,
+        updated_at: now,
+        declined_at: now
       }
     };
     return this.la.update(updatedApp).pipe(
@@ -60,11 +66,66 @@ export class BusinessTxService {
   }
 
   markApplicationPaid$(appNode: ICollectionData<Application>): Observable<Ok | Fail> {
+    const now = new Date().toISOString();
     const updatedApp = {
       ...appNode,
       data: {
         ...appNode.data,
-        status: ApplicationStatus.PAID
+        status: ApplicationStatus.PAID,
+        updated_at: now,
+        paid_at: now
+      }
+    };
+    return this.la.update(updatedApp).pipe(
+      map(() => ({ ok: true } as Ok)),
+      catchError(err => of({ ok: false, error: err.message } as Fail))
+    );
+  }
+
+  markApplicationPartiallyRepaid$(appNode: ICollectionData<Application>): Observable<Ok | Fail> {
+    const now = new Date().toISOString();
+    const updatedApp = {
+      ...appNode,
+      data: {
+        ...appNode.data,
+        status: ApplicationStatus.PARTIALLY_REPAID,
+        updated_at: now,
+        last_repayment_date: now
+      }
+    };
+    return this.la.update(updatedApp).pipe(
+      map(() => ({ ok: true } as Ok)),
+      catchError(err => of({ ok: false, error: err.message } as Fail))
+    );
+  }
+
+  markApplicationFullyRepaid$(appNode: ICollectionData<Application>): Observable<Ok | Fail> {
+    const now = new Date().toISOString();
+    const updatedApp = {
+      ...appNode,
+      data: {
+        ...appNode.data,
+        status: ApplicationStatus.FULLY_REPAID,
+        updated_at: now,
+        fully_repaid_at: now,
+        last_repayment_date: now
+      }
+    };
+    return this.la.update(updatedApp).pipe(
+      map(() => ({ ok: true } as Ok)),
+      catchError(err => of({ ok: false, error: err.message } as Fail))
+    );
+  }
+
+  markApplicationOverdue$(appNode: ICollectionData<Application>): Observable<Ok | Fail> {
+    const now = new Date().toISOString();
+    const updatedApp = {
+      ...appNode,
+      data: {
+        ...appNode.data,
+        status: ApplicationStatus.OVERDUE,
+        updated_at: now,
+        overdue_at: now
       }
     };
     return this.la.update(updatedApp).pipe(

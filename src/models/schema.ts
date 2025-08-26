@@ -132,9 +132,12 @@ export interface Application {
   created_at: string; // ISO
   updated_at?: string; // ISO
   submitted_at?: string; // ISO
+  verified_at?: string; // ISO - When application was verified
   approved_at?: string; // ISO
+  declined_at?: string; // ISO - When application was declined
   paid_at?: string; // ISO - When loan was disbursed
   fully_repaid_at?: string; // ISO - When loan was fully repaid
+  overdue_at?: string; // ISO - When loan became overdue
 }
 
 // application_documents
