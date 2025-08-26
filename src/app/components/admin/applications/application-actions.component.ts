@@ -194,6 +194,30 @@ import { EmailService } from '../../../../services/email.service';
         <div *ngIf="showRepaymentSummary()" class="mt-6 pt-4 border-t border-gray-200">
           <h4 class="text-md font-medium text-gray-900 mb-3">Repayment Summary</h4>
           <div class="space-y-2">
+            <!-- Principal Amount -->
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Principal Amount:</span>
+              <span class="font-medium text-gray-900">{{ formatCurrency(app.data.requested_amount_cents) }}</span>
+            </div>
+
+            <!-- Interest Rate -->
+            <div *ngIf="app.data.interest_rate_percent !== undefined" class="flex justify-between text-sm">
+              <span class="text-gray-600">Interest Rate:</span>
+              <span class="font-medium text-blue-600">{{ app.data.interest_rate_percent }}%</span>
+            </div>
+
+            <!-- Interest Amount -->
+            <div *ngIf="app.data.interest_amount_cents !== undefined" class="flex justify-between text-sm">
+              <span class="text-gray-600">Interest Amount:</span>
+              <span class="font-medium text-blue-600">{{ formatCurrency(app.data.interest_amount_cents) }}</span>
+            </div>
+
+            <!-- Total Repayment Amount -->
+            <div *ngIf="app.data.total_repayment_amount_cents !== undefined" class="flex justify-between text-sm border-t border-gray-200 pt-2">
+              <span class="text-gray-700 font-medium">Total to Repay:</span>
+              <span class="font-bold text-blue-800">{{ formatCurrency(app.data.total_repayment_amount_cents) }}</span>
+            </div>
+
             <div *ngIf="app.data.total_repaid_cents !== undefined" class="flex justify-between text-sm">
               <span class="text-gray-600">Total Repaid:</span>
               <span class="font-medium text-gray-900">{{ formatCurrency(app.data.total_repaid_cents) }}</span>

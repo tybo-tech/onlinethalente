@@ -99,6 +99,12 @@ export interface Application {
 
   requested_amount_cents: number;
 
+  // Interest and repayment calculation fields
+  interest_rate_percent?: number; // Applied interest rate from loan offer
+  interest_amount_cents?: number; // Calculated interest amount
+  total_repayment_amount_cents?: number; // Principal + interest (what customer owes)
+  loan_term_months?: number; // Term in months (usually 1 for short-term loans)
+
   // Customer-provided banking & payroll info (from form)
   bank_name: string;
   salary_account: string;
@@ -432,4 +438,32 @@ export const calculateInstallmentAmount = (
   installments_count: number
 ): number => {
   return Math.ceil(total_amount_cents / installments_count);
+};
+
+/**
+ * Calculate and update application with interest and repayment amounts
+ * @param application - Application to update
+ * @param loanOffer - Loan offer with interest rate
+ * @param term_months - Loan term in months (default 1)
+ * @returns Updated application with calculated amounts
+ */
+export const calculateApplicationTotals = (
+  application: Application,
+  loanOffer: LoanOffer,
+  term_months: number = 1
+): Application => {
+  const principal_cents = application.requested_amount_cents;
+  const interest_rate = loanOffer.interest_rate_percent;
+
+  const interest_amount = calculateInterestAmount(principal_cents, interest_rate, term_months);
+  const total_repayment = calculateTotalRepaymentAmount(principal_cents, interest_rate, term_months);
+
+  return {
+    ...application,
+    interest_rate_percent: interest_rate,
+    interest_amount_cents: interest_amount,
+    total_repayment_amount_cents: total_repayment,
+    loan_term_months: term_months,
+    outstanding_balance_cents: total_repayment, // Initially, full amount is outstanding
+  };
 };

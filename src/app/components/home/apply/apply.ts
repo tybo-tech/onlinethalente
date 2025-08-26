@@ -22,6 +22,9 @@ import {
   Application,
   ApplicationStatus,
   AIVerification,
+  calculateApplicationTotals,
+  calculateTotalRepaymentAmount,
+  calculateInterestAmount,
 } from '../../../../models/schema';
 import { User } from '../../../../models/User';
 
@@ -36,6 +39,7 @@ type Node<T> = { id: number; data: T };
 type LoanOffer = {
   pay_cycle_id: number;
   amount_cents: number;
+  interest_rate_percent: number;
   slots_total: number;
   is_active: boolean;
   label?: string;
@@ -172,6 +176,10 @@ type PayCycle = {
             [selectedDay]="selectedDay"
             [isWindowOpen]="isWindowOpen"
             [windowMessage]="windowMessage"
+            [interestRate]="interestRate"
+            [interestLabel]="interestLabel"
+            [totalRepaymentLabel]="totalRepaymentLabel"
+            [loanTermMonths]="loanTermMonths"
           >
           </app-offer-summary>
         </aside>
@@ -200,6 +208,12 @@ export class ApplyPageComponent implements OnInit {
   isWindowOpen = false;
   windowMessage = '';
   amountLabel = '—';
+
+  // Calculated interest and repayment values
+  interestRate?: number;
+  interestLabel = '';
+  totalRepaymentLabel = '';
+  loanTermMonths = 1;
 
   currentUser?: User;
   lockIdentity = false;
@@ -274,6 +288,9 @@ export class ApplyPageComponent implements OnInit {
           this.windowMessage = this.publicAdapter.getWindowMessage(
             this.selectedDay
           );
+
+          // Calculate interest and total repayment amounts
+          this.calculateRepaymentDetails();
         })
       )
       .subscribe({
@@ -366,8 +383,8 @@ export class ApplyPageComponent implements OnInit {
     const nowISO = new Date().toISOString();
     const v = this.form.getRawValue();
 
-    // 1. Create application
-    const app: Application = {
+    // 1. Create application with basic data
+    const baseApp: Application = {
       user_id: this.currentUser?.id ?? 0,
       pay_cycle_id: this.payCycleNode!.id,
       offer_id: this.offerNode!.id,
@@ -383,6 +400,9 @@ export class ApplyPageComponent implements OnInit {
       submitted_at: nowISO,
       created_at: nowISO,
     };
+
+    // 2. Calculate interest and total repayment amounts
+    const app = calculateApplicationTotals(baseApp, this.offerNode!.data, 1); // 1 month term for short-term loans
 
     const saved = await firstValueFrom(
       this.publicAdapter.createApplication(app)
@@ -498,6 +518,25 @@ export class ApplyPageComponent implements OnInit {
 
   cancel() {
     this.router.navigate(['/']);
+  }
+
+  private calculateRepaymentDetails() {
+    if (!this.offerNode) return;
+
+    const principalCents = this.offerNode.data.amount_cents;
+    const interestRatePercent = this.offerNode.data.interest_rate_percent;
+
+    this.interestRate = interestRatePercent;
+
+    // Calculate interest amount for 1 month term
+    const interestAmountCents = calculateInterestAmount(principalCents, interestRatePercent, this.loanTermMonths);
+
+    // Calculate total repayment amount
+    const totalRepaymentCents = calculateTotalRepaymentAmount(principalCents, interestRatePercent, this.loanTermMonths);
+
+    // Format labels
+    this.interestLabel = this.toRand(interestAmountCents);
+    this.totalRepaymentLabel = this.toRand(totalRepaymentCents);
   }
 
   toRand(cents: number) {
