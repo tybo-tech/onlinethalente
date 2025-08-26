@@ -9,6 +9,9 @@ export enum ApplicationStatus {
   APPROVED = 'APPROVED',
   DECLINED = 'DECLINED',
   PAID = 'PAID',
+  PARTIALLY_REPAID = 'PARTIALLY_REPAID',
+  FULLY_REPAID = 'FULLY_REPAID',
+  OVERDUE = 'OVERDUE',
 }
 
 export enum AIVerification {
@@ -34,6 +37,8 @@ export enum PaymentStatus {
   SUCCESS = 'SUCCESS',
   FAILED = 'FAILED',
   PAID = 'PAID',
+  PARTIAL = 'PARTIAL',
+  REFUNDED = 'REFUNDED',
 }
 
 export type DocumentKind = 'BANK_STATEMENT';
@@ -109,6 +114,17 @@ export interface Application {
   decline_reason?: string;
   ai_verification: AIVerification;
 
+  // Repayment tracking fields
+  total_repaid_cents?: number; // Total amount repaid so far
+  outstanding_balance_cents?: number; // Remaining balance
+  repayment_due_date?: string; // ISO - When repayment is due
+  last_repayment_date?: string; // ISO - Last payment received
+  repayment_schedule?: {
+    installments: number; // e.g., 1 for lump sum, 2+ for installments
+    installment_amount_cents: number; // Amount per installment
+    frequency: 'WEEKLY' | 'MONTHLY' | 'LUMP_SUM';
+  };
+
   notes?: string;
   assigned_to_user_id?: number; // admin/agent
 
@@ -117,7 +133,8 @@ export interface Application {
   updated_at?: string; // ISO
   submitted_at?: string; // ISO
   approved_at?: string; // ISO
-  paid_at?: string; // ISO
+  paid_at?: string; // ISO - When loan was disbursed
+  fully_repaid_at?: string; // ISO - When loan was fully repaid
 }
 
 // application_documents
@@ -144,15 +161,51 @@ export interface DebiCheckEvent {
   created_at?: string; // ISO
 }
 
-// payments
+// payments (enhanced for repayment tracking)
 export interface Payment {
   /** FK -> applications id */
   application_id: number;
   method: PaymentMethod; // RTC | PAYFAST
-  status: PaymentStatus; // PENDING | SUCCESS | FAILED
+  status: PaymentStatus; // PENDING | SUCCESS | FAILED | PAID | PARTIAL | REFUNDED
+  payment_type: 'DISBURSEMENT' | 'REPAYMENT'; // Track if it's loan payout or customer repayment
   reference?: string;
   amount_cents: number;
+
+  // Enhanced tracking
+  running_balance_cents?: number; // Outstanding balance after this payment
+  installment_number?: number; // Which installment this represents (1, 2, 3...)
+
+  // Metadata
+  description?: string; // e.g., "Installment 1 of 3", "Full repayment", "Partial payment"
+  gateway_transaction_id?: string; // PayFast or bank reference
+
   processed_at?: string; // ISO
+  created_at?: string; // ISO
+}
+
+// repayment_plans (new collection for structured repayment tracking)
+export interface RepaymentPlan {
+  /** FK -> applications id */
+  application_id: number;
+  plan_type: 'LUMP_SUM' | 'INSTALLMENTS';
+  total_amount_cents: number; // Original loan amount + interest/fees
+  installments_count: number; // 1 for lump sum, 2+ for installments
+  installment_amount_cents: number;
+  frequency: 'WEEKLY' | 'MONTHLY' | 'LUMP_SUM';
+
+  // Status tracking
+  is_active: boolean;
+  total_paid_cents: number;
+  outstanding_balance_cents: number;
+
+  // Dates
+  start_date: string; // ISO - When repayment plan starts
+  due_date: string; // ISO - Final due date
+  next_payment_due: string; // ISO - Next installment due
+
+  // Audit
+  created_at: string; // ISO
+  updated_at?: string; // ISO
 }
 
 // banking_details (org-level)
@@ -262,15 +315,46 @@ export const initDebiCheckEvent = (
 export const initPayment = (
   application_id: number,
   method: PaymentMethod,
-  amount_cents: number
+  amount_cents: number,
+  payment_type: 'DISBURSEMENT' | 'REPAYMENT' = 'DISBURSEMENT'
 ): Payment => ({
   application_id,
   method,
   status: PaymentStatus.PENDING,
+  payment_type,
   reference: '',
   amount_cents,
   processed_at: '',
+  created_at: new Date().toISOString(),
 });
+
+export const initRepaymentPlan = (
+  application_id: number,
+  total_amount_cents: number,
+  plan_type: 'LUMP_SUM' | 'INSTALLMENTS' = 'LUMP_SUM',
+  installments_count: number = 1
+): RepaymentPlan => {
+  const installment_amount = plan_type === 'LUMP_SUM' ? total_amount_cents : Math.ceil(total_amount_cents / installments_count);
+  const now = new Date();
+  const dueDate = new Date(now);
+  dueDate.setMonth(dueDate.getMonth() + (plan_type === 'LUMP_SUM' ? 1 : installments_count));
+
+  return {
+    application_id,
+    plan_type,
+    total_amount_cents,
+    installments_count,
+    installment_amount_cents: installment_amount,
+    frequency: plan_type === 'LUMP_SUM' ? 'LUMP_SUM' : 'MONTHLY',
+    is_active: true,
+    total_paid_cents: 0,
+    outstanding_balance_cents: total_amount_cents,
+    start_date: now.toISOString(),
+    due_date: dueDate.toISOString(),
+    next_payment_due: now.toISOString(),
+    created_at: now.toISOString(),
+  };
+};
 
 export const initBankingDetails = (): BankingDetails => ({
   account_holder: '',

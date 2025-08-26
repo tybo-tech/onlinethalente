@@ -58,7 +58,10 @@ import { EmailService } from '../../../../services/email.service';
               <option [value]="ApplicationStatus.VERIFIED">Verified</option>
               <option [value]="ApplicationStatus.APPROVED">Approved</option>
               <option [value]="ApplicationStatus.DECLINED">Declined</option>
-              <option [value]="ApplicationStatus.PAID">Paid</option>
+              <option [value]="ApplicationStatus.PAID">Paid (Disbursed)</option>
+              <option [value]="ApplicationStatus.PARTIALLY_REPAID">Partially Repaid</option>
+              <option [value]="ApplicationStatus.FULLY_REPAID">Fully Repaid</option>
+              <option [value]="ApplicationStatus.OVERDUE">Overdue</option>
             </select>
             <div class="flex justify-center">
               <span
@@ -279,6 +282,12 @@ export class ApplicationActionsComponent implements OnInit {
         return 'bg-red-100 text-red-800';
       case ApplicationStatus.PAID:
         return 'bg-purple-100 text-purple-800';
+      case ApplicationStatus.PARTIALLY_REPAID:
+        return 'bg-orange-100 text-orange-800';
+      case ApplicationStatus.FULLY_REPAID:
+        return 'bg-emerald-100 text-emerald-800';
+      case ApplicationStatus.OVERDUE:
+        return 'bg-red-200 text-red-900';
       default:
         return 'bg-gray-100 text-gray-800';
     }

@@ -125,6 +125,7 @@ export class LendingAdapter {
       method,
       status: PaymentStatus.PENDING,
       amount_cents,
+      payment_type: 'DISBURSEMENT',
       reference: '',
       processed_at: '',
     }, application_id);
