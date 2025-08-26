@@ -33,6 +33,7 @@ export enum PaymentStatus {
   PENDING = 'PENDING',
   SUCCESS = 'SUCCESS',
   FAILED = 'FAILED',
+  PAID = 'PAID',
 }
 
 export type DocumentKind = 'BANK_STATEMENT';
