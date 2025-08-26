@@ -10,8 +10,7 @@ import { ToastService, Toast } from '../../../services/toast.service';
   template: `
     <div
       *ngIf="visible"
-      [@fadeInOut]
-      [class]="'fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ' + getTypeClass()"
+      [class]="'fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 toast-animate ' + getTypeClass()"
     >
       {{ message }}
     </div>
@@ -21,10 +20,22 @@ import { ToastService, Toast } from '../../../services/toast.service';
       :host {
         display: block;
       }
+
+      .toast-animate {
+        animation: slideIn 0.3s ease-out;
+      }
+
+      @keyframes slideIn {
+        0% {
+          transform: translateY(-100%);
+          opacity: 0;
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
     `,
-  ],
-  animations: [
-    // Add fade animation here if needed
   ],
 })
 export class ToastComponent implements OnInit, OnDestroy {

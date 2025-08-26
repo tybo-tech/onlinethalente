@@ -233,6 +233,16 @@ export class ApplyPageComponent implements OnInit {
       return;
     }
 
+    // Validate bank statements
+    if (!this.publicAdapter.validateBankStatements(this.docs)) {
+      return;
+    }
+
+    // Check if user has any pending applications
+    if (this.currentUser && !(await this.publicAdapter.validateApplicationEligibility(this.currentUser.id))) {
+      return;
+    }
+
     // Just-in-time validation
     try {
       const latest = await firstValueFrom(

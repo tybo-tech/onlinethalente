@@ -1,13 +1,16 @@
 import { Injectable, inject } from '@angular/core';
-import { combineLatest, map } from 'rxjs';
+import { combineLatest, map, firstValueFrom } from 'rxjs';
 import { LendingAdapter } from './business/lending.adapter';
 import { BusinessRulesService } from './business/business-rules.service';
+import { ToastService } from './toast.service';
+import { LocalDoc } from '../app/components/home/apply/document-uploader';
 import {
   Application,
   ApplicationStatus,
   AIVerification,
   SalaryDay,
 } from '../models/schema';
+import { ICollectionData } from '../models/ICollection';
 
 export interface VisibleOffer {
   id: number;
@@ -22,6 +25,54 @@ export interface VisibleOffer {
 export class PublicAdapter {
   private la = inject(LendingAdapter);
   private rules = inject(BusinessRulesService);
+  private toast = inject(ToastService);
+
+  async validateApplicationEligibility(userId: number): Promise<boolean> {
+    try {
+      // Get all applications for the user
+      const applications = await firstValueFrom(this.la.applications$());
+      const userApplications = applications.filter(app => app.parent_id === userId);
+
+      // If no applications, user can apply
+      if (!userApplications || userApplications.length === 0) {
+        return true;
+      }
+
+      // Check if all existing applications are paid or rejected
+      const hasOpenApplications = userApplications.some(app =>
+        app.data.status === ApplicationStatus.SUBMITTED ||
+        app.data.status === ApplicationStatus.VERIFIED ||
+        app.data.status === ApplicationStatus.APPROVED
+      );
+
+      if (hasOpenApplications) {
+        this.toast.error('You have pending applications. Please complete or pay existing applications before applying for a new loan.');
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error checking application eligibility:', error);
+      this.toast.error('Error checking your application status. Please try again.');
+      return false;
+    }
+  }
+
+  validateBankStatements(documents: LocalDoc[]): boolean {
+    const bankStatements = documents.filter(doc => doc.type === 'bank_statement');
+
+    if (bankStatements.length === 0) {
+      this.toast.error('Please upload your bank statements. This is required for all applications.');
+      return false;
+    }
+
+    if (bankStatements.length < 3) {
+      this.toast.error('Please upload bank statements for the last 3 months. All 3 months are required.');
+      return false;
+    }
+
+    return true;
+  }
 
   visibleOffers$(salaryDay: SalaryDay) {
     const period = this.rules.currentPeriodISO();
@@ -64,21 +115,25 @@ export class PublicAdapter {
   }
 
   createApplication(data: Partial<Application>) {
-    return this.la.add<Application>('applications', {
-      user_id: 0,
-      pay_cycle_id: 0,
-      requested_amount_cents: 0,
-      bank_name: '',
-      salary_account: '',
-      salary_day: 15,
-      full_name: '',
-      phone: '',
-      email: '',
-      ai_verification: AIVerification.PENDING,
-      created_at: new Date().toISOString(),
-      ...data,
-      status: ApplicationStatus.SUBMITTED,
-    });
+    return this.la.add<Application>(
+      'applications',
+      {
+        user_id: 0,
+        pay_cycle_id: 0,
+        requested_amount_cents: 0,
+        bank_name: '',
+        salary_account: '',
+        salary_day: 15,
+        full_name: '',
+        phone: '',
+        email: '',
+        ai_verification: AIVerification.PENDING,
+        created_at: new Date().toISOString(),
+        ...data,
+        status: ApplicationStatus.SUBMITTED,
+      },
+      data.user_id
+    );
   }
 
   addApplicationDoc(application_id: number, url: string, kind: string) {
