@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   ICollectionData,
@@ -169,6 +169,7 @@ import { ApplicationDetailModalComponent } from './application-detail-modal.comp
     <app-application-detail-modal *ngIf="selectedApplication"
       [app]="selectedApplication"
       (close)="closeDetails()"
+      (changed)="onApplicationChanged()"
     >
     </app-application-detail-modal>
   `,
@@ -178,6 +179,7 @@ export class ApplicationsComponent implements OnInit {
   private tx = inject(BusinessTxService);
   private rules = inject(BusinessRulesService);
   private toast = inject(ToastService);
+  private route = inject(ActivatedRoute);
 
   protected ApplicationStatus = ApplicationStatus;
 
@@ -189,13 +191,28 @@ export class ApplicationsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadApplications();
+    this.checkForOpenParameter();
   }
 
   loadApplications() {
     this.la.applications$().subscribe((apps) => {
       this.applications.set(apps);
       this.applyFilter();
+      // Check again for open parameter after applications are loaded
+      this.checkForOpenParameter();
     });
+  }
+
+  private checkForOpenParameter() {
+    const openId = this.route.snapshot.queryParamMap.get('open');
+    if (openId && this.applications().length > 0) {
+      const appToOpen = this.applications().find(app => app.id === Number(openId));
+      if (appToOpen) {
+        this.showDetails(appToOpen);
+        // Optional: Remove the query parameter from URL after opening
+        // window.history.replaceState({}, '', window.location.pathname);
+      }
+    }
   }
 
   applyFilter() {
@@ -214,6 +231,11 @@ export class ApplicationsComponent implements OnInit {
 
   closeDetails() {
     this.selectedApplication = undefined;
+  }
+
+  onApplicationChanged() {
+    // Refresh the applications list when changes are made in the modal
+    this.loadApplications();
   }
 
   getStatusColor(status: string): string {
