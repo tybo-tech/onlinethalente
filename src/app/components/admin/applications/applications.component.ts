@@ -1,73 +1,224 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ICollectionData, CollectionNames } from '../../../../models/ICollection';
-import { Application } from '../../../../models/schema';
-import { CollectionDataService } from '../../../../services/collection.data.service';
+import { Application, ApplicationStatus } from '../../../../models/schema';
+import { LendingAdapter } from '../../../../services/business/lending.adapter';
+import { BusinessTxService } from '../../../../services/business/business-tx.service';
+import { BusinessRulesService } from '../../../../services/business/business-rules.service';
+import { ToastService } from '../../../../services/toast.service';
 
 @Component({
   selector: 'ap-applications',
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
-  templateUrl: './applications.component.html',
-  styleUrls: ['./applications.component.scss'],
+  template: `
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Loan Applications</h1>
+          <p class="text-sm text-gray-500 mt-1">Manage all loan requests in one place</p>
+        </div>
+
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+          <div class="relative flex-1 sm:w-48">
+            <select
+              [ngModel]="statusFilter()"
+              (ngModelChange)="statusFilter.set($event); applyFilter()"
+              class="appearance-none w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-lg text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="All">All Applications</option>
+              <option [value]="ApplicationStatus.SUBMITTED">Submitted</option>
+              <option [value]="ApplicationStatus.VERIFIED">Verified</option>
+              <option [value]="ApplicationStatus.APPROVED">Approved</option>
+              <option [value]="ApplicationStatus.DECLINED">Declined</option>
+            </select>
+            <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+              <i class="i-heroicons-chevron-down text-gray-400"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applicant</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let app of filtered()" class="hover:bg-gray-50 transition-colors duration-150">
+              <td class="px-6 py-4">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                    <span class="text-indigo-600 font-medium">{{ app.data.full_name.charAt(0) || 'U' }}</span>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">{{ app.data.full_name }}</div>
+                    <div class="text-xs text-gray-500">ID: {{ app.id }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="text-sm text-gray-900">{{ app.data.email }}</div>
+                <div class="text-xs text-gray-500">{{ app.data.phone }}</div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="text-sm font-medium text-gray-900">R{{ app.data.requested_amount_cents / 100 }}</div>
+              </td>
+              <td class="px-6 py-4">
+                <span [class]="'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' + getStatusColor(app.data.status)">
+                  {{ app.data.status }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-500">
+                {{ app.data.created_at | date:'medium' }}
+              </td>
+              <td class="px-6 py-4 text-right space-x-2">
+                <ng-container [ngSwitch]="app.data.status">
+                  <ng-container *ngSwitchCase="ApplicationStatus.SUBMITTED">
+                    <button (click)="verify(app)"
+                            [disabled]="busy()"
+                            class="text-xs px-3 py-1.5 rounded bg-gray-800 text-white hover:bg-gray-700">
+                      Verify
+                    </button>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="ApplicationStatus.VERIFIED">
+                    <button (click)="approve(app)"
+                            [disabled]="busy()"
+                            class="text-xs px-3 py-1.5 rounded bg-emerald-600 text-white hover:bg-emerald-700">
+                      Approve
+                    </button>
+                    <button (click)="decline(app)"
+                            [disabled]="busy()"
+                            class="text-xs px-3 py-1.5 rounded bg-rose-600 text-white hover:bg-rose-700">
+                      Decline
+                    </button>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="ApplicationStatus.APPROVED">
+                    <span class="text-xs text-gray-500">Approved</span>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="ApplicationStatus.DECLINED">
+                    <span class="text-xs text-gray-500">Declined</span>
+                  </ng-container>
+                </ng-container>
+              </td>
+            </tr>
+            <tr *ngIf="!filtered().length" class="hover:bg-gray-50">
+              <td colspan="6" class="px-6 py-10 text-center text-gray-500">
+                No applications found
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `,
 })
 export class ApplicationsComponent implements OnInit {
-  applications: ICollectionData<Application>[] = [];
-  filtered: ICollectionData<Application>[] = [];
-  statusFilter = 'All';
+  private la = inject(LendingAdapter);
+  private tx = inject(BusinessTxService);
+  private rules = inject(BusinessRulesService);
+  private toast = inject(ToastService);
 
-  selectedApp: ICollectionData<Application> | null = null;
-  comment: string = '';
+  protected ApplicationStatus = ApplicationStatus;
 
-  constructor(private dataService: CollectionDataService<Application>) {}
+  applications = signal<ICollectionData<Application>[]>([]);
+  filtered = signal<ICollectionData<Application>[]>([]);
+  busy = signal(false);
+  statusFilter = signal('All');
 
   ngOnInit(): void {
     this.loadApplications();
   }
 
   loadApplications() {
-    this.dataService
-      .getUserCollections(CollectionNames.Applications)
-      .subscribe((res) => {
-        this.applications = res;
-        this.applyFilter();
-      });
+    this.la.applications$().subscribe(apps => {
+      this.applications.set(apps);
+      this.applyFilter();
+    });
   }
 
   applyFilter() {
-    this.filtered =
-      this.statusFilter === 'All'
-        ? this.applications
-        : this.applications.filter((app) => app.data.status === this.statusFilter);
+    const filtered = this.statusFilter() === 'All'
+      ? this.applications()
+      : this.applications().filter(app => app.data.status === this.statusFilter());
+    this.filtered.set(filtered);
   }
 
-  edit(app: ICollectionData<Application>) {
-    this.selectedApp = { ...app }; // Clone to prevent direct mutation
-    // this.comment = this.selectedApp.data.comment || '';
-  }
-
-  closeModal() {
-    this.selectedApp = null;
-    this.comment = '';
-  }
-
-  updateStatus(status: 'approved' | 'rejected') {
-    if (this.selectedApp) {
-      // this.selectedApp.data.status = status;
-      // this.selectedApp.data.comment = this.comment;
-
-      this.dataService.updateData(this.selectedApp).subscribe(() => {
-        this.closeModal();
+  verify(app: ICollectionData<Application>) {
+    if (this.busy()) return;
+    this.busy.set(true);
+    app.data.status = ApplicationStatus.VERIFIED;
+    this.rules.touch(app);
+    this.la.update(app).subscribe({
+      next: () => {
+        this.busy.set(false);
+        this.toast.success(`Application for ${app.data.full_name} has been verified`);
         this.loadApplications();
-      });
-    }
+      },
+      error: () => {
+        this.busy.set(false);
+        this.toast.error('Failed to verify application. Please try again.');
+      },
+    });
   }
 
-  delete(id: number) {
-    if (confirm('Are you sure you want to delete this application?')) {
-      this.dataService.deleteData(id).subscribe(() => this.loadApplications());
+  approve(app: ICollectionData<Application>) {
+    if (this.busy()) return;
+    this.busy.set(true);
+    this.tx.approveApplication$(app).subscribe({
+      next: (res) => {
+        this.busy.set(false);
+        if (!res.ok) {
+          this.toast.error(res.error || 'Failed to approve application');
+        } else {
+          this.toast.success(`Application for ${app.data.full_name} has been approved`);
+          this.loadApplications();
+        }
+      },
+      error: () => {
+        this.busy.set(false);
+        this.toast.error('Failed to approve application. Please try again.');
+      }
+    });
+  }
+
+  decline(app: ICollectionData<Application>) {
+    if (this.busy()) return;
+    this.busy.set(true);
+    app.data.status = ApplicationStatus.DECLINED;
+    this.rules.touch(app);
+    this.la.update(app).subscribe({
+      next: () => {
+        this.busy.set(false);
+        this.toast.info(`Application for ${app.data.full_name} has been declined`);
+        this.loadApplications();
+      },
+      error: () => {
+        this.busy.set(false);
+        this.toast.error('Failed to decline application. Please try again.');
+      },
+    });
+  }
+
+  getStatusColor(status: string): string {
+    switch (status) {
+      case ApplicationStatus.SUBMITTED: return 'bg-yellow-100 text-yellow-800';
+      case ApplicationStatus.VERIFIED: return 'bg-blue-100 text-blue-800';
+      case ApplicationStatus.APPROVED: return 'bg-green-100 text-green-800';
+      case ApplicationStatus.DECLINED: return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   }
 }

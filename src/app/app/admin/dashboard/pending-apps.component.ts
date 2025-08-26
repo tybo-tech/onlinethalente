@@ -2,11 +2,10 @@ import { Component, EventEmitter, Output, inject, signal, computed } from '@angu
 import { CommonModule } from '@angular/common';
 import { Application, ApplicationStatus } from '../../../../models/schema';
 import { BusinessTxService } from '../../../../services/business/business-tx.service';
-// ⬇️ ensure this path matches where your adapter actually lives
 import { LendingAdapter } from '../../../../services/business/lending.adapter';
 import { ICollectionData } from '../../../../models/ICollection';
-// (Optional) to set updated_at/website_id before saving
 import { BusinessRulesService } from '../../../../services/business/business-rules.service';
+import { ToastService } from '../../../../services/toast.service';
 
 type AppNode = ICollectionData<Application>;
 
@@ -59,7 +58,8 @@ type AppNode = ICollectionData<Application>;
 export class PendingAppsComponent {
   private la = inject(LendingAdapter);
   private tx = inject(BusinessTxService);
-  private rules = inject(BusinessRulesService); // optional but recommended
+  private rules = inject(BusinessRulesService);
+  private toast = inject(ToastService);
 
   @Output() manageAll = new EventEmitter<void>();
 
@@ -82,10 +82,17 @@ export class PendingAppsComponent {
     if (this.busy()) return;
     this.busy.set(true);
     it.data.status = ApplicationStatus.VERIFIED;
-    this.rules.touch(it); // ensure updated_at / website_id, etc.
+    this.rules.touch(it);
     this.la.update(it).subscribe({
-      next: () => this.busy.set(false),
-      error: () => this.busy.set(false),
+      next: () => {
+        this.busy.set(false);
+        this.toast.success(`Application for ${it.data.full_name} has been verified`);
+        this.refresh();
+      },
+      error: () => {
+        this.busy.set(false);
+        this.toast.error('Failed to verify application. Please try again.');
+      },
     });
   }
 
@@ -93,8 +100,19 @@ export class PendingAppsComponent {
     if (this.busy()) return;
     this.busy.set(true);
     this.tx.approveApplication$(it).subscribe({
-      next: (res) => { this.busy.set(false); if (!res.ok) alert(res.error); else this.refresh(); },
-      error: () => { this.busy.set(false); alert('Approval failed'); }
+      next: (res) => {
+        this.busy.set(false);
+        if (!res.ok) {
+          this.toast.error(res.error || 'Failed to approve application');
+        } else {
+          this.toast.success(`Application for ${it.data.full_name} has been approved`);
+          this.refresh();
+        }
+      },
+      error: () => {
+        this.busy.set(false);
+        this.toast.error('Failed to approve application. Please try again.');
+      }
     });
   }
 
@@ -104,8 +122,15 @@ export class PendingAppsComponent {
     it.data.status = ApplicationStatus.DECLINED;
     this.rules.touch(it);
     this.la.update(it).subscribe({
-      next: () => this.busy.set(false),
-      error: () => this.busy.set(false),
+      next: () => {
+        this.busy.set(false);
+        this.toast.info(`Application for ${it.data.full_name} has been declined`);
+        this.refresh();
+      },
+      error: () => {
+        this.busy.set(false);
+        this.toast.error('Failed to decline application. Please try again.');
+      },
     });
   }
 }
