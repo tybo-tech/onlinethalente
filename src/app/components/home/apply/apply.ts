@@ -11,11 +11,11 @@ import { UserService } from '../../../../services/user.service';
 import { SalaryDay, Application, ApplicationStatus } from '../../../../models/schema';
 import { User } from '../../../../models/User';
 
-import { ApplyHeaderComponent } from './new-components/apply-header.component';
-import { PersonalInfoComponent } from './new-components/personal-info.component';
-import { BankingInfoComponent } from './new-components/banking-info.component';
-import { OfferSummaryComponent } from './new-components/offer-summary.component';
 import { DocumentUploaderComponent, LocalDoc } from './document-uploader';
+import { ApplyHeaderComponent } from './components/apply-header.component';
+import { BankingInfoComponent } from './components/banking-info.component';
+import { OfferSummaryComponent } from './components/offer-summary.component';
+import { PersonalInfoComponent } from './components/personal-info.component';
 
 type Node<T> = { id: number; data: T };
 type LoanOffer = {
@@ -56,6 +56,7 @@ type PayCycle = {
           <app-apply-header
             [currentUser]="currentUser"
             [error]="error"
+            [offerId]="offerId"
             (refreshProfile)="prefillFromUser()"
             (logout)="logout()">
           </app-apply-header>
@@ -93,11 +94,11 @@ type PayCycle = {
                class="text-xs text-rose-600">You must accept the terms.</p>
 
             <div class="flex items-center justify-end gap-3 pt-2">
-              <button type="button" class="btn-secondary" (click)="cancel()">
-                <i class="i-heroicons-arrow-left mr-1"></i> Back
+              <button type="button" class="btn-tertiary" (click)="cancel()">
+                <i class="i-heroicons-arrow-left"></i> Back
               </button>
               <button type="submit" [disabled]="submitting || form.invalid"
-                      class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium disabled:opacity-50">
+                      class="btn-primary">
                 <i class="i-heroicons-paper-airplane"></i>
                 {{ submitting ? 'Submitting…' : 'Submit Application' }}
               </button>
@@ -170,7 +171,7 @@ export class ApplyPageComponent implements OnInit {
 
   private initializeOfferData() {
     this.route.queryParamMap.pipe(
-      map(q => Number(q.get('offer') || 0)),
+      map(q => Number(q.get('offer') || q.get('offerId') || 0)),
       switchMap(id => {
         if (!id) {
           this.error = 'Missing offer. Please select an offer from the landing page.';

@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.component';
 import { FormInput } from '../../../../models/FormInput';
 import { UserService } from '../../../../services/user.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -10,8 +10,9 @@ import { Router } from '@angular/router';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   showPassword = false;
+  private offerId: string | null = null;
 
   formInputs: FormInput[] = [
     {
@@ -51,8 +52,16 @@ export class LoginComponent {
       }
     },
   ];
-  constructor(private userService: UserService, private router: Router) {
+  constructor(
+    private userService: UserService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {
     this.updatePasswordVisibility();
+  }
+
+  ngOnInit() {
+    this.offerId = this.route.snapshot.queryParamMap.get('offerId');
   }
 
   private updatePasswordVisibility() {
@@ -71,7 +80,11 @@ export class LoginComponent {
         if (response && response.id) {
           console.log('User logged successfully:', response);
           this.userService.updateUserState(response);
-          this.router.navigate(['/profile']);
+          if (this.offerId) {
+            this.router.navigate(['/apply'], { queryParams: { offerId: this.offerId } });
+          } else {
+            this.router.navigate(['/profile']);
+          }
         }
       },
       error: (error) => {

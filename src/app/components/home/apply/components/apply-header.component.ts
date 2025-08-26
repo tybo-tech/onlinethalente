@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, ActivatedRoute } from '@angular/router';
 import { User } from '../../../../../models/User';
 
 @Component({
@@ -35,18 +36,60 @@ import { User } from '../../../../../models/User';
       </div>
     </div>
 
+    <!-- Login/Register Prompt -->
+    <div *ngIf="!currentUser"
+         class="mb-4 p-4 rounded-lg bg-gray-50 border border-gray-200 text-gray-700">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+          <i class="i-heroicons-user-circle text-gray-400 text-xl"></i>
+          <div>
+            <h3 class="font-medium">Already have an account?</h3>
+            <p class="text-sm text-gray-600">Log in to auto-fill your details and track your applications</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 self-stretch sm:self-center">
+          <button type="button"
+                  class="btn-primary flex-1 sm:flex-none"
+                  (click)="navigateTo('/accounts/login')">
+            <i class="i-heroicons-arrow-right-on-rectangle"></i>
+            Log In
+          </button>
+          <button type="button"
+                  class="btn-secondary flex-1 sm:flex-none"
+                  (click)="navigateTo('/accounts/register')">
+            <i class="i-heroicons-user-plus"></i>
+            Register
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Error Display -->
     <div *ngIf="error" class="p-3 mb-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-sm">
       <i class="i-heroicons-exclamation-triangle mr-1"></i>{{ error }}
     </div>
   `
 })
-export class ApplyHeaderComponent {
+export class ApplyHeaderComponent  {
   @Input() currentUser?: User;
   @Input() error = '';
+  @Input() offerId = 0;
 
   @Output() refreshProfile = new EventEmitter<void>();
   @Output() logout = new EventEmitter<void>();
+
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
+
+
+  navigateTo(path: string) {
+    debugger
+    const queryParams = this.offerId ? { offerId: this.offerId } : {};
+    this.router.navigate([path], { queryParams });
+  }
 
   onRefreshProfile() {
     this.refreshProfile.emit();

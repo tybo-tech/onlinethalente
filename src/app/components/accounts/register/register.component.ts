@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormInput } from '../../../../models/FormInput';
 import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.component';
 import { initUser } from '../../../../models/User';
 import { UserService } from '../../../../services/user.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CollectionNames } from '../../../../models/ICollection';
 
 @Component({
@@ -12,8 +12,18 @@ import { CollectionNames } from '../../../../models/ICollection';
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
 })
-export class RegisterComponent {
-  constructor(private userService: UserService, private router: Router) {}
+export class RegisterComponent implements OnInit {
+  private offerId: string | null = null;
+
+  constructor(
+    private userService: UserService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
+
+  ngOnInit() {
+    this.offerId = this.route.snapshot.queryParamMap.get('offerId');
+  }
   formInputs: FormInput[] = [
     {
       key: 'firstName',
@@ -73,8 +83,11 @@ export class RegisterComponent {
         if (response && response.id) {
           console.log('User registered successfully:', response);
           this.userService.updateUserState(response); // Update the user state in the service
-          this.router.navigate(['/profile']); // Redirect to login page after successful registration
-          // Optionally, redirect or show a success message
+          if (this.offerId) {
+            this.router.navigate(['/apply'], { queryParams: { offerId: this.offerId } });
+          } else {
+            this.router.navigate(['/profile']); // Redirect to profile if no offer ID
+          }
         }
       },
       error: (error) => {
