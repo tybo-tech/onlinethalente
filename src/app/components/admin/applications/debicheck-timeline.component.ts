@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { Subscription, firstValueFrom } from 'rxjs';
 import { ICollectionData } from '../../../../models/ICollection';
 import { Application, DebiCheckEvent } from '../../../../models/schema';
@@ -32,16 +32,30 @@ import { BusinessTxService } from '../../../../services/business/business-tx.ser
     </div>
   `
 })
-export class DebiCheckTimelineComponent implements OnInit {
+export class DebiCheckTimelineComponent implements OnInit, OnChanges {
   @Input({required:true}) app!: ICollectionData<Application>;
+  @Input() refreshTrigger?: any; // Used to trigger refresh when parent changes
   events: ICollectionData<DebiCheckEvent>[] = [];
   loading = true;
 
   constructor(private btx: BusinessTxService) {}
 
   async ngOnInit() {
+    await this.loadEvents();
+  }
+
+  async ngOnChanges(changes: SimpleChanges) {
+    // Refresh when refreshTrigger input changes
+    if (changes['refreshTrigger'] && !changes['refreshTrigger'].firstChange) {
+      await this.loadEvents();
+    }
+  }
+
+  private async loadEvents() {
+    this.loading = true;
     this.events = await firstValueFrom(this.btx.debiCheckEvents$(this.app));
     this.loading = false;
   }
+
   trackById(_: number, x: { id: any }) { return x.id; }
 }

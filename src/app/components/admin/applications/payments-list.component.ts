@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ICollectionData } from '../../../../models/ICollection';
 import { Application, Payment, PaymentStatus } from '../../../../models/schema';
@@ -50,8 +50,9 @@ import { BusinessTxService, Ok, Fail } from '../../../../services/business/busin
     </div>
   `
 })
-export class PaymentsListComponent implements OnInit {
+export class PaymentsListComponent implements OnInit, OnChanges {
   @Input({required:true}) app!: ICollectionData<Application>;
+  @Input() refreshTrigger?: any; // Used to trigger refresh when parent changes
 
   payments: ICollectionData<Payment>[] = [];
   loading = true;
@@ -59,6 +60,18 @@ export class PaymentsListComponent implements OnInit {
   constructor(private la: LendingAdapter, private btx: BusinessTxService) {}
 
   async ngOnInit() {
+    await this.loadPayments();
+  }
+
+  async ngOnChanges(changes: SimpleChanges) {
+    // Refresh when refreshTrigger input changes
+    if (changes['refreshTrigger'] && !changes['refreshTrigger'].firstChange) {
+      await this.loadPayments();
+    }
+  }
+
+  private async loadPayments() {
+    this.loading = true;
     const all = await firstValueFrom(this.la.payments$());
     this.payments = (all || [])
       .filter(p => p.data.application_id === this.app.id)
@@ -79,9 +92,8 @@ export class PaymentsListComponent implements OnInit {
   async markPaid(p: ICollectionData<Payment>) {
     const res = await firstValueFrom(this.btx.markPaid$(p)) as Ok|Fail;
     if (res.ok) {
-      // Update local list
-      p.data.status = PaymentStatus.FAILED;
-      this.payments = [...this.payments];
+      // Refresh the entire list to get latest data
+      await this.loadPayments();
     }
   }
 }

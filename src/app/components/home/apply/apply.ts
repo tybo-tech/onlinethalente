@@ -20,6 +20,7 @@ import {
   SalaryDay,
   Application,
   ApplicationStatus,
+  AIVerification,
 } from '../../../../models/schema';
 import { User } from '../../../../models/User';
 
@@ -376,7 +377,7 @@ export class ApplyPageComponent implements OnInit {
       email: v.email!,
       phone: v.phone!,
       status: ApplicationStatus.SUBMITTED,
-      ai_verification: 'PENDING' as any,
+      ai_verification: AIVerification.PASS, // Set initial AI verification status
       submitted_at: nowISO,
       created_at: nowISO,
     };

@@ -40,8 +40,8 @@ import { PaymentsListComponent } from './payments-list.component';
             <div class="grid gap-5 lg:grid-cols-3">
               <div class="space-y-5 lg:col-span-2">
                 <app-documents-list [applicationId]="app.id"></app-documents-list>
-                <app-debicheck-timeline [app]="app"></app-debicheck-timeline>
-                <app-payments-list [app]="app"></app-payments-list>
+                <app-debicheck-timeline [app]="app" [refreshTrigger]="refreshTrigger"></app-debicheck-timeline>
+                <app-payments-list [app]="app" [refreshTrigger]="refreshTrigger"></app-payments-list>
               </div>
 
               <div class="space-y-5">
@@ -57,7 +57,7 @@ import { PaymentsListComponent } from './payments-list.component';
 
           <!-- Actions -->
           <div class="sticky bottom-0 bg-white border-t p-4">
-            <app-application-actions [app]="app" (changed)="changed.emit()"></app-application-actions>
+            <app-application-actions [app]="app" (changed)="onApplicationChanged()"></app-application-actions>
             <div class="mt-3 flex justify-end">
               <button type="button" class="rounded-lg px-4 py-2 border hover:bg-gray-50" (click)="close.emit()">
                 Close
@@ -76,4 +76,13 @@ export class ApplicationDetailModalComponent {
   @Input({required:true}) app!: ICollectionData<Application>;
   @Output() close = new EventEmitter<void>();
   @Output() changed = new EventEmitter<void>();
+
+  // Refresh trigger for child components
+  refreshTrigger = 0;
+
+  onApplicationChanged() {
+    // Increment refresh trigger to notify child components
+    this.refreshTrigger++;
+    this.changed.emit();
+  }
 }
