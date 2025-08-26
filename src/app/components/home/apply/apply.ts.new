@@ -11,10 +11,10 @@ import { UserService } from '../../../../services/user.service';
 import { SalaryDay, Application, ApplicationStatus } from '../../../../models/schema';
 import { User } from '../../../../models/User';
 
-import { ApplyHeaderComponent } from './new-components/apply-header.component';
-import { PersonalInfoComponent } from './new-components/personal-info.component';
-import { BankingInfoComponent } from './new-components/banking-info.component';
-import { OfferSummaryComponent } from './new-components/offer-summary.component';
+import { ApplyHeaderComponent } from './components/apply-header.component';
+import { PersonalInfoComponent } from './components/personal-info.component';
+import { BankingInfoComponent } from './components/banking-info.component';
+import { OfferSummaryComponent } from './components/offer-summary.component';
 import { DocumentUploaderComponent, LocalDoc } from './document-uploader';
 
 type Node<T> = { id: number; data: T };
