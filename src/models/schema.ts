@@ -66,6 +66,8 @@ export interface LoanOffer {
   pay_cycle_id: number;
   /** cents to avoid float issues: 70000 = R700 */
   amount_cents: number;
+  /** annual interest rate as percentage (e.g., 24.5 for 24.5%) */
+  interest_rate_percent: number;
   /** monthly slots at reset */
   slots_total: number;
   /** toggle */
@@ -246,10 +248,12 @@ export const initPayCycle = (salary_day: SalaryDay): PayCycle => ({
 export const initLoanOffer = (
   pay_cycle_id: number,
   amount_cents: number,
-  slots_total: number
+  slots_total: number,
+  interest_rate_percent: number = 24.0
 ): LoanOffer => ({
   pay_cycle_id,
   amount_cents,
+  interest_rate_percent,
   slots_total,
   is_active: true,
   label: `R${(amount_cents / 100).toFixed(0)}`,
@@ -333,14 +337,19 @@ export const initPayment = (
 
 export const initRepaymentPlan = (
   application_id: number,
-  total_amount_cents: number,
+  principal_cents: number,
+  annual_rate_percent: number,
   plan_type: 'LUMP_SUM' | 'INSTALLMENTS' = 'LUMP_SUM',
   installments_count: number = 1
 ): RepaymentPlan => {
-  const installment_amount = plan_type === 'LUMP_SUM' ? total_amount_cents : Math.ceil(total_amount_cents / installments_count);
+  // Calculate total amount including interest
+  const term_months = plan_type === 'LUMP_SUM' ? 1 : installments_count;
+  const total_amount_cents = calculateTotalRepaymentAmount(principal_cents, annual_rate_percent, term_months);
+
+  const installment_amount = calculateInstallmentAmount(total_amount_cents, installments_count);
   const now = new Date();
   const dueDate = new Date(now);
-  dueDate.setMonth(dueDate.getMonth() + (plan_type === 'LUMP_SUM' ? 1 : installments_count));
+  dueDate.setMonth(dueDate.getMonth() + term_months);
 
   return {
     application_id,
@@ -370,3 +379,57 @@ export const initBankingDetails = (): BankingDetails => ({
   updated_by_user_id: 0,
   updated_at: new Date().toISOString(),
 });
+
+// -----------------------------------------------------------
+// Interest calculation helpers
+// -----------------------------------------------------------
+
+/**
+ * Calculate total repayment amount including interest
+ * @param principal_cents - Original loan amount in cents
+ * @param annual_rate_percent - Annual interest rate as percentage (e.g., 24.5)
+ * @param term_months - Loan term in months (default 1 for short-term loans)
+ * @returns Total amount to be repaid in cents
+ */
+export const calculateTotalRepaymentAmount = (
+  principal_cents: number,
+  annual_rate_percent: number,
+  term_months: number = 1
+): number => {
+  // Convert annual rate to monthly rate
+  const monthly_rate = annual_rate_percent / 100 / 12;
+
+  // For simple interest calculation (common for short-term loans)
+  const interest_cents = Math.round(principal_cents * monthly_rate * term_months);
+
+  return principal_cents + interest_cents;
+};
+
+/**
+ * Calculate interest amount only
+ * @param principal_cents - Original loan amount in cents
+ * @param annual_rate_percent - Annual interest rate as percentage
+ * @param term_months - Loan term in months
+ * @returns Interest amount in cents
+ */
+export const calculateInterestAmount = (
+  principal_cents: number,
+  annual_rate_percent: number,
+  term_months: number = 1
+): number => {
+  const monthly_rate = annual_rate_percent / 100 / 12;
+  return Math.round(principal_cents * monthly_rate * term_months);
+};
+
+/**
+ * Calculate monthly installment amount for installment loans
+ * @param total_amount_cents - Total amount including interest
+ * @param installments_count - Number of installments
+ * @returns Monthly installment amount in cents
+ */
+export const calculateInstallmentAmount = (
+  total_amount_cents: number,
+  installments_count: number
+): number => {
+  return Math.ceil(total_amount_cents / installments_count);
+};

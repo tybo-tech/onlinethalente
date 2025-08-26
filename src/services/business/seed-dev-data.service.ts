@@ -47,13 +47,15 @@ export class SeedDevDataService {
             const ensureOffer$ = (
               pc: ICollectionData<PayCycle>,
               amount: number,
-              slots: number
+              slots: number,
+              interestRate: number = 24.0
             ): Observable<ICollectionData<LoanOffer>> => {
               const exists = offers.find(o => o.data.pay_cycle_id === pc.id && o.data.amount_cents === amount);
               if (exists) return of(exists);
               const lo: LoanOffer = {
                 pay_cycle_id: pc.id,
                 amount_cents: amount,
+                interest_rate_percent: interestRate,
                 slots_total: slots,
                 is_active: true,
                 label: `R${(amount / 100).toFixed(0)}`
@@ -62,9 +64,9 @@ export class SeedDevDataService {
             };
 
             return forkJoin([
-              ensureOffer$(pc15, 70000, 6), ensureOffer$(pc15, 50000, 10),
-              ensureOffer$(pc25, 70000, 6), ensureOffer$(pc25, 50000, 10),
-              ensureOffer$(pc31, 70000, 6), ensureOffer$(pc31, 50000, 10),
+              ensureOffer$(pc15, 70000, 6, 24.0), ensureOffer$(pc15, 50000, 10, 22.0),
+              ensureOffer$(pc25, 70000, 6, 24.0), ensureOffer$(pc25, 50000, 10, 22.0),
+              ensureOffer$(pc31, 70000, 6, 24.0), ensureOffer$(pc31, 50000, 10, 22.0),
             ]).pipe(
               switchMap((createdOffers) => {
                 const allOffers = [...offers, ...createdOffers];

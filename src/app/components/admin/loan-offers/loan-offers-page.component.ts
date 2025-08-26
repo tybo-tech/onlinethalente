@@ -79,6 +79,7 @@ interface OfferNode extends ICollectionData<OfferWithCycle> {}
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Label</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pay Cycle</th>
                   <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Interest Rate</th>
                   <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total Slots</th>
                   <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                   <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -97,6 +98,10 @@ interface OfferNode extends ICollectionData<OfferWithCycle> {}
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
                     <i class="fa fa-coins mr-1 text-yellow-500"></i>
                     R{{ offer.data.amount_cents / 100 }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
+                    <i class="fa fa-percentage mr-1 text-blue-500"></i>
+                    {{ offer.data.interest_rate_percent }}%
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">
                     <i class="fa fa-user-group mr-1"></i>
@@ -145,11 +150,13 @@ interface OfferNode extends ICollectionData<OfferWithCycle> {}
         [initialData]="editingOffer ? {
           pay_cycle_id: editingOffer.data.pay_cycle_id,
           amount: editingOffer.data.amount_cents / 100,
+          interest_rate_percent: editingOffer.data.interest_rate_percent,
           slots_total: editingOffer.data.slots_total,
           label: editingOffer.data.label || '',
           is_active: editingOffer.data.is_active
         } : {
-          is_active: true
+          is_active: true,
+          interest_rate_percent: 24.0
         }"
         submitLabel="{{ saving ? 'Saving...' : (editingOffer ? 'Update' : 'Create') }}"
         cancelLabel="Cancel"
@@ -245,6 +252,23 @@ export class LoanOffersPageComponent implements OnInit {
         }
       },
       {
+        key: 'interest_rate_percent',
+        label: 'Interest Rate',
+        type: 'number',
+        icon: 'fa-percentage',
+        unit: '%',
+        required: true,
+        min: 0,
+        max: 100,
+        step: 0.1,
+        placeholder: 'e.g., 24.5',
+        errorMessages: {
+          required: 'Interest rate is required',
+          min: 'Interest rate cannot be negative',
+          max: 'Interest rate cannot exceed 100%'
+        }
+      },
+      {
         key: 'slots_total',
         label: 'Total Slots',
         type: 'number',
@@ -290,6 +314,7 @@ export class LoanOffersPageComponent implements OnInit {
       const data: LoanOffer = {
         pay_cycle_id: values.pay_cycle_id,
         amount_cents: values.amount * 100,
+        interest_rate_percent: values.interest_rate_percent,
         slots_total: values.slots_total,
         is_active: values.is_active,
         label: values.label || undefined
