@@ -95,6 +95,19 @@ export class LendingAdapter {
     return this.cds.deleteData(node.id) as Observable<void>;
   }
 
+  // Query
+  getById<T>(id: number) {
+    return this.cds.getDataById(id).pipe(
+      map((node) => node || null)
+    );
+  }
+
+  listByCollection<T>(collectionId: string) {
+    return this.cds.getDataByCollectionId(collectionId).pipe(
+      map((nodes) => nodes.filter((node) => node.id !== null))
+    );
+  }
+
   // ---- Helpers
   /** First day of current month in local time 'YYYY-MM-01' */
   currentPeriodISO(): string {

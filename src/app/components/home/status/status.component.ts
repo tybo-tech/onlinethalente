@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute } from '@angular/router';
 import { PublicAdapter } from '../../../../services/public.adapter';
 import { Application, ApplicationStatus } from '../../../../models/schema';
+import { CollectionDataService } from '../../../../services/collection.data.service';
 
 @Component({
   selector: 'app-status',
@@ -168,6 +169,7 @@ export class StatusComponent implements OnInit {
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private publicAdapter = inject(PublicAdapter);
+  private collDSeer = inject(CollectionDataService);
 
   searchForm: FormGroup;
   isSearching = false;
@@ -191,6 +193,7 @@ export class StatusComponent implements OnInit {
   ngOnInit() {
     // Check for reference number in query params
     const ref = this.route.snapshot.queryParams['ref'];
+    debugger
     if (ref) {
       this.lookupApplicationById(ref);
     }
@@ -219,13 +222,21 @@ export class StatusComponent implements OnInit {
     }
   }
 
-  private async lookupApplicationById(id: string) {
+  private async lookupApplicationById(id: number) {
     this.isSearching = true;
     this.error = '';
 
     try {
-      this.currentApplication = await this.publicAdapter.getApplicationById(id);
-      this.searched = true;
+      this.collDSeer.getDataById(id).subscribe({
+        next: (data) => {
+          this.currentApplication = data.data;
+          this.searched = true;
+        },
+        error: (error) => {
+          console.error('Lookup failed:', error);
+          this.error = 'Failed to find application. Please try searching with your email or ID number.';
+        }
+      });
     } catch (error) {
       console.error('Lookup failed:', error);
       this.error = 'Failed to find application. Please try searching with your email or ID number.';

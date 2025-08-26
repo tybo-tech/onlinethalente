@@ -196,14 +196,8 @@ export class PublicAdapter {
     } as any;
   }
 
-  async getApplicationById(id: string): Promise<Application | null> {
-    // TODO: Implement proper lookup through lending adapter
-    // For now, return mock data for demonstration
-    return {
-      id: parseInt(id),
-      status: 'SUBMITTED',
-      submission_date: new Date().toISOString(),
-      data: {},
-    } as any;
+  async getApplicationById(id: number): Promise<ICollectionData<Application> | null> {
+    const app = await firstValueFrom(this.la.getById<Application>(id));
+    return app;
   }
 }

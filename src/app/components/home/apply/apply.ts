@@ -2,13 +2,25 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatest, firstValueFrom, map, of, switchMap, tap, take } from 'rxjs';
+import {
+  combineLatest,
+  firstValueFrom,
+  map,
+  of,
+  switchMap,
+  tap,
+  take,
+} from 'rxjs';
 
 import { PublicAdapter } from '../../../../services/public.adapter';
 import { LendingAdapter } from '../../../../services/business/lending.adapter';
 import { UserService } from '../../../../services/user.service';
 
-import { SalaryDay, Application, ApplicationStatus } from '../../../../models/schema';
+import {
+  SalaryDay,
+  Application,
+  ApplicationStatus,
+} from '../../../../models/schema';
 import { User } from '../../../../models/User';
 
 import { DocumentUploaderComponent, LocalDoc } from './document-uploader';
@@ -46,12 +58,20 @@ type PayCycle = {
     DocumentUploaderComponent,
   ],
   template: `
-    <section class="relative bg-gradient-to-br from-gray-50 to-white py-24 px-4 md:px-6 overflow-hidden">
+    <section
+      class="relative bg-gradient-to-br from-gray-50 to-white py-24 px-4 md:px-6 overflow-hidden"
+    >
       <!-- Background Elements -->
-      <div class="absolute -top-20 -left-32 w-[400px] h-[400px] bg-gradient-to-tr from-amber-200 to-pink-300 opacity-20 blur-3xl rounded-full animate-float-slow z-0 pointer-events-none"></div>
-      <div class="absolute bottom-1/4 -right-20 w-[300px] h-[300px] bg-gradient-to-br from-blue-100 to-cyan-200 opacity-15 blur-3xl rounded-full animate-float-slow delay-2000 z-0 pointer-events-none"></div>
+      <div
+        class="absolute -top-20 -left-32 w-[400px] h-[400px] bg-gradient-to-tr from-amber-200 to-pink-300 opacity-20 blur-3xl rounded-full animate-float-slow z-0 pointer-events-none"
+      ></div>
+      <div
+        class="absolute bottom-1/4 -right-20 w-[300px] h-[300px] bg-gradient-to-br from-blue-100 to-cyan-200 opacity-15 blur-3xl rounded-full animate-float-slow delay-2000 z-0 pointer-events-none"
+      ></div>
 
-      <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-start relative z-10">
+      <div
+        class="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-start relative z-10"
+      >
         <!-- Left: Form -->
         <div class="animate-fade-in-up transition duration-700">
           <app-apply-header
@@ -59,15 +79,21 @@ type PayCycle = {
             [error]="error"
             [offerId]="offerId"
             (refreshProfile)="prefillFromUser()"
-            (logout)="logout()">
+            (logout)="logout()"
+          >
           </app-apply-header>
 
-          <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <form
+            [formGroup]="form"
+            (ngSubmit)="submit()"
+            class="space-y-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100"
+          >
             <!-- Personal Info Section -->
             <app-personal-info
               [form]="form"
               [currentUser]="currentUser"
-              [lockIdentity]="lockIdentity">
+              [lockIdentity]="lockIdentity"
+            >
             </app-personal-info>
 
             <!-- Banking Info Section -->
@@ -78,28 +104,56 @@ type PayCycle = {
 
             <!-- Options -->
             <div class="flex flex-col gap-2">
-              <label class="inline-flex items-start gap-2 text-sm text-gray-700">
-                <input id="terms" type="checkbox" formControlName="accept_terms"
-                       class="mt-1 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
-                <span>I confirm the documents are authentic and agree to the terms.</span>
+              <label
+                class="inline-flex items-start gap-2 text-sm text-gray-700"
+              >
+                <input
+                  id="terms"
+                  type="checkbox"
+                  formControlName="accept_terms"
+                  class="mt-1 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span
+                  >I confirm the documents are authentic and agree to the
+                  terms.</span
+                >
               </label>
 
-              <label *ngIf="currentUser" class="inline-flex items-start gap-2 text-sm text-gray-700">
-                <input type="checkbox" formControlName="update_profile"
-                       class="mt-1 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
-                <span>Update my profile with these details (email/phone/ID/banking)</span>
+              <label
+                *ngIf="currentUser"
+                class="inline-flex items-start gap-2 text-sm text-gray-700"
+              >
+                <input
+                  type="checkbox"
+                  formControlName="update_profile"
+                  class="mt-1 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span
+                  >Update my profile with these details
+                  (email/phone/ID/banking)</span
+                >
               </label>
             </div>
 
-            <p *ngIf="form.get('accept_terms')?.invalid && form.get('accept_terms')?.touched"
-               class="text-xs text-rose-600">You must accept the terms.</p>
+            <p
+              *ngIf="
+                form.get('accept_terms')?.invalid &&
+                form.get('accept_terms')?.touched
+              "
+              class="text-xs text-rose-600"
+            >
+              You must accept the terms.
+            </p>
 
             <div class="flex items-center justify-end gap-3 pt-2">
               <button type="button" class="btn-tertiary" (click)="cancel()">
                 <i class="i-heroicons-arrow-left"></i> Back
               </button>
-              <button type="submit" [disabled]="submitting || form.invalid"
-                      class="btn-primary">
+              <button
+                type="submit"
+                [disabled]="submitting || form.invalid"
+                class="btn-primary"
+              >
                 <i class="i-heroicons-paper-airplane"></i>
                 {{ submitting ? 'Submitting…' : 'Submit Application' }}
               </button>
@@ -108,12 +162,15 @@ type PayCycle = {
         </div>
 
         <!-- Right: Offer Summary -->
-        <aside class="hidden md:block animate-fade-in-up transition duration-700 delay-150">
+        <aside
+          class="hidden md:block animate-fade-in-up transition duration-700 delay-150"
+        >
           <app-offer-summary
             [amountLabel]="amountLabel"
             [selectedDay]="selectedDay"
             [isWindowOpen]="isWindowOpen"
-            [windowMessage]="windowMessage">
+            [windowMessage]="windowMessage"
+          >
           </app-offer-summary>
         </aside>
       </div>
@@ -154,8 +211,9 @@ export class ApplyPageComponent implements OnInit {
     bank_name: ['', [Validators.required]],
     salary_account: ['', [Validators.required]],
     accept_terms: [false, [Validators.requiredTrue]],
-    update_profile: [false]
+    update_profile: [false],
   });
+  applicationId?: number;
 
   ngOnInit(): void {
     this.initializeUserData();
@@ -163,7 +221,7 @@ export class ApplyPageComponent implements OnInit {
   }
 
   private initializeUserData() {
-    this.userService.$user?.pipe(take(1)).subscribe(u => {
+    this.userService.$user?.pipe(take(1)).subscribe((u) => {
       if (!u) return;
       this.currentUser = u;
       this.lockIdentity = !!(u.is_verified || u.verified_at);
@@ -172,39 +230,52 @@ export class ApplyPageComponent implements OnInit {
   }
 
   private initializeOfferData() {
-    this.route.queryParamMap.pipe(
-      map(q => Number(q.get('offer') || q.get('offerId') || 0)),
-      switchMap(id => {
-        if (!id) {
-          this.error = 'Missing offer. Please select an offer from the landing page.';
-          return of(null);
-        }
-        this.offerId = id;
-        return combineLatest([
-          this.lendingAdapter.loanOffers$(),
-          this.lendingAdapter.payCycles$(),
-        ]).pipe(
-          map(([offers, cycles]) => {
-            const offer = (offers as Node<LoanOffer>[]).find(o => o.id === id);
-            if (!offer) return null;
-            const cycle = (cycles as Node<PayCycle>[]).find(c => c.id === offer.data.pay_cycle_id) || null;
-            return { offer, cycle };
-          })
-        );
-      }),
-      tap(pair => {
-        if (!pair) return;
-        this.offerNode = pair.offer;
-        this.payCycleNode = pair.cycle || undefined;
-        this.selectedDay = (this.payCycleNode?.data.salary_day ?? 15) as SalaryDay;
+    this.route.queryParamMap
+      .pipe(
+        map((q) => Number(q.get('offer') || q.get('offerId') || 0)),
+        switchMap((id) => {
+          if (!id) {
+            this.error =
+              'Missing offer. Please select an offer from the landing page.';
+            return of(null);
+          }
+          this.offerId = id;
+          return combineLatest([
+            this.lendingAdapter.loanOffers$(),
+            this.lendingAdapter.payCycles$(),
+          ]).pipe(
+            map(([offers, cycles]) => {
+              const offer = (offers as Node<LoanOffer>[]).find(
+                (o) => o.id === id
+              );
+              if (!offer) return null;
+              const cycle =
+                (cycles as Node<PayCycle>[]).find(
+                  (c) => c.id === offer.data.pay_cycle_id
+                ) || null;
+              return { offer, cycle };
+            })
+          );
+        }),
+        tap((pair) => {
+          if (!pair) return;
+          this.offerNode = pair.offer;
+          this.payCycleNode = pair.cycle || undefined;
+          this.selectedDay = (this.payCycleNode?.data.salary_day ??
+            15) as SalaryDay;
 
-        this.amountLabel = this.toRand(this.offerNode?.data.amount_cents ?? 0);
-        this.isWindowOpen = this.publicAdapter.isWindowOpen(this.selectedDay);
-        this.windowMessage = this.publicAdapter.getWindowMessage(this.selectedDay);
-      })
-    ).subscribe({
-      error: () => this.error = 'Failed to load offer. Please try again.',
-    });
+          this.amountLabel = this.toRand(
+            this.offerNode?.data.amount_cents ?? 0
+          );
+          this.isWindowOpen = this.publicAdapter.isWindowOpen(this.selectedDay);
+          this.windowMessage = this.publicAdapter.getWindowMessage(
+            this.selectedDay
+          );
+        })
+      )
+      .subscribe({
+        error: () => (this.error = 'Failed to load offer. Please try again.'),
+      });
   }
 
   prefillFromUser(overrideTyped = true) {
@@ -215,7 +286,7 @@ export class ApplyPageComponent implements OnInit {
       full_name: u.name || '',
       email: u.email || '',
       phone: u.phone || '',
-      id_number: u.id_number || ''
+      id_number: u.id_number || '',
     };
 
     const meta = (u as any).metadata;
@@ -229,6 +300,7 @@ export class ApplyPageComponent implements OnInit {
   }
 
   async submit() {
+    debugger
     this.error = '';
     if (this.form.invalid || !this.offerNode || !this.payCycleNode) {
       this.form.markAllAsTouched();
@@ -241,27 +313,45 @@ export class ApplyPageComponent implements OnInit {
     }
 
     // Check if user has any pending applications
-    if (this.currentUser && !(await this.publicAdapter.validateApplicationEligibility(this.currentUser.id))) {
+    if (
+      this.currentUser &&
+      !(await this.publicAdapter.validateApplicationEligibility(
+        this.currentUser.id
+      ))
+    ) {
       return;
     }
 
     // Just-in-time validation
     try {
       const latest = await firstValueFrom(
-        this.publicAdapter.visibleOffers$(this.selectedDay).pipe(map(list => list.find(o => o.id === this.offerId)))
+        this.publicAdapter
+          .visibleOffers$(this.selectedDay)
+          .pipe(map((list) => list.find((o) => o.id === this.offerId)))
       );
-      if (!latest) { this.error = 'This offer is no longer available. Please choose another.'; return; }
-      if (!this.publicAdapter.isWindowOpen(this.selectedDay)) { this.error = this.publicAdapter.getWindowMessage(this.selectedDay); return; }
-      if (latest.slots_remaining <= 0) { this.error = 'This offer is sold out for the current cycle.'; return; }
+      if (!latest) {
+        this.error =
+          'This offer is no longer available. Please choose another.';
+        return;
+      }
+      if (!this.publicAdapter.isWindowOpen(this.selectedDay)) {
+        this.error = this.publicAdapter.getWindowMessage(this.selectedDay);
+        return;
+      }
+      if (latest.slots_remaining <= 0) {
+        this.error = 'This offer is sold out for the current cycle.';
+        return;
+      }
     } catch {
-      this.error = 'Could not verify availability. Please try again.'; return;
+      this.error = 'Could not verify availability. Please try again.';
+      return;
     }
 
     this.submitting = true;
 
     try {
       await this.processSubmission();
-      this.router.navigate(['/application', this.offerId, 'done']);
+      this.router.navigate(['/application', this.applicationId, 'done']);
     } catch {
       this.error = 'Submit failed. Please check your details and try again.';
     } finally {
@@ -291,7 +381,17 @@ export class ApplyPageComponent implements OnInit {
       created_at: nowISO,
     };
 
-    const saved = await firstValueFrom(this.publicAdapter.createApplication(app));
+    const saved = await firstValueFrom(
+      this.publicAdapter.createApplication(app)
+    );
+
+    if(!saved || !saved.id) {
+      this.error = 'Failed to create application. Please try again.';
+      this.applicationId = undefined;
+      return;
+    }
+
+    this.applicationId = saved.id;
 
     // 2. Update user profile if requested
     if (this.currentUser && v.update_profile) {
@@ -318,9 +418,9 @@ export class ApplyPageComponent implements OnInit {
         banking: {
           ...(this.currentUser!.metadata?.banking || {}),
           bank_name: formValues.bank_name,
-          salary_account: formValues.salary_account
-        }
-      }
+          salary_account: formValues.salary_account,
+        },
+      },
     };
 
     await firstValueFrom(this.userService.save(updated));
@@ -328,26 +428,34 @@ export class ApplyPageComponent implements OnInit {
   }
 
   private async uploadDocuments(applicationId: number) {
-    await Promise.all(this.docs.map(async (doc) => {
-      const formData = new FormData();
-      formData.append('file', doc.file, doc.file.name);
-      formData.append('dir', 'docs');
+    await Promise.all(
+      this.docs.map(async (doc) => {
+        const formData = new FormData();
+        formData.append('file', doc.file, doc.file.name);
+        formData.append('dir', 'docs');
 
-      try {
-        const result = await firstValueFrom(this.uploadService.uploadFile(formData));
-        if (result.success) {
-          const fileUrl = `${this.uploadService.url}/upload/${result.url}`;
-          await firstValueFrom(
-            this.publicAdapter.addApplicationDoc(applicationId, fileUrl, 'BANK_STATEMENT')
+        try {
+          const result = await firstValueFrom(
+            this.uploadService.uploadFile(formData)
           );
-        } else {
-          throw new Error(result.message || 'Upload failed');
+          if (result.success) {
+            const fileUrl = `${this.uploadService.url}/upload/${result.url}`;
+            await firstValueFrom(
+              this.publicAdapter.addApplicationDoc(
+                applicationId,
+                fileUrl,
+                'BANK_STATEMENT'
+              )
+            );
+          } else {
+            throw new Error(result.message || 'Upload failed');
+          }
+        } catch (error) {
+          console.error('Document upload failed:', error);
+          throw error;
         }
-      } catch (error) {
-        console.error('Document upload failed:', error);
-        throw error;
-      }
-    }));
+      })
+    );
   }
 
   logout() {
@@ -363,7 +471,9 @@ export class ApplyPageComponent implements OnInit {
   }
 
   toRand(cents: number) {
-    return (cents / 100).toLocaleString('en-ZA', { style: 'currency', currency: 'ZAR' });
+    return (cents / 100).toLocaleString('en-ZA', {
+      style: 'currency',
+      currency: 'ZAR',
+    });
   }
-
 }
