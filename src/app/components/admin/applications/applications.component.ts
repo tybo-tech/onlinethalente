@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ICollectionData, CollectionNames } from '../../../../models/ICollection';
+import { ApplicationDetailComponent } from './application-detail.component';
 import { Application, ApplicationStatus } from '../../../../models/schema';
 import { LendingAdapter } from '../../../../services/business/lending.adapter';
 import { BusinessTxService } from '../../../../services/business/business-tx.service';
@@ -12,7 +13,7 @@ import { ToastService } from '../../../../services/toast.service';
 @Component({
   selector: 'ap-applications',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, ApplicationDetailComponent],
   template: `
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
@@ -82,36 +83,10 @@ import { ToastService } from '../../../../services/toast.service';
                 {{ app.data.created_at | date:'medium' }}
               </td>
               <td class="px-6 py-4 text-right space-x-2">
-                <ng-container [ngSwitch]="app.data.status">
-                  <ng-container *ngSwitchCase="ApplicationStatus.SUBMITTED">
-                    <button (click)="verify(app)"
-                            [disabled]="busy()"
-                            class="text-xs px-3 py-1.5 rounded bg-gray-800 text-white hover:bg-gray-700">
-                      Verify
-                    </button>
-                  </ng-container>
-
-                  <ng-container *ngSwitchCase="ApplicationStatus.VERIFIED">
-                    <button (click)="approve(app)"
-                            [disabled]="busy()"
-                            class="text-xs px-3 py-1.5 rounded bg-emerald-600 text-white hover:bg-emerald-700">
-                      Approve
-                    </button>
-                    <button (click)="decline(app)"
-                            [disabled]="busy()"
-                            class="text-xs px-3 py-1.5 rounded bg-rose-600 text-white hover:bg-rose-700">
-                      Decline
-                    </button>
-                  </ng-container>
-
-                  <ng-container *ngSwitchCase="ApplicationStatus.APPROVED">
-                    <span class="text-xs text-gray-500">Approved</span>
-                  </ng-container>
-
-                  <ng-container *ngSwitchCase="ApplicationStatus.DECLINED">
-                    <span class="text-xs text-gray-500">Declined</span>
-                  </ng-container>
-                </ng-container>
+                <button (click)="showDetails(app)"
+                        class="text-xs px-3 py-1.5 rounded bg-gray-800 text-white hover:bg-gray-700">
+                  View Details
+                </button>
               </td>
             </tr>
             <tr *ngIf="!filtered().length" class="hover:bg-gray-50">
@@ -123,6 +98,14 @@ import { ToastService } from '../../../../services/toast.service';
         </table>
       </div>
     </div>
+
+    <!-- Application Detail Modal -->
+    <app-application-detail
+      *ngIf="selectedApplication()"
+      [app]="selectedApplication()!"
+      (close)="closeDetails()"
+      (refresh)="loadApplications()"
+    ></app-application-detail>
   `,
 })
 export class ApplicationsComponent implements OnInit {
@@ -137,6 +120,7 @@ export class ApplicationsComponent implements OnInit {
   filtered = signal<ICollectionData<Application>[]>([]);
   busy = signal(false);
   statusFilter = signal('All');
+  selectedApplication = signal<ICollectionData<Application> | null>(null);
 
   ngOnInit(): void {
     this.loadApplications();
@@ -156,60 +140,12 @@ export class ApplicationsComponent implements OnInit {
     this.filtered.set(filtered);
   }
 
-  verify(app: ICollectionData<Application>) {
-    if (this.busy()) return;
-    this.busy.set(true);
-    app.data.status = ApplicationStatus.VERIFIED;
-    this.rules.touch(app);
-    this.la.update(app).subscribe({
-      next: () => {
-        this.busy.set(false);
-        this.toast.success(`Application for ${app.data.full_name} has been verified`);
-        this.loadApplications();
-      },
-      error: () => {
-        this.busy.set(false);
-        this.toast.error('Failed to verify application. Please try again.');
-      },
-    });
+  showDetails(app: ICollectionData<Application>) {
+    this.selectedApplication.set(app);
   }
 
-  approve(app: ICollectionData<Application>) {
-    if (this.busy()) return;
-    this.busy.set(true);
-    this.tx.approveApplication$(app).subscribe({
-      next: (res) => {
-        this.busy.set(false);
-        if (!res.ok) {
-          this.toast.error(res.error || 'Failed to approve application');
-        } else {
-          this.toast.success(`Application for ${app.data.full_name} has been approved`);
-          this.loadApplications();
-        }
-      },
-      error: () => {
-        this.busy.set(false);
-        this.toast.error('Failed to approve application. Please try again.');
-      }
-    });
-  }
-
-  decline(app: ICollectionData<Application>) {
-    if (this.busy()) return;
-    this.busy.set(true);
-    app.data.status = ApplicationStatus.DECLINED;
-    this.rules.touch(app);
-    this.la.update(app).subscribe({
-      next: () => {
-        this.busy.set(false);
-        this.toast.info(`Application for ${app.data.full_name} has been declined`);
-        this.loadApplications();
-      },
-      error: () => {
-        this.busy.set(false);
-        this.toast.error('Failed to decline application. Please try again.');
-      },
-    });
+  closeDetails() {
+    this.selectedApplication.set(null);
   }
 
   getStatusColor(status: string): string {
