@@ -31,7 +31,9 @@ export class PublicAdapter {
     try {
       // Get all applications for the user
       const applications = await firstValueFrom(this.la.applications$());
-      const userApplications = applications.filter(app => app.parent_id === userId);
+      const userApplications = applications.filter(
+        (app) => app.parent_id === userId
+      );
 
       // If no applications, user can apply
       if (!userApplications || userApplications.length === 0) {
@@ -39,35 +41,51 @@ export class PublicAdapter {
       }
 
       // Check if all existing applications are paid or rejected
-      const hasOpenApplications = userApplications.some(app =>
-        app.data.status === ApplicationStatus.SUBMITTED ||
-        app.data.status === ApplicationStatus.VERIFIED ||
-        app.data.status === ApplicationStatus.APPROVED
+      const hasOpenApplications = userApplications.some(
+        (app) =>
+          app.data.status === ApplicationStatus.SUBMITTED ||
+          app.data.status === ApplicationStatus.VERIFIED ||
+          app.data.status === ApplicationStatus.APPROVED
       );
 
       if (hasOpenApplications) {
-        this.toast.error('You have pending applications. Please complete or pay existing applications before applying for a new loan.');
+        this.toast.error(
+          'You have pending applications. Please complete or pay existing applications before applying for a new loan.'
+        );
         return false;
       }
 
       return true;
     } catch (error) {
       console.error('Error checking application eligibility:', error);
-      this.toast.error('Error checking your application status. Please try again.');
+      this.toast.error(
+        'Error checking your application status. Please try again.'
+      );
       return false;
     }
   }
 
   validateBankStatements(documents: LocalDoc[]): boolean {
-    const bankStatements = documents.filter(doc => doc.type === 'bank_statement');
-
-    if (bankStatements.length === 0) {
-      this.toast.error('Please upload your bank statements. This is required for all applications.');
+    // Check if documents array exists and has items
+    if (!documents || documents.length === 0) {
+      this.toast.error(
+        'Please upload your bank statements. This is required for all applications.'
+      );
       return false;
     }
 
-    if (bankStatements.length < 3) {
-      this.toast.error('Please upload bank statements for the last 3 months. All 3 months are required.');
+    // Consider all PDF or image files as bank statements for now
+    const bankStatements = documents.filter(
+      (doc) =>
+        doc.type.includes('pdf') ||
+        doc.type.includes('jpeg') ||
+        doc.type.includes('png')
+    );
+
+    if (bankStatements.length === 0) {
+      this.toast.error(
+        'Please upload your bank statements in PDF or image format.'
+      );
       return false;
     }
 
