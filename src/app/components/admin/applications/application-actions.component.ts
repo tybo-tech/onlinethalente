@@ -14,6 +14,7 @@ import {
   Fail,
 } from '../../../../services/business/business-tx.service';
 import { ToastService } from '../../../../services/toast.service';
+import { EmailService } from '../../../../services/email.service';
 
 /**
  * ApplicationActionsComponent
@@ -185,7 +186,11 @@ export class ApplicationActionsComponent implements OnInit {
   AIVerification = AIVerification; // Make enum available in template
   ApplicationStatus = ApplicationStatus; // Make enum available in template
 
-  constructor(private btx: BusinessTxService, private toast: ToastService) {}
+  constructor(
+    private btx: BusinessTxService,
+    private toast: ToastService,
+    private emailService: EmailService
+  ) {}
 
   ngOnInit() {
     this.selectedStatus = this.app.data.status;
@@ -214,6 +219,9 @@ export class ApplicationActionsComponent implements OnInit {
         // Emit change event to refresh parent list
         this.changed.emit();
         this.toast.success(`DebiCheck initiated for Application #${this.app.id}`);
+
+        // Send DebiCheck initiation email to customer (non-blocking)
+        this.sendDebiCheckInitiatedEmail();
       } else {
         this.toast.error(`Failed to create DebiCheck: ${r.error}`);
       }
@@ -222,6 +230,41 @@ export class ApplicationActionsComponent implements OnInit {
     } finally {
       this.busy = false;
     }
+  }
+
+  private sendDebiCheckInitiatedEmail() {
+    this.emailService.sendCustomerDebiCheckInitiated(this.app).subscribe({
+      next: (response) => {
+        console.log('DebiCheck initiation email sent successfully:', response);
+      },
+      error: (error) => {
+        console.error('Failed to send DebiCheck initiation email:', error);
+        // Don't show error to user as this is non-critical
+      }
+    });
+  }
+
+  private sendStatusChangeEmail(status: ApplicationStatus) {
+    // Only send emails for certain status changes
+    const emailableStatuses = [
+      ApplicationStatus.APPROVED,
+      ApplicationStatus.DECLINED,
+      ApplicationStatus.PAID
+    ];
+
+    if (!emailableStatuses.includes(status)) {
+      return; // Don't send emails for SUBMITTED or VERIFIED status
+    }
+
+    this.emailService.sendCustomerStatusEmail(this.app, status).subscribe({
+      next: (response) => {
+        console.log(`Status change email (${status}) sent successfully:`, response);
+      },
+      error: (error) => {
+        console.error(`Failed to send status change email (${status}):`, error);
+        // Don't show error to user as this is non-critical
+      }
+    });
   }
 
   getStatusColor() {
@@ -274,11 +317,17 @@ export class ApplicationActionsComponent implements OnInit {
       }
 
       if (r.ok) {
+        // Update local app data to reflect the change
+        this.app.data.status = this.selectedStatus;
+
         // Emit change event to refresh parent list with updated data
         this.changed.emit();
         this.toast.success(
           `Application #${this.app.id} status updated to ${this.selectedStatus}`
         );
+
+        // Send status change email to customer (non-blocking)
+        this.sendStatusChangeEmail(this.selectedStatus);
       } else {
         this.toast.error(`Failed to update status: ${r.error}`);
         // Reset selection on error to maintain data integrity

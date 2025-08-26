@@ -78,7 +78,7 @@ export class EmailService {
       sender_name: this.BRAND_NAME,
       recipient_name: app.data.full_name,
       recipient_email: app.data.email,
-      subject: `We received your loan application – ${this.prettyAmount(
+      subject: `We received your loan application - ${this.prettyAmount(
         app.data.requested_amount_cents
       )}`,
       message: html,
@@ -101,7 +101,7 @@ export class EmailService {
         recipient_email: a.email,
         subject: `New loan application: ${
           app.data.full_name
-        } – ${this.prettyAmount(app.data.requested_amount_cents)}`,
+        } - ${this.prettyAmount(app.data.requested_amount_cents)}`,
         message: html,
       })
     );
@@ -118,7 +118,7 @@ export class EmailService {
 
     switch (status) {
       case ApplicationStatus.APPROVED:
-        subject = `Your loan was approved – ${this.prettyAmount(
+        subject = `Your loan was approved - ${this.prettyAmount(
           app.data.requested_amount_cents
         )}`;
         html = this.tmplApproved(app);
@@ -128,7 +128,7 @@ export class EmailService {
         html = this.tmplDeclined(app);
         break;
       case ApplicationStatus.PAID:
-        subject = `Payout confirmed – ${this.prettyAmount(
+        subject = `Payout confirmed - ${this.prettyAmount(
           app.data.requested_amount_cents
         )}`;
         html = this.tmplPaid(app);
@@ -498,11 +498,8 @@ export class EmailService {
   // ==========================================================
   private prettyAmount(cents: number): string {
     const rands = (cents || 0) / 100;
-    return new Intl.NumberFormat('en-ZA', {
-      style: 'currency',
-      currency: 'ZAR',
-      maximumFractionDigits: 0,
-    }).format(rands);
+    // Use simple formatting to avoid encoding issues in emails
+    return `R ${rands.toLocaleString('en-ZA', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   }
   private escape(text: string): string {
     return String(text ?? '').replace(
