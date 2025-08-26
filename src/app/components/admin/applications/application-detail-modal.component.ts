@@ -30,36 +30,46 @@ import { PaymentsListComponent } from './payments-list.component';
       <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" (click)="close.emit()"></div>
 
       <!-- Panel -->
-      <div class="fixed inset-0 flex items-center justify-center p-4">
-        <div class="w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/5 animate-[modalIn_.18s_ease-out]" (click)="$event.stopPropagation()">
-          <!-- Header (big amount + name/status) -->
-          <app-application-header [app]="app"></app-application-header>
+      <div class="fixed inset-0 flex items-center justify-center p-2 sm:p-4">
+        <div class="w-full h-full sm:h-auto sm:max-w-5xl sm:max-h-[90vh] flex flex-col overflow-hidden rounded-none sm:rounded-2xl bg-white shadow-2xl ring-1 ring-black/5 animate-[modalIn_.18s_ease-out]" (click)="$event.stopPropagation()">
 
-          <!-- Body -->
-          <div class="max-h-[70vh] overflow-y-auto p-5">
-            <div class="grid gap-5 lg:grid-cols-3">
-              <div class="space-y-5 lg:col-span-2">
-                <app-documents-list [applicationId]="app.id"></app-documents-list>
-                <app-debicheck-timeline [app]="app" [refreshTrigger]="refreshTrigger"></app-debicheck-timeline>
-                <app-payments-list [app]="app" [refreshTrigger]="refreshTrigger"></app-payments-list>
-              </div>
+          <!-- Scrollable Content (Header + Body + Actions) -->
+          <div class="flex-1 overflow-y-auto">
+            <!-- Header -->
+            <div class="border-b">
+              <app-application-header [app]="app"></app-application-header>
+            </div>
 
-              <div class="space-y-5">
-                <app-banking-card
-                  [bankName]="app.data.bank_name"
-                  [salaryAccount]="app.data.salary_account"
-                  [salaryDay]="app.data.salary_day"
-                  [status]="app.data.status">
-                </app-banking-card>
+            <!-- Body -->
+            <div class="p-3 sm:p-5">
+              <div class="grid gap-4 sm:gap-5 lg:grid-cols-3">
+                <div class="space-y-4 sm:space-y-5 lg:col-span-2">
+                  <app-documents-list [applicationId]="app.id"></app-documents-list>
+                  <app-debicheck-timeline [app]="app" [refreshTrigger]="refreshTrigger"></app-debicheck-timeline>
+                  <app-payments-list [app]="app" [refreshTrigger]="refreshTrigger"></app-payments-list>
+                </div>
+
+                <div class="space-y-4 sm:space-y-5">
+                  <app-banking-card
+                    [bankName]="app.data.bank_name"
+                    [salaryAccount]="app.data.salary_account"
+                    [salaryDay]="app.data.salary_day"
+                    [status]="app.data.status">
+                  </app-banking-card>
+                </div>
               </div>
+            </div>
+
+            <!-- Actions (now scrollable) -->
+            <div class="bg-white border-t p-3 sm:p-4">
+              <app-application-actions [app]="app" (changed)="onApplicationChanged()"></app-application-actions>
             </div>
           </div>
 
-          <!-- Actions -->
-          <div class="sticky bottom-0 bg-white border-t p-4">
-            <app-application-actions [app]="app" (changed)="onApplicationChanged()"></app-application-actions>
-            <div class="mt-3 flex justify-end">
-              <button type="button" class="rounded-lg px-4 py-2 border hover:bg-gray-50" (click)="close.emit()">
+          <!-- Fixed Close Button Only -->
+          <div class="flex-shrink-0 bg-white border-t">
+            <div class="p-3 sm:p-4 flex justify-end">
+              <button type="button" class="rounded-lg px-3 py-2 sm:px-4 text-sm border hover:bg-gray-50 transition-colors" (click)="close.emit()">
                 Close
               </button>
             </div>

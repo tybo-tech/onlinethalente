@@ -15,6 +15,7 @@ import {
 import { PublicAdapter } from '../../../../services/public.adapter';
 import { LendingAdapter } from '../../../../services/business/lending.adapter';
 import { UserService } from '../../../../services/user.service';
+import { EmailService } from '../../../../services/email.service';
 
 import {
   SalaryDay,
@@ -186,6 +187,7 @@ export class ApplyPageComponent implements OnInit {
   private lendingAdapter = inject(LendingAdapter);
   private userService = inject(UserService);
   private uploadService = inject(UploadService);
+  private emailService = inject(EmailService);
 
   submitting = false;
   error = '';
@@ -403,6 +405,33 @@ export class ApplyPageComponent implements OnInit {
     if (this.docs.length) {
       await this.uploadDocuments(saved.id);
     }
+
+    // 4. Send emails (don't block on email failures)
+    this.sendApplicationEmails(saved);
+  }
+
+  private sendApplicationEmails(app: any) {
+    // Send confirmation email to customer (non-blocking)
+    this.emailService.sendCustomerApplicationSubmitted(app).subscribe({
+      next: (response) => {
+        console.log('Customer confirmation email sent successfully:', response);
+      },
+      error: (error) => {
+        console.error('Failed to send customer confirmation email:', error);
+        // Don't show error to user as this is non-critical
+      }
+    });
+
+    // Send notification email to admins (non-blocking)
+    this.emailService.notifyAdminsNewApplication(app, 'application').subscribe({
+      next: (responses) => {
+        console.log('Admin notification emails sent successfully:', responses);
+      },
+      error: (error) => {
+        console.error('Failed to send admin notification emails:', error);
+        // Don't show error to user as this is non-critical
+      }
+    });
   }
 
   private async updateUserProfile(formValues: any, timestamp: string) {
