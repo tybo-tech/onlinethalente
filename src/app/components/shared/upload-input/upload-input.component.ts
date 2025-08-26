@@ -33,7 +33,7 @@ export class UploadInputComponent implements ControlValueAccessor {
   constructor(private uploadService: UploadService) {}
 
   onFileChange(files: FileList | null) {
-    this.uploadService.onUplaod(
+    this.uploadService.onUpload(
       files,
       this.parentItem,
       this.imageKey,

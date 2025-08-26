@@ -16,6 +16,7 @@ import { ApplyHeaderComponent } from './components/apply-header.component';
 import { BankingInfoComponent } from './components/banking-info.component';
 import { OfferSummaryComponent } from './components/offer-summary.component';
 import { PersonalInfoComponent } from './components/personal-info.component';
+import { UploadService } from '../../shared/upload-input/UploadService';
 
 type Node<T> = { id: number; data: T };
 type LoanOffer = {
@@ -126,6 +127,7 @@ export class ApplyPageComponent implements OnInit {
   private publicAdapter = inject(PublicAdapter);
   private lendingAdapter = inject(LendingAdapter);
   private userService = inject(UserService);
+  private uploadService = inject(UploadService);
 
   submitting = false;
   error = '';
@@ -326,10 +328,26 @@ export class ApplyPageComponent implements OnInit {
   }
 
   private async uploadDocuments(applicationId: number) {
-    const encoded = await Promise.all(this.docs.map(d => this.encode(d.file)));
-    await Promise.all(encoded.map(b64 =>
-      firstValueFrom(this.publicAdapter.addApplicationDoc(applicationId, b64, 'BANK_STATEMENT'))
-    ));
+    await Promise.all(this.docs.map(async (doc) => {
+      const formData = new FormData();
+      formData.append('file', doc.file, doc.file.name);
+      formData.append('dir', 'docs');
+
+      try {
+        const result = await firstValueFrom(this.uploadService.uploadFile(formData));
+        if (result.success) {
+          const fileUrl = `${this.uploadService.url}/upload/${result.url}`;
+          await firstValueFrom(
+            this.publicAdapter.addApplicationDoc(applicationId, fileUrl, 'BANK_STATEMENT')
+          );
+        } else {
+          throw new Error(result.message || 'Upload failed');
+        }
+      } catch (error) {
+        console.error('Document upload failed:', error);
+        throw error;
+      }
+    }));
   }
 
   logout() {
@@ -348,12 +366,4 @@ export class ApplyPageComponent implements OnInit {
     return (cents / 100).toLocaleString('en-ZA', { style: 'currency', currency: 'ZAR' });
   }
 
-  private encode(file: File): Promise<string> {
-    return new Promise((res, rej) => {
-      const r = new FileReader();
-      r.onerror = () => rej(r.error);
-      r.onload = () => res(String(r.result));
-      r.readAsDataURL(file);
-    });
-  }
 }
