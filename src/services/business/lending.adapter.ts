@@ -127,6 +127,6 @@ export class LendingAdapter {
       amount_cents,
       reference: '',
       processed_at: '',
-    });
+    }, application_id);
   }
 }

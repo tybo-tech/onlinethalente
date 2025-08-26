@@ -189,7 +189,7 @@ export class BusinessTxService {
       created_at: new Date().toISOString()
     };
 
-    return this.la.add('debicheck_events', event).pipe(
+    return this.la.add('debicheck_events', event, appNode.id).pipe(
       map(() => ({ ok: true } as Ok)),
       catchError((e) => of({ ok: false, error: e?.message || 'DebiCheck init failed' }))
     );
@@ -208,7 +208,7 @@ export class BusinessTxService {
       created_at: new Date().toISOString()
     };
 
-    return this.la.add('debicheck_events', event).pipe(
+    return this.la.add('debicheck_events', event, appNode.id).pipe(
       map(() => ({ ok: true } as Ok)),
       catchError((e) => of({ ok: false, error: e?.message || 'DebiCheck confirmation failed' }))
     );
