@@ -43,9 +43,17 @@ export class BusinessRulesService {
     const errs: string[] = [];
     if (!Number.isInteger(lo.pay_cycle_id)) errs.push('pay_cycle_id required');
     if (!Number.isInteger(lo.amount_cents) || lo.amount_cents <= 0) errs.push('amount_cents must be > 0');
-    if (typeof lo.interest_rate_percent !== 'number' || lo.interest_rate_percent < 0 || lo.interest_rate_percent > 100) {
-      errs.push('interest_rate_percent must be between 0 and 100');
+
+    // Enhanced interest rate validation
+    const rate = lo.interest_rate_percent;
+    if (typeof rate !== 'number' || isNaN(rate)) {
+      errs.push('interest_rate_percent must be a valid number');
+    } else if (rate < 0) {
+      errs.push('interest_rate_percent cannot be negative');
+    } else if (rate > 100) {
+      errs.push('interest_rate_percent cannot exceed 100%');
     }
+
     if (!Number.isInteger(lo.slots_total) || lo.slots_total < 0) errs.push('slots_total must be >= 0');
     return errs;
   }

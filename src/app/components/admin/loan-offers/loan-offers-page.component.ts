@@ -308,13 +308,19 @@ export class LoanOffersPageComponent implements OnInit {
   }
 
   async onSubmit(values: any) {
-
     this.saving = true;
     try {
+      // Convert and validate interest rate
+      const interestRate = parseFloat(values.interest_rate_percent);
+      if (isNaN(interestRate)) {
+        this.toast.error('Interest rate must be a valid number');
+        return;
+      }
+
       const data: LoanOffer = {
         pay_cycle_id: values.pay_cycle_id,
         amount_cents: values.amount * 100,
-        interest_rate_percent: values.interest_rate_percent,
+        interest_rate_percent: interestRate,
         slots_total: values.slots_total,
         is_active: values.is_active,
         label: values.label || undefined
