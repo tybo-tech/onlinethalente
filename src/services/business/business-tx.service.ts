@@ -4,7 +4,7 @@ import { Observable, forkJoin, of, switchMap, map, catchError } from 'rxjs';
 import { ICollectionData } from '../../models/ICollection';
 import {
   Application, OfferCounter, ApplicationStatus, PaymentMethod,
-  DebiCheckEvent, DebiCheckStatus
+  DebiCheckEvent, DebiCheckStatus, AIVerification
 } from '../../models/schema';
 import { BusinessRulesService } from './business-rules.service';
 import { LendingAdapter } from './lending.adapter';
@@ -16,6 +16,62 @@ export type Fail = { ok: false; error: string };
 export class BusinessTxService {
   private la = inject(LendingAdapter);
   private rules = inject(BusinessRulesService);
+
+  updateAIVerification$(appNode: ICollectionData<Application>, status: AIVerification): Observable<Ok | Fail> {
+    const updatedApp = {
+      ...appNode,
+      data: {
+        ...appNode.data,
+        ai_verification: status
+      }
+    };
+    return this.la.update(updatedApp).pipe(
+      map(() => ({ ok: true } as Ok)),
+      catchError(err => of({ ok: false, error: err.message } as Fail))
+    );
+  }
+
+  verifyApplication$(appNode: ICollectionData<Application>): Observable<Ok | Fail> {
+    const updatedApp = {
+      ...appNode,
+      data: {
+        ...appNode.data,
+        status: ApplicationStatus.VERIFIED
+      }
+    };
+    return this.la.update(updatedApp).pipe(
+      map(() => ({ ok: true } as Ok)),
+      catchError(err => of({ ok: false, error: err.message } as Fail))
+    );
+  }
+
+  declineApplication$(appNode: ICollectionData<Application>): Observable<Ok | Fail> {
+    const updatedApp = {
+      ...appNode,
+      data: {
+        ...appNode.data,
+        status: ApplicationStatus.DECLINED
+      }
+    };
+    return this.la.update(updatedApp).pipe(
+      map(() => ({ ok: true } as Ok)),
+      catchError(err => of({ ok: false, error: err.message } as Fail))
+    );
+  }
+
+  markApplicationPaid$(appNode: ICollectionData<Application>): Observable<Ok | Fail> {
+    const updatedApp = {
+      ...appNode,
+      data: {
+        ...appNode.data,
+        status: ApplicationStatus.PAID
+      }
+    };
+    return this.la.update(updatedApp).pipe(
+      map(() => ({ ok: true } as Ok)),
+      catchError(err => of({ ok: false, error: err.message } as Fail))
+    );
+  }
 
   /**
    * Approve Application (client-orchestrated):
