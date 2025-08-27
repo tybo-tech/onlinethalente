@@ -7,7 +7,6 @@ import { BankingDetailsPageComponent } from '../components/admin/banking/banking
 import { ReportsPageComponent } from '../components/admin/reports/reports-page.component';
 import { PayCyclesPageComponent } from '../components/admin/pay-cycles/pay-cycles-page.component';
 import { LoanOffersPageComponent } from '../components/admin/loan-offers/loan-offers-page.component';
-import { OfferCountersPageComponent } from '../components/admin/counters/offer-counters-page.component';
 
 export const adminRoutes: Routes = [
   {
@@ -26,10 +25,6 @@ export const adminRoutes: Routes = [
       {
         path: 'loan-offers',
         component: LoanOffersPageComponent
-      },
-      {
-        path: 'counters',
-        component: OfferCountersPageComponent
       },
       {
         path: 'applications',

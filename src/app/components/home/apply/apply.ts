@@ -396,23 +396,7 @@ export class ApplyPageComponent implements OnInit {
 
     this.applicationId = saved.id;
 
-    // 2. Decrement offer counter (critical for slot management)
-    try {
-      const counterUpdated = await this.publicAdapter.decrementOfferCounter(
-        this.offerNode!.id
-      );
-      if (!counterUpdated) {
-        console.warn(
-          'Failed to update offer counter, but application was created'
-        );
-        // Don't fail the submission for counter update failures
-      }
-    } catch (error) {
-      console.error('Error updating offer counter:', error);
-      // Don't fail the submission for counter update failures
-    }
-
-    // 2.1. Decrement loan offer slots_total (critical for monthly quota management)
+    // 2. Decrement loan offer slots_total (critical for slot management)
     try {
       const offerSlotsUpdated = await this.publicAdapter.decrementLoanOfferSlots(
         this.offerNode!.id

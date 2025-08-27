@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin, of, switchMap, map, catchError } from 'rxjs';
 import { ICollectionData } from '../../models/ICollection';
 import {
-  Application, OfferCounter, ApplicationStatus, PaymentMethod,
+  Application, ApplicationStatus, PaymentMethod,
   DebiCheckEvent, DebiCheckStatus, AIVerification
 } from '../../models/schema';
 import { BusinessRulesService } from './business-rules.service';
@@ -136,10 +136,9 @@ export class BusinessTxService {
 
   /**
    * Approve Application (client-orchestrated):
-   *  1) ensure monthly counter exists
-   *  2) decrement counter
-   *  3) set application APPROVED
-   *  4) create PENDING payment
+   *  1) decrement offer slots
+   *  2) set application APPROVED
+   *  3) create PENDING payment
    * Compensates (rollback) on failure.
    */
   approveApplication$(appNode: ICollectionData<Application>): Observable<Ok | Fail> {
@@ -148,29 +147,14 @@ export class BusinessTxService {
 
     if (!appNode.data.offer_id) return of({ ok: false, error: 'Application has no offer_id' });
 
-    const period = this.rules.currentPeriodISO();
-    const origApp = { ...appNode.data };
-
     return forkJoin({
-      counters: this.la.offerCounters$(),
       offers: this.la.loanOffers$(),
     }).pipe(
-      switchMap(({ counters, offers }) => {
+      switchMap(({ offers }) => {
         const offer = offers.find(o => o.id === appNode.data.offer_id);
         if (!offer) return of({ ok: false, error: 'Offer not found' } as Fail);
 
-        let counter = counters.find(c => c.data.offer_id === offer.id && c.data.period === period);
-        if (!counter) {
-          // Create missing monthly counter
-          return this.la
-            .add<OfferCounter>('offer_counters', {
-              offer_id: offer.id,
-              period,
-              slots_remaining: offer.data.slots_total,
-            })
-            .pipe(switchMap((created) => this._decrementApproveAndCreatePayment(appNode, created as any)));
-        }
-        return this._decrementApproveAndCreatePayment(appNode, counter);
+        return this._decrementApproveAndCreatePayment(appNode, offer);
       }),
       catchError((e) => of({ ok: false, error: e?.message || 'Approval failed' }))
     );
@@ -178,17 +162,17 @@ export class BusinessTxService {
 
   private _decrementApproveAndCreatePayment(
     appNode: ICollectionData<Application>,
-    counterNode: ICollectionData<OfferCounter>
+    offerNode: ICollectionData<any>
   ): Observable<Ok | Fail> {
-    if (counterNode.data.slots_remaining <= 0) {
+    if (offerNode.data.slots_total <= 0) {
       return of({ ok: false, error: 'No slots remaining for this offer' });
     }
 
-    const origCounter = { ...counterNode.data };
+    const origOffer = { ...offerNode.data };
 
-    // 1) decrement counter
-    counterNode.data.slots_remaining -= 1;
-    this.rules.touch(counterNode);
+    // 1) decrement offer slots
+    offerNode.data.slots_total -= 1;
+    this.rules.touch(offerNode);
 
     // 2) approve app
     appNode.data.status = ApplicationStatus.APPROVED;
@@ -197,7 +181,7 @@ export class BusinessTxService {
 
     // 3) write updates, then create payment
     return forkJoin([
-      this.la.update(counterNode),
+      this.la.update(offerNode),
       this.la.update(appNode),
     ]).pipe(
       switchMap(() =>
@@ -207,7 +191,7 @@ export class BusinessTxService {
       catchError((e) =>
         // COMPENSATE (best-effort)
         forkJoin([
-          (counterNode.data.slots_remaining = origCounter.slots_remaining, this.la.update(counterNode)),
+          (offerNode.data.slots_total = origOffer.slots_total, this.la.update(offerNode)),
           (appNode.data = { ...appNode.data, status: ApplicationStatus.SUBMITTED, approved_at: undefined }, this.la.update(appNode)),
         ]).pipe(
           switchMap(() => of({ ok: false, error: e?.message || 'Approval failed' } as Fail)),

@@ -2,7 +2,6 @@ import { ICollectionData } from './ICollection';
 import {
   PayCycle,
   LoanOffer,
-  OfferCounter,
   Application,
   ApplicationDocument,
   DebiCheckEvent,
@@ -16,7 +15,6 @@ import {
 
 export type PayCycleNode = ICollectionData<PayCycle>;
 export type LoanOfferNode = ICollectionData<LoanOffer>;
-export type OfferCounterNode = ICollectionData<OfferCounter>;
 export type ApplicationNode = ICollectionData<Application>;
 export type ApplicationDocumentNode = ICollectionData<ApplicationDocument>;
 export type DebiCheckEventNode = ICollectionData<DebiCheckEvent>;

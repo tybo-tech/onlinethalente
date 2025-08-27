@@ -93,50 +93,36 @@ export class PublicAdapter {
   }
 
   visibleOffers$(salaryDay: SalaryDay) {
-    const period = this.rules.currentPeriodISO();
     return combineLatest([
       this.la.payCycles$(),
       this.la.loanOffers$(),
-      this.la.offerCounters$(),
     ]).pipe(
-      map(([pcs, offers, counters]) => {
+      map(([pcs, offers]) => {
         const pc = pcs.find((p) => p.data.salary_day === salaryDay);
         if (!pc) return [];
 
         const isWindowOpen = this.rules.isWindowOpen(salaryDay);
-        const byId = new Map(
-          counters
-            .filter((c) => c.data.period === period)
-            .map((c) => [c.data.offer_id, c])
-        );
 
         return offers
           .filter((o) => o.data.is_active && o.data.pay_cycle_id === pc.id)
           .map((o) => {
-            const counter = byId.get(o.id);
-            const counterSlots = counter?.data.slots_remaining ?? 0;
-            const offerSlots = o.data.slots_total ?? 0;
-
-            // Available slots is the minimum of counter slots and offer slots
-            const slots_remaining = Math.min(counterSlots, offerSlots);
+            const slots_remaining = o.data.slots_total ?? 0;
 
             return {
               id: o.id,
               amount_cents: o.data.amount_cents,
               slots_remaining,
               pay_cycle_label: pc.data.label,
-              disabled: !isWindowOpen || slots_remaining <= 0 || offerSlots <= 0,
+              disabled: !isWindowOpen || slots_remaining <= 0,
               sold_out_message:
-                slots_remaining <= 0 || offerSlots <= 0
+                slots_remaining <= 0
                   ? pc.data.sold_out_message || 'No slots available'
                   : undefined,
             };
           });
       })
     );
-  }
-
-  createApplication(data: Partial<Application>) {
+  }  createApplication(data: Partial<Application>) {
     return this.la.add<Application>(
       'applications',
       {
@@ -156,19 +142,6 @@ export class PublicAdapter {
       },
       data.user_id
     );
-  }
-
-  /** Decrement offer counter when application is submitted */
-  decrementOfferCounter(offerId: number): Promise<boolean> {
-    const period = this.rules.currentPeriodISO();
-    return firstValueFrom(
-      this.la.updateOfferCounter(offerId, period, 1).pipe(
-        map(result => !!result)
-      )
-    ).catch(error => {
-      console.error('Failed to update offer counter:', error);
-      return false;
-    });
   }
 
   /** Decrement loan offer slots_total when application is submitted */

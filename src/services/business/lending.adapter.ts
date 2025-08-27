@@ -5,7 +5,6 @@ import { ICollectionData, initCollectionData } from '../../models/ICollection';
 import {
   PayCycle,
   LoanOffer,
-  OfferCounter,
   Application,
   ApplicationDocument,
   Payment,
@@ -31,11 +30,6 @@ export class LendingAdapter {
     return this.cds.getDataByCollectionId(
       'loan_offers'
     ) as unknown as Observable<Node<LoanOffer>[]>;
-  }
-  offerCounters$(): Observable<Node<OfferCounter>[]> {
-    return this.cds.getDataByCollectionId(
-      'offer_counters'
-    ) as unknown as Observable<Node<OfferCounter>[]>;
   }
   applications$(): Observable<Node<Application>[]> {
     return this.cds.getDataByCollectionId(
@@ -129,38 +123,6 @@ export class LendingAdapter {
       reference: '',
       processed_at: '',
     }, application_id);
-  }
-
-  /** Update offer counter when an application is submitted */
-  updateOfferCounter(
-    offerId: number,
-    period: string,
-    slotsDecrement: number = 1
-  ): Observable<Node<OfferCounter> | null> {
-    return this.offerCounters$().pipe(
-      switchMap((counters: Node<OfferCounter>[]) => {
-        const counter = counters.find((c: Node<OfferCounter>) =>
-          c.data.offer_id === offerId && c.data.period === period
-        );
-
-        if (!counter) {
-          console.warn(`No counter found for offer ${offerId} in period ${period}`);
-          return of(null);
-        }
-
-        // Update the counter
-        const updatedCounter = {
-          ...counter,
-          data: {
-            ...counter.data,
-            slots_remaining: Math.max(0, counter.data.slots_remaining - slotsDecrement)
-          }
-        };
-
-        // Save the updated counter
-        return this.update(updatedCounter);
-      })
-    );
   }
 
   /** Update loan offer slots_total when an application is submitted */

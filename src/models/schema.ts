@@ -78,16 +78,6 @@ export interface LoanOffer {
   sold_out_message?: string;
 }
 
-// offer_counters (per month)
-export interface OfferCounter {
-  /** FK -> loan_offers id */
-  offer_id: number;
-  /** first day of month 'YYYY-MM-01' */
-  period: string;
-  /** remaining slots in current month */
-  slots_remaining: number;
-}
-
 // applications
 export interface Application {
   /** FK -> users.id */
@@ -263,16 +253,6 @@ export const initLoanOffer = (
   slots_total,
   is_active: true,
   label: `R${(amount_cents / 100).toFixed(0)}`,
-});
-
-export const initOfferCounter = (
-  offer_id: number,
-  periodISOyyyyMm01: string,
-  slots_total: number
-): OfferCounter => ({
-  offer_id,
-  period: periodISOyyyyMm01,
-  slots_remaining: slots_total,
 });
 
 export const initApplication = (args: Partial<Application>): Application => {

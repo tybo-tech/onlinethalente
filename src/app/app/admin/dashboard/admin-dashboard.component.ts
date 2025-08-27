@@ -97,8 +97,6 @@ export class AdminDashboardComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    // Ensure this month's counters exist (front-end in control)
-    this.admin.seedMonthlyCounters$().subscribe();
     this.refresh();
   }
 

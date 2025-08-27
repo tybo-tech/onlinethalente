@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { ICollectionData } from '../../../../models/ICollection';
-import { LoanOffer, OfferCounter, PayCycle } from '../../../../models/schema';
+import { LoanOffer, PayCycle } from '../../../../models/schema';
 import { BusinessRulesService } from '../../../../services/business/business-rules.service';
 import { LendingAdapter } from '../../../../services/business/lending.adapter';
 import { ToastService } from '../../../../services/toast.service';

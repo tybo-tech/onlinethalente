@@ -1,9 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, forkJoin, of } from 'rxjs';
-import { switchMap, map } from 'rxjs/operators';
+import { Observable, forkJoin, of, EMPTY } from 'rxjs';
+import { switchMap, map, tap } from 'rxjs/operators';
 import { BusinessRulesService } from './business-rules.service';
 import {
-  PayCycle, LoanOffer, OfferCounter, Application,
+  PayCycle, LoanOffer, Application,
   ApplicationStatus, SalaryDay, AIVerification
 } from '../../models/schema';
 import { ICollectionData } from '../../models/ICollection';
@@ -14,17 +14,14 @@ export class SeedDevDataService {
   private la = inject(LendingAdapter);
   private rules = inject(BusinessRulesService);
 
-  /** Ensure pay cycles (15/25/31), 2 offers per cycle (R700 x6, R500 x10), counters for this month, banking row. */
+  /** Ensure pay cycles (15/25/31), 2 offers per cycle (R700 x6, R500 x10), banking row. */
   seedAdminBaseline$(): Observable<void> {
-    const period = this.rules.currentPeriodISO();
-
     return forkJoin({
       pcs: this.la.payCycles$(),
       offers: this.la.loanOffers$(),
-      counters: this.la.offerCounters$(),
       bankRows: this.la.bankingDetails$(),
     }).pipe(
-      switchMap(({ pcs, offers, counters, bankRows }) => {
+      switchMap(({ pcs, offers, bankRows }) => {
         const ensurePc$ = (
           day: SalaryDay,
           label: string,
@@ -71,28 +68,7 @@ export class SeedDevDataService {
               switchMap((createdOffers) => {
                 const allOffers = [...offers, ...createdOffers];
 
-                // 3) Counters for this month (seed to slots_total if missing)
-                const ensureCounter$ = (
-                  offer: ICollectionData<LoanOffer>
-                ): Observable<ICollectionData<OfferCounter>> => {
-                  const exists = counters.find(c => c.data.offer_id === offer.id && c.data.period === period);
-                  if (exists) return of(exists);
-                  const oc: OfferCounter = {
-                    offer_id: offer.id,
-                    period,
-                    slots_remaining: offer.data.slots_total
-                  };
-                  return this.la.add<OfferCounter>('offer_counters', oc);
-                };
-
-                const counterTasks: Observable<ICollectionData<OfferCounter>>[] =
-                  allOffers.filter(o => o.data.is_active).map(o => ensureCounter$(o));
-
-                // Explicitly type the stream to avoid null unions
-                const countersRun$: Observable<ICollectionData<OfferCounter>[]> =
-                  counterTasks.length ? forkJoin(counterTasks) : of([]);
-
-                // 4) Banking details (ensure one row)
+                // 3) Banking details (ensure one row)
                 const ensureBanking$ = bankRows.length
                   ? of(bankRows[0])
                   : this.la.add('banking_details', {
@@ -105,15 +81,14 @@ export class SeedDevDataService {
                       payfast_passphrase: '',
                     });
 
-                return countersRun$.pipe(
-                  switchMap(() => ensureBanking$),
-                  map(() => void 0) // <- end with void to satisfy return signature
-                );
+                // Banking setup complete, just cast to void observable
+                return ensureBanking$ as any;
               })
             );
           })
         );
-      })
+      }),
+      map(() => undefined) // Convert final result to void
     );
   }
 

@@ -34,7 +34,6 @@ export function initCollectionData<T, J>(
 export type CollectionIds =
   | 'pay_cycles'
   | 'loan_offers'
-  | 'offer_counters'
   | 'applications'
   | 'application_documents'
   | 'debicheck_events'
@@ -46,7 +45,6 @@ export enum CollectionNames {
 
   PayCycles = 'pay_cycles',
   LoanOffers = 'loan_offers',
-  OfferCounters = 'offer_counters',
   Applications = 'applications',
   ApplicationDocuments = 'application_documents',
   DebiCheckEvents = 'debicheck_events',
@@ -57,7 +55,6 @@ export enum CollectionNames {
 export const ALL_COLLECTIONS: CollectionIds[] = [
   'pay_cycles',
   'loan_offers',
-  'offer_counters',
   'applications',
   'application_documents',
   'debicheck_events',

@@ -1,7 +1,7 @@
 // src/app/services/business/business-rules.service.ts
 import { Injectable } from '@angular/core';
 import {
-  Application, LoanOffer, OfferCounter, PayCycle,
+  Application, LoanOffer, PayCycle,
   ApplicationStatus, SalaryDay
 } from '../../models/schema';
 import { ICollectionData, CollectionNames } from '../../models/ICollection';
@@ -55,14 +55,6 @@ export class BusinessRulesService {
     }
 
     if (!Number.isInteger(lo.slots_total) || lo.slots_total < 0) errs.push('slots_total must be >= 0');
-    return errs;
-  }
-
-  validateOfferCounter(oc: OfferCounter): string[] {
-    const errs: string[] = [];
-    if (!Number.isInteger(oc.offer_id)) errs.push('offer_id required');
-    if (!/^\d{4}-\d{2}-01$/.test(oc.period)) errs.push('period must be YYYY-MM-01');
-    if (!Number.isInteger(oc.slots_remaining) || oc.slots_remaining < 0) errs.push('slots_remaining >= 0');
     return errs;
   }
 
