@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { User } from '../../../../../models/User';
@@ -8,9 +8,9 @@ import { RouterModule } from '@angular/router';
   selector: 'app-terms-and-options',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <fieldset
+      [formGroup]="form"
       class="rounded-lg border bg-white/50 p-4"
       role="group"
       [attr.aria-labelledby]="uid + '-legend'"
