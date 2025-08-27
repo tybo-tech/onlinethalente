@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, map, switchMap, of } from 'rxjs';
 import { CollectionDataService } from '../collection.data.service';
 import { ICollectionData, initCollectionData } from '../../models/ICollection';
 import {
@@ -129,5 +129,37 @@ export class LendingAdapter {
       reference: '',
       processed_at: '',
     }, application_id);
+  }
+
+  /** Update offer counter when an application is submitted */
+  updateOfferCounter(
+    offerId: number,
+    period: string,
+    slotsDecrement: number = 1
+  ): Observable<Node<OfferCounter> | null> {
+    return this.offerCounters$().pipe(
+      switchMap((counters: Node<OfferCounter>[]) => {
+        const counter = counters.find((c: Node<OfferCounter>) =>
+          c.data.offer_id === offerId && c.data.period === period
+        );
+
+        if (!counter) {
+          console.warn(`No counter found for offer ${offerId} in period ${period}`);
+          return of(null);
+        }
+
+        // Update the counter
+        const updatedCounter = {
+          ...counter,
+          data: {
+            ...counter.data,
+            slots_remaining: Math.max(0, counter.data.slots_remaining - slotsDecrement)
+          }
+        };
+
+        // Save the updated counter
+        return this.update(updatedCounter);
+      })
+    );
   }
 }

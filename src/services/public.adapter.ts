@@ -154,6 +154,19 @@ export class PublicAdapter {
     );
   }
 
+  /** Decrement offer counter when application is submitted */
+  decrementOfferCounter(offerId: number): Promise<boolean> {
+    const period = this.rules.currentPeriodISO();
+    return firstValueFrom(
+      this.la.updateOfferCounter(offerId, period, 1).pipe(
+        map(result => !!result)
+      )
+    ).catch(error => {
+      console.error('Failed to update offer counter:', error);
+      return false;
+    });
+  }
+
   addApplicationDoc(application_id: number, url: string, kind: string) {
     return this.la.add(
       'application_documents',

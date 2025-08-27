@@ -3,16 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { PublicAdapter } from '../../../../services/public.adapter';
+import { PublicAdapter, VisibleOffer } from '../../../../services/public.adapter';
 import { SalaryDay } from '../../../../models/schema';
-
-type OfferCard = {
-  id: number;
-  amount_cents: number;
-  slots_remaining: number;
-  label?: string;
-  sold_out_message?: string;
-};
 
 @Component({
   selector: 'app-landing-hero',
@@ -92,7 +84,7 @@ type OfferCard = {
             class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
             <div class="flex items-center justify-between mb-1.5">
               <h3 class="text-xl font-bold">{{ toRand(offer.amount_cents) }}</h3>
-              <span class="text-xs text-gray-500">{{ offer.label || (selectedDay + 'th') }}</span>
+              <span class="text-xs text-gray-500">{{ offer.pay_cycle_label || (selectedDay + 'th') }}</span>
             </div>
             <p class="text-sm"
                [ngClass]="offer.slots_remaining === 0 ? 'text-rose-600' : 'text-gray-600'">
@@ -102,7 +94,7 @@ type OfferCard = {
               <button
                 class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium disabled:opacity-50"
                 (click)="applyForOffer(offer.id)"
-                [disabled]="!isWindowOpen || offer.slots_remaining === 0">
+                [disabled]="offer.disabled">
                 <i class="i-heroicons-arrow-right-circle text-base"></i>
                 Apply
               </button>
@@ -154,7 +146,7 @@ export class LandingHeroComponent implements OnInit {
   selectedDay: SalaryDay = 15;
   isWindowOpen = false;
 
-  visibleOffers$!: Observable<OfferCard[]>;
+  visibleOffers$!: Observable<VisibleOffer[]>;
   exampleAmountCents = 70000;
 
   ngOnInit(): void {
@@ -181,5 +173,5 @@ export class LandingHeroComponent implements OnInit {
   }
 
   trackByDay = (_: number, d: SalaryDay) => d;
-  trackByOfferId = (_: number, o: OfferCard) => o.id;
+  trackByOfferId = (_: number, o: VisibleOffer) => o.id;
 }

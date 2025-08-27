@@ -29,10 +29,13 @@ import {
 import { User } from '../../../../models/User';
 
 import { DocumentUploaderComponent, LocalDoc } from './document-uploader';
-import { ApplyHeaderComponent } from './components/apply-header.component';
-import { BankingInfoComponent } from './components/banking-info.component';
-import { OfferSummaryComponent } from './components/offer-summary.component';
-import { PersonalInfoComponent } from './components/personal-info.component';
+import {
+  ApplyHeaderComponent,
+  BankingInfoComponent,
+  OfferSummaryComponent,
+  PersonalInfoComponent,
+  TermsAndOptionsComponent
+} from './components';
 import { UploadService } from '../../shared/upload-input/UploadService';
 
 type Node<T> = { id: number; data: T };
@@ -62,6 +65,7 @@ type PayCycle = {
     BankingInfoComponent,
     OfferSummaryComponent,
     DocumentUploaderComponent,
+    TermsAndOptionsComponent,
   ],
   template: `
     <section
@@ -101,55 +105,19 @@ type PayCycle = {
               [lockIdentity]="lockIdentity"
             >
             </app-personal-info>
-
+            <br />
             <!-- Banking Info Section -->
             <app-banking-info [form]="form"></app-banking-info>
 
             <!-- Documents -->
+            <br />
             <app-document-uploader [(files)]="docs"></app-document-uploader>
 
-            <!-- Options -->
-            <div class="flex flex-col gap-2">
-              <label
-                class="inline-flex items-start gap-2 text-sm text-gray-700"
-              >
-                <input
-                  id="terms"
-                  type="checkbox"
-                  formControlName="accept_terms"
-                  class="mt-1 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                <span
-                  >I confirm the documents are authentic and agree to the
-                  terms.</span
-                >
-              </label>
-
-              <label
-                *ngIf="currentUser"
-                class="inline-flex items-start gap-2 text-sm text-gray-700"
-              >
-                <input
-                  type="checkbox"
-                  formControlName="update_profile"
-                  class="mt-1 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                <span
-                  >Update my profile with these details
-                  (email/phone/ID/banking)</span
-                >
-              </label>
-            </div>
-
-            <p
-              *ngIf="
-                form.get('accept_terms')?.invalid &&
-                form.get('accept_terms')?.touched
-              "
-              class="text-xs text-rose-600"
-            >
-              You must accept the terms.
-            </p>
+            <!-- Terms and Options -->
+            <app-terms-and-options
+              [form]="form"
+              [currentUser]="currentUser">
+            </app-terms-and-options>
 
             <div class="flex items-center justify-end gap-3 pt-2">
               <button type="button" class="btn-tertiary" (click)="cancel()">
@@ -320,7 +288,7 @@ export class ApplyPageComponent implements OnInit {
   }
 
   async submit() {
-    debugger
+    debugger;
     this.error = '';
     if (this.form.invalid || !this.offerNode || !this.payCycleNode) {
       this.form.markAllAsTouched();
@@ -408,7 +376,7 @@ export class ApplyPageComponent implements OnInit {
       this.publicAdapter.createApplication(app)
     );
 
-    if(!saved || !saved.id) {
+    if (!saved || !saved.id) {
       this.error = 'Failed to create application. Please try again.';
       this.applicationId = undefined;
       return;
@@ -416,17 +384,33 @@ export class ApplyPageComponent implements OnInit {
 
     this.applicationId = saved.id;
 
-    // 2. Update user profile if requested
+    // 2. Decrement offer counter (critical for slot management)
+    try {
+      const counterUpdated = await this.publicAdapter.decrementOfferCounter(
+        this.offerNode!.id
+      );
+      if (!counterUpdated) {
+        console.warn(
+          'Failed to update offer counter, but application was created'
+        );
+        // Don't fail the submission for counter update failures
+      }
+    } catch (error) {
+      console.error('Error updating offer counter:', error);
+      // Don't fail the submission for counter update failures
+    }
+
+    // 3. Update user profile if requested
     if (this.currentUser && v.update_profile) {
       await this.updateUserProfile(v, nowISO);
     }
 
-    // 3. Upload documents
+    // 4. Upload documents
     if (this.docs.length) {
       await this.uploadDocuments(saved.id);
     }
 
-    // 4. Send emails (don't block on email failures)
+    // 5. Send emails (don't block on email failures)
     this.sendApplicationEmails(saved);
   }
 
@@ -439,7 +423,7 @@ export class ApplyPageComponent implements OnInit {
       error: (error) => {
         console.error('Failed to send customer confirmation email:', error);
         // Don't show error to user as this is non-critical
-      }
+      },
     });
 
     // Send notification email to admins (non-blocking)
@@ -450,7 +434,7 @@ export class ApplyPageComponent implements OnInit {
       error: (error) => {
         console.error('Failed to send admin notification emails:', error);
         // Don't show error to user as this is non-critical
-      }
+      },
     });
   }
 
@@ -529,10 +513,18 @@ export class ApplyPageComponent implements OnInit {
     this.interestRate = interestRatePercent;
 
     // Calculate interest amount for 1 month term
-    const interestAmountCents = calculateInterestAmount(principalCents, interestRatePercent, this.loanTermMonths);
+    const interestAmountCents = calculateInterestAmount(
+      principalCents,
+      interestRatePercent,
+      this.loanTermMonths
+    );
 
     // Calculate total repayment amount
-    const totalRepaymentCents = calculateTotalRepaymentAmount(principalCents, interestRatePercent, this.loanTermMonths);
+    const totalRepaymentCents = calculateTotalRepaymentAmount(
+      principalCents,
+      interestRatePercent,
+      this.loanTermMonths
+    );
 
     // Format labels
     this.interestLabel = this.toRand(interestAmountCents);
