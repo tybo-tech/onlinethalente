@@ -37,7 +37,7 @@ export class EmailService {
 
   /** Admin recipients (can be many) */
   private readonly ADMIN_EMAILS: { name: string; email: string }[] = [
-    { name: 'Loans Admin', email: 'ndu@onlinethalente.co.za' },
+    { name: 'Loans Admin', email: 'sunshine.nxumalo@gmail.com' },
     // { name: 'Ops', email: 'ops@onlinethalente.co.za' },
   ];
 
@@ -187,7 +187,7 @@ export class EmailService {
             <h1 style="margin:0;color:#fff;font-size:22px;font-weight:800;letter-spacing:.2px;">${this.escape(
               this.BRAND_NAME
             )}</h1>
-            <p style="margin:6px 0 0;color:#eef2ff;font-size:14px;">${this.escape(
+            <p style="margin:6px 0 0;color:#ffffff;font-size:14px;background:#000000">${this.escape(
               title
             )}</p>
           </td>

@@ -162,4 +162,33 @@ export class LendingAdapter {
       })
     );
   }
+
+  /** Update loan offer slots_total when an application is submitted */
+  decrementLoanOfferSlots(
+    offerId: number,
+    slotsDecrement: number = 1
+  ): Observable<Node<LoanOffer> | null> {
+    return this.loanOffers$().pipe(
+      switchMap((offers: Node<LoanOffer>[]) => {
+        const offer = offers.find((o: Node<LoanOffer>) => o.id === offerId);
+
+        if (!offer) {
+          console.warn(`No loan offer found with ID ${offerId}`);
+          return of(null);
+        }
+
+        // Update the offer's slots_total
+        const updatedOffer = {
+          ...offer,
+          data: {
+            ...offer.data,
+            slots_total: Math.max(0, offer.data.slots_total - slotsDecrement)
+          }
+        };
+
+        // Save the updated offer
+        return this.update(updatedOffer);
+      })
+    );
+  }
 }

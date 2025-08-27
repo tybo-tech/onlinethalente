@@ -114,16 +114,20 @@ export class PublicAdapter {
           .filter((o) => o.data.is_active && o.data.pay_cycle_id === pc.id)
           .map((o) => {
             const counter = byId.get(o.id);
-            const slots_remaining = counter?.data.slots_remaining ?? 0;
+            const counterSlots = counter?.data.slots_remaining ?? 0;
+            const offerSlots = o.data.slots_total ?? 0;
+
+            // Available slots is the minimum of counter slots and offer slots
+            const slots_remaining = Math.min(counterSlots, offerSlots);
 
             return {
               id: o.id,
               amount_cents: o.data.amount_cents,
               slots_remaining,
               pay_cycle_label: pc.data.label,
-              disabled: !isWindowOpen || slots_remaining <= 0,
+              disabled: !isWindowOpen || slots_remaining <= 0 || offerSlots <= 0,
               sold_out_message:
-                slots_remaining <= 0
+                slots_remaining <= 0 || offerSlots <= 0
                   ? pc.data.sold_out_message || 'No slots available'
                   : undefined,
             };
@@ -163,6 +167,18 @@ export class PublicAdapter {
       )
     ).catch(error => {
       console.error('Failed to update offer counter:', error);
+      return false;
+    });
+  }
+
+  /** Decrement loan offer slots_total when application is submitted */
+  decrementLoanOfferSlots(offerId: number): Promise<boolean> {
+    return firstValueFrom(
+      this.la.decrementLoanOfferSlots(offerId, 1).pipe(
+        map(result => !!result)
+      )
+    ).catch(error => {
+      console.error('Failed to update loan offer slots:', error);
       return false;
     });
   }

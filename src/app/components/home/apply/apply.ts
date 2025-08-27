@@ -312,6 +312,7 @@ export class ApplyPageComponent implements OnInit {
 
     // Just-in-time validation
     try {
+      // Check visible offers (counter-based availability)
       const latest = await firstValueFrom(
         this.publicAdapter
           .visibleOffers$(this.selectedDay)
@@ -328,6 +329,17 @@ export class ApplyPageComponent implements OnInit {
       }
       if (latest.slots_remaining <= 0) {
         this.error = 'This offer is sold out for the current cycle.';
+        return;
+      }
+
+      // Additional check: validate loan offer slots_total directly
+      const currentOffer = await firstValueFrom(
+        this.lendingAdapter.loanOffers$().pipe(
+          map(offers => offers.find(o => o.id === this.offerId))
+        )
+      );
+      if (!currentOffer || currentOffer.data.slots_total <= 0) {
+        this.error = 'This loan offer has no available slots remaining.';
         return;
       }
     } catch {
@@ -398,6 +410,22 @@ export class ApplyPageComponent implements OnInit {
     } catch (error) {
       console.error('Error updating offer counter:', error);
       // Don't fail the submission for counter update failures
+    }
+
+    // 2.1. Decrement loan offer slots_total (critical for monthly quota management)
+    try {
+      const offerSlotsUpdated = await this.publicAdapter.decrementLoanOfferSlots(
+        this.offerNode!.id
+      );
+      if (!offerSlotsUpdated) {
+        console.warn(
+          'Failed to update loan offer slots, but application was created'
+        );
+        // Don't fail the submission for slots update failures
+      }
+    } catch (error) {
+      console.error('Error updating loan offer slots:', error);
+      // Don't fail the submission for slots update failures
     }
 
     // 3. Update user profile if requested
